@@ -1,0 +1,50 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rounded background -->
+  <rect width="200" height="200" rx="40" fill="white"/>
+
+  <!-- Motion/speed arc lines behind the fridge -->
+  <path d="M38 60 Q28 80 38 100" stroke="#1a1a1a" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <path d="M28 70 Q16 90 28 110" stroke="#1a1a1a" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+  <path d="M20 82 Q8 98 20 118" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round" fill="none"/>
+
+  <!-- Left arm (back arm, behind body) -->
+  <path d="M72 62 L48 50" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="46" cy="48" r="5" fill="#1a1a1a"/>
+
+  <!-- Fridge body - slight forward lean -->
+  <g transform="rotate(-6 105 75)">
+    <!-- Main fridge rectangle -->
+    <rect x="70" y="28" width="56" height="88" rx="6" fill="#1a1a1a"/>
+    <!-- Freezer door (top section) -->
+    <rect x="73" y="31" width="50" height="30" rx="4" fill="#3a3a3a"/>
+    <!-- Fridge door (bottom section) -->
+    <rect x="73" y="65" width="50" height="48" rx="4" fill="#3a3a3a"/>
+    <!-- Freezer handle -->
+    <rect x="114" y="40" width="4" height="14" rx="2" fill="#666"/>
+    <!-- Fridge handle -->
+    <rect x="114" y="76" width="4" height="18" rx="2" fill="#666"/>
+    <!-- Divider line -->
+    <line x1="73" y1="63" x2="123" y2="63" stroke="#2a2a2a" stroke-width="2"/>
+  </g>
+
+  <!-- Right arm (front arm, pumping forward) -->
+  <path d="M128 55 L152 38" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="154" cy="36" r="6" fill="#1a1a1a"/>
+
+  <!-- Left leg (back leg, pushing off ground) -->
+  <path d="M82 118 L60 148" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M60 148 L46 146" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
+  <!-- Left shoe -->
+  <path d="M46 146 L38 144 L38 150 L48 150 L48 146" fill="#1a1a1a"/>
+
+  <!-- Right leg (front leg, striding forward) -->
+  <path d="M108 116 L134 148" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M134 148 L152 152" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
+  <!-- Right shoe -->
+  <path d="M152 152 L162 150 L162 158 L150 158 L150 152" fill="#1a1a1a"/>
+
+  <!-- Ground dust puffs -->
+  <circle cx="38" cy="156" r="4" fill="#ddd"/>
+  <circle cx="30" cy="152" r="3" fill="#ccc"/>
+  <circle cx="44" cy="160" r="3" fill="#ddd"/>
+</svg>
