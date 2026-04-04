@@ -36,18 +36,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
-    // Extract base64 and media type from data URL
-    const match = imageDataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,(.+)$/);
-    if (!match) {
-      return NextResponse.json({ error: "Invalid image format. Use JPEG, PNG, or WebP." }, { status: 400 });
+    // Extract base64 and media type — flexible parsing
+    let mimeType = "image/jpeg";
+    let base64Data = "";
+
+    if (imageDataUrl.startsWith("data:")) {
+      const commaIndex = imageDataUrl.indexOf(",");
+      if (commaIndex === -1) {
+        return NextResponse.json({ error: "Invalid image data URL" }, { status: 400 });
+      }
+
+      // Parse mime type from header
+      const header = imageDataUrl.substring(0, commaIndex);
+      const mimeMatch = header.match(/data:(image\/[a-zA-Z+]+)/);
+      if (mimeMatch) {
+        // Normalize jpg → jpeg
+        mimeType = mimeMatch[1].replace("image/jpg", "image/jpeg");
+      }
+
+      base64Data = imageDataUrl.substring(commaIndex + 1);
+    } else {
+      // Might be raw base64 without data: prefix
+      base64Data = imageDataUrl;
     }
 
-    const mimeType = match[1];
-    const base64Data = match[2];
+    // Strip any whitespace/newlines from base64
+    base64Data = base64Data.replace(/\s/g, "");
 
-    // Check size (~5MB)
-    if (base64Data.length > 7_000_000) {
-      return NextResponse.json({ error: "Image too large" }, { status: 400 });
+    if (!base64Data || base64Data.length < 100) {
+      return NextResponse.json({ error: "Image data too small or empty" }, { status: 400 });
+    }
+
+    // 10MB base64 limit (covers ~7.5MB raw images)
+    if (base64Data.length > 10_000_000) {
+      return NextResponse.json({ error: "Image too large. Try a lower resolution photo." }, { status: 400 });
+    }
+
+    // Ensure mime type is supported by Gemini
+    const supportedTypes = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
+    if (!supportedTypes.includes(mimeType)) {
+      mimeType = "image/jpeg"; // fallback
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
@@ -70,19 +98,20 @@ export async function POST(req: NextRequest) {
     if (jsonText.startsWith("```")) {
       jsonText = jsonText.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
     }
+    jsonText = jsonText.trim();
 
     let items;
     try {
       items = JSON.parse(jsonText);
     } catch {
-      return NextResponse.json({ items: [], raw: jsonText });
+      console.error("Failed to parse Gemini response:", jsonText.substring(0, 200));
+      return NextResponse.json({ items: [], error: "Could not parse detected items" });
     }
 
     if (!Array.isArray(items)) {
       return NextResponse.json({ items: [] });
     }
 
-    // Validate and sanitize
     const validCategories = ["protein", "dairy", "produce", "grain", "snack", "beverage", "condiment", "frozen", "other"];
 
     const sanitizedItems = items
@@ -97,14 +126,18 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ items: sanitizedItems });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    if (message.includes("API_KEY") || message.includes("api key")) {
-      return NextResponse.json({ error: "Vision API key invalid" }, { status: 503 });
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Analyze image error:", message);
+
+    if (message.includes("API_KEY") || message.includes("api key") || message.includes("API key")) {
+      return NextResponse.json({ error: "Gemini API key invalid. Check Vercel environment variables." }, { status: 503 });
     }
     if (message.includes("quota") || message.includes("rate") || message.includes("429") || message.includes("RESOURCE_EXHAUSTED")) {
       return NextResponse.json({ error: "Gemini free tier limit hit (15/min). Wait a minute and try again." }, { status: 429 });
     }
-    console.error("Analyze image error:", message);
+    if (message.includes("400") || message.includes("INVALID_ARGUMENT")) {
+      return NextResponse.json({ error: "Gemini couldn't process this image. Try a different photo." }, { status: 400 });
+    }
     return NextResponse.json({ error: "Failed to analyze image. Try again." }, { status: 500 });
   }
 }
