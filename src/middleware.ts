@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 // ── Rate Limiter (in-memory, per-IP, resets on deploy) ──
 const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
-const RATE_LIMIT_MAX = 60; // requests per window
+const RATE_LIMIT_MAX = 200; // requests per window
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
