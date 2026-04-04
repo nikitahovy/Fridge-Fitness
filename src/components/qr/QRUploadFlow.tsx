@@ -5,12 +5,23 @@ import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { UploadSession } from "@/lib/types";
 
+type DetectedItem = {
+  name: string;
+  category: string;
+  estimatedPrice: number;
+  quantity: string;
+  selected: boolean;
+};
+
 export default function QRUploadFlow() {
   const router = useRouter();
   const [session, setSession] = useState<UploadSession | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
-  const [status, setStatus] = useState<"idle" | "waiting" | "uploaded" | "processing" | "done">("idle");
+  const [status, setStatus] = useState<"idle" | "waiting" | "analyzing" | "done" | "error">("idle");
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+  const [detectedItems, setDetectedItems] = useState<DetectedItem[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
 
   const startSession = useCallback(async () => {
@@ -19,36 +30,66 @@ export default function QRUploadFlow() {
     setSession(sess);
     setStatus("waiting");
 
-    // Generate QR code with LAN-accessible URL
     const baseUrl = window.location.origin;
     const uploadUrl = `${baseUrl}/upload/${sess.id}`;
     const dataUrl = await QRCode.toDataURL(uploadUrl, {
       width: 256,
       margin: 2,
-      color: { dark: "#059669", light: "#ffffff" },
+      color: { dark: "#ffffff", light: "#00000000" },
     });
     setQrDataUrl(dataUrl);
   }, []);
 
-  // Poll for upload completion
+  // Poll for upload, then analyze
   useEffect(() => {
     if (!session || status !== "waiting") return;
 
     const interval = setInterval(async () => {
       const res = await fetch(`/api/sessions/${session.id}`);
       const data: UploadSession = await res.json();
-      if (data.status === "uploaded") {
-        setStatus("processing");
+      if (data.status === "uploaded" && data.imageUrl) {
         setUploadedImageUrl(data.imageUrl);
+        setStatus("analyzing");
         clearInterval(interval);
 
-        // Simulate "analyzing" delay
-        setTimeout(() => setStatus("done"), 2000);
+        // Analyze with AI
+        try {
+          const analyzeRes = await fetch("/api/analyze-image", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ imageDataUrl: data.imageUrl }),
+          });
+          const analyzeData = await analyzeRes.json();
+
+          if (analyzeRes.ok && analyzeData.items?.length > 0) {
+            setDetectedItems(analyzeData.items.map((item: DetectedItem) => ({ ...item, selected: true })));
+            setStatus("done");
+          } else {
+            setErrorMsg(analyzeData.error || "No food items detected. Try a clearer photo.");
+            setStatus("error");
+          }
+        } catch {
+          setErrorMsg("Failed to analyze image");
+          setStatus("error");
+        }
       }
     }, 2000);
 
     return () => clearInterval(interval);
   }, [session, status]);
+
+  function toggleItem(idx: number) {
+    setDetectedItems((prev) => prev.map((item, i) => i === idx ? { ...item, selected: !item.selected } : item));
+  }
+
+  function reset() {
+    setStatus("idle");
+    setSession(null);
+    setDetectedItems([]);
+    setUploadedImageUrl(null);
+    setErrorMsg(null);
+    setAdded(false);
+  }
 
   if (status === "idle") {
     return (
@@ -56,12 +97,9 @@ export default function QRUploadFlow() {
         <div className="text-5xl mb-4">📱</div>
         <h3 className="font-semibold text-lg mb-2">Add Items via Phone</h3>
         <p className="text-sm text-muted mb-4">
-          Scan a QR code with your phone to take a photo of your receipt or fridge.
-          The image will appear here automatically.
+          Scan a QR code with your phone to take a photo. AI will detect the items automatically.
         </p>
-        <button onClick={startSession} className="btn btn-primary btn-lg">
-          GENERATE QR CODE
-        </button>
+        <button onClick={startSession} className="btn btn-primary btn-lg">GENERATE QR CODE</button>
       </div>
     );
   }
@@ -69,134 +107,128 @@ export default function QRUploadFlow() {
   if (status === "waiting") {
     return (
       <div className="bg-card border border-card-border rounded-2xl p-6 text-center">
-        <h3 className="font-semibold text-lg mb-4">Scan with Your Phone</h3>
-        {qrDataUrl && (
-          <img src={qrDataUrl} alt="QR Code" className="w-64 h-64 mx-auto mb-4" />
+        <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// SCAN WITH PHONE</p>
+        {qrDataUrl && <img src={qrDataUrl} alt="QR Code" className="w-56 h-56 mx-auto mb-4" />}
+        <p className="text-sm text-muted mb-2">Open your phone camera and point it at this QR code.</p>
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <div className="w-4 h-4 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
+          <span className="font-pixel text-[10px] text-muted">WAITING FOR UPLOAD...</span>
+        </div>
+        <button onClick={reset} className="btn mt-4 text-[9px]">CANCEL</button>
+      </div>
+    );
+  }
+
+  if (status === "analyzing") {
+    return (
+      <div className="bg-card border border-card-border rounded-2xl p-6 text-center">
+        <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// ANALYZING</p>
+        {uploadedImageUrl && (
+          <img src={uploadedImageUrl} alt="Uploaded" className="w-full max-w-sm mx-auto rounded-xl mb-4 opacity-70" />
         )}
-        <p className="text-sm text-muted mb-2">
-          Open your phone camera and point it at this QR code.
-        </p>
-        <p className="text-xs text-muted">
-          Waiting for upload...
-        </p>
-        <div className="mt-4">
-          <div className="inline-block w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+        <div className="flex items-center justify-center gap-2">
+          <div className="w-4 h-4 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
+          <span className="font-pixel text-[10px] text-muted">AI IS IDENTIFYING ITEMS...</span>
         </div>
       </div>
     );
   }
 
-  if (status === "processing") {
+  if (status === "error") {
     return (
       <div className="bg-card border border-card-border rounded-2xl p-6 text-center">
-        <h3 className="font-semibold text-lg mb-4">Analyzing Photo...</h3>
+        <p className="font-pixel text-[10px] text-danger uppercase tracking-[0.2em] mb-4">// ERROR</p>
         {uploadedImageUrl && (
-          <img
-            src={uploadedImageUrl}
-            alt="Uploaded"
-            className="w-full max-w-sm mx-auto rounded-lg mb-4"
-          />
+          <img src={uploadedImageUrl} alt="Uploaded" className="w-full max-w-xs mx-auto rounded-xl mb-4 opacity-50" />
         )}
-        <div className="inline-block w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-muted mt-2">Identifying items in your photo...</p>
+        <p className="text-sm text-muted mb-4">{errorMsg}</p>
+        <div className="flex gap-3 justify-center">
+          <button onClick={reset} className="btn btn-primary btn-lg">TRY AGAIN</button>
+        </div>
       </div>
     );
   }
 
   // status === "done"
-  const mockExtracted = [
-    { name: "Avocados", category: "produce", price: 3.49 },
-    { name: "Chicken Thighs", category: "protein", price: 7.99 },
-    { name: "Whole Wheat Bread", category: "grain", price: 4.29 },
-    { name: "Tomatoes", category: "produce", price: 2.99 },
-  ];
+  const selectedCount = detectedItems.filter((i) => i.selected).length;
 
   return (
     <div className="bg-card border border-card-border rounded-2xl p-6">
-      <div className="flex items-center gap-3 mb-4">
-        <span className="text-2xl">✅</span>
-        <h3 className="font-semibold text-lg">Items Detected (MVP)</h3>
+      <div className="flex items-center justify-between mb-4">
+        <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em]">
+          // {detectedItems.length} ITEM{detectedItems.length !== 1 ? "S" : ""} DETECTED
+        </p>
+        <button onClick={() => {
+          setDetectedItems((prev) => prev.map((i) => ({ ...i, selected: !prev.every((x) => x.selected) })));
+        }} className="font-pixel text-[10px] text-muted hover:text-foreground cursor-pointer underline underline-offset-2">
+          {detectedItems.every((i) => i.selected) ? "DESELECT ALL" : "SELECT ALL"}
+        </button>
       </div>
 
       {uploadedImageUrl && (
-        <img
-          src={uploadedImageUrl}
-          alt="Uploaded"
-          className="w-full max-w-xs rounded-lg mb-4"
-        />
+        <img src={uploadedImageUrl} alt="Uploaded" className="w-full max-w-xs rounded-xl mb-4 opacity-60" />
       )}
 
-      <p className="text-sm text-muted mb-4">
-        These items were &quot;detected&quot; from your photo. In production, this would use OCR/vision AI.
-      </p>
-
-      <div className="space-y-3 mb-4">
-        {mockExtracted.map((item) => (
-          <div
-            key={item.name}
-            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-          >
-            <div>
-              <p className="font-medium text-sm">{item.name}</p>
-              <p className="text-xs text-muted capitalize">{item.category}</p>
+      <div className="space-y-2 mb-4">
+        {detectedItems.map((item, idx) => (
+          <div key={idx} onClick={() => toggleItem(idx)}
+            className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+              item.selected
+                ? "bg-gradient-to-r from-emerald-950/40 to-emerald-900/10 border-emerald-500/20"
+                : "bg-white/[0.02] border-white/[0.06] opacity-50"
+            }`}>
+            <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition ${
+              item.selected ? "bg-safe/20 border-safe" : "border-white/20"
+            }`}>
+              {item.selected && (
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-safe"/>
+                </svg>
+              )}
             </div>
-            <span className="font-medium text-sm">${item.price.toFixed(2)}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-sm">{item.name}</p>
+              <p className="text-xs text-muted">{item.quantity} · <span className="capitalize">{item.category}</span></p>
+            </div>
+            <span className="font-pixel text-sm">${item.estimatedPrice.toFixed(2)}</span>
           </div>
         ))}
       </div>
 
       {added ? (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-          <p className="text-green-800 font-medium mb-3">4 items added to inventory!</p>
+        <div className="bg-gradient-to-r from-emerald-950/50 to-emerald-900/20 border border-emerald-500/20 rounded-xl p-4 text-center">
+          <p className="font-bold text-sm mb-3">Items added to inventory!</p>
           <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => router.push("/inventory")}
-              className="text-sm px-4 py-2 rounded-lg bg-white text-black hover:bg-white/90 transition cursor-pointer"
-            >
-              View Inventory
-            </button>
-            <button
-              onClick={() => {
-                setStatus("idle");
-                setSession(null);
-                setAdded(false);
-              }}
-              className="text-sm px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 transition cursor-pointer"
-            >
-              Scan Another
-            </button>
+            <button onClick={() => router.push("/inventory")} className="btn btn-primary">VIEW INVENTORY</button>
+            <button onClick={reset} className="btn">SCAN ANOTHER</button>
           </div>
         </div>
       ) : (
         <div className="flex gap-3">
           <button
             onClick={async () => {
-              for (const item of mockExtracted) {
+              setAdding(true);
+              for (const item of detectedItems.filter((i) => i.selected)) {
                 await fetch("/api/inventory", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
                     name: item.name,
                     category: item.category,
-                    purchasePrice: item.price,
+                    quantity: item.quantity,
+                    purchasePrice: item.estimatedPrice,
                   }),
                 });
               }
+              setAdding(false);
               setAdded(true);
             }}
-            className="btn btn-primary btn-lg flex-1"
+            disabled={adding || selectedCount === 0}
+            className="btn btn-primary btn-lg flex-1 disabled:opacity-50"
           >
-            Add All to Inventory
+            {adding ? "ADDING..." : `ADD ${selectedCount} ITEM${selectedCount !== 1 ? "S" : ""}`}
           </button>
-          <button
-            onClick={() => {
-              setStatus("idle");
-              setSession(null);
-            }}
-            className="px-4 py-2.5 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition cursor-pointer"
-          >
-            Cancel
-          </button>
+          <button onClick={reset} className="btn btn-lg">CANCEL</button>
         </div>
       )}
     </div>

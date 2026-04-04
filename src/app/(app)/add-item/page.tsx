@@ -6,6 +6,14 @@ import { useRouter } from "next/navigation";
 import { FoodCategory, StorageLocation } from "@/lib/types";
 import QRUploadFlow from "@/components/qr/QRUploadFlow";
 
+type DetectedItem = {
+  name: string;
+  category: string;
+  estimatedPrice: number;
+  quantity: string;
+  selected: boolean;
+};
+
 export default function AddItemPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"manual" | "qr" | "camera">("manual");
@@ -18,7 +26,10 @@ export default function AddItemPage() {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [cameraPreview, setCameraPreview] = useState<string | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [detectedItems, setDetectedItems] = useState<DetectedItem[] | null>(null);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
+  const [addingItems, setAddingItems] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -37,31 +48,81 @@ export default function AddItemPage() {
   function handleCameraCapture(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setAnalyzeError(null);
+    setDetectedItems(null);
     const reader = new FileReader();
     reader.onload = () => setCameraPreview(reader.result as string);
     reader.readAsDataURL(file);
   }
 
-  async function handleCameraUpload() {
-    setUploading(true);
-    // Simulate processing
-    await new Promise((r) => setTimeout(r, 2000));
-    // Add mock items
-    const mockItems = [
-      { name: "Avocados", category: "produce", purchasePrice: 3.49 },
-      { name: "Chicken Thighs", category: "protein", purchasePrice: 7.99 },
-      { name: "Tomatoes", category: "produce", purchasePrice: 2.99 },
-    ];
-    for (const item of mockItems) {
+  async function handleAnalyze() {
+    if (!cameraPreview) return;
+    setAnalyzing(true);
+    setAnalyzeError(null);
+
+    try {
+      const res = await fetch("/api/analyze-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageDataUrl: cameraPreview }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAnalyzeError(data.error || "Analysis failed");
+        setAnalyzing(false);
+        return;
+      }
+
+      if (data.items && data.items.length > 0) {
+        setDetectedItems(data.items.map((item: DetectedItem) => ({ ...item, selected: true })));
+      } else {
+        setAnalyzeError("No food items detected. Try a clearer photo.");
+      }
+    } catch {
+      setAnalyzeError("Failed to connect to vision API");
+    }
+
+    setAnalyzing(false);
+  }
+
+  async function handleAddDetectedItems() {
+    if (!detectedItems) return;
+    setAddingItems(true);
+
+    const selected = detectedItems.filter((item) => item.selected);
+    for (const item of selected) {
       await fetch("/api/inventory", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(item),
+        body: JSON.stringify({
+          name: item.name,
+          category: item.category,
+          location,
+          quantity: item.quantity,
+          purchasePrice: item.estimatedPrice,
+        }),
       });
     }
-    setUploading(false);
+
+    setAddingItems(false);
+    setDetectedItems(null);
     setCameraPreview(null);
     setSaved(true);
+  }
+
+  function toggleItem(index: number) {
+    if (!detectedItems) return;
+    setDetectedItems(detectedItems.map((item, i) =>
+      i === index ? { ...item, selected: !item.selected } : item
+    ));
+  }
+
+  function resetCamera() {
+    setCameraPreview(null);
+    setDetectedItems(null);
+    setAnalyzeError(null);
   }
 
   return (
@@ -83,11 +144,9 @@ export default function AddItemPage() {
         ].map((m) => (
           <button
             key={m.key}
-            onClick={() => setMode(m.key)}
+            onClick={() => { setMode(m.key); setSaved(false); }}
             className={`font-pixel text-[10px] px-4 py-2 rounded-lg transition-all cursor-pointer ${
-              mode === m.key
-                ? "bg-white text-black font-bold"
-                : "text-muted hover:text-foreground"
+              mode === m.key ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"
             }`}
           >
             {m.label}
@@ -105,6 +164,7 @@ export default function AddItemPage() {
         </div>
       )}
 
+      {/* ── MANUAL ── */}
       {mode === "manual" && (
         <form onSubmit={handleSubmit} className="bg-card border border-card-border rounded-2xl p-5 md:p-6 space-y-4">
           <div>
@@ -153,36 +213,124 @@ export default function AddItemPage() {
         </form>
       )}
 
+      {/* ── CAMERA ── */}
       {mode === "camera" && (
         <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6">
           <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// SNAP A PHOTO</p>
-          {!cameraPreview ? (
-            <div>
-              <label className="block cursor-pointer">
-                <div className="border-2 border-dashed border-white/20 rounded-2xl p-12 text-center hover:border-white/40 transition">
-                  <div className="text-4xl mb-3">📸</div>
-                  <p className="font-bold text-sm mb-1">Tap to take a photo</p>
-                  <p className="text-xs text-muted">Capture your receipt or fridge contents</p>
-                </div>
-                <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleCameraCapture} className="hidden" />
-              </label>
+
+          {/* Storage location selector */}
+          <div className="mb-4">
+            <label className="block text-xs font-pixel text-muted uppercase mb-1.5">Add items to</label>
+            <div className="flex gap-1 bg-white/[0.04] rounded-lg p-1 w-fit">
+              {(["fridge", "freezer", "pantry"] as StorageLocation[]).map((loc) => (
+                <button key={loc} onClick={() => setLocation(loc)}
+                  className={`font-pixel text-[10px] px-3 py-1.5 rounded-md transition-all cursor-pointer capitalize ${
+                    location === loc ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"
+                  }`}>{loc}</button>
+              ))}
             </div>
-          ) : (
+          </div>
+
+          {/* Step 1: Capture */}
+          {!cameraPreview && !detectedItems && (
+            <label className="block cursor-pointer">
+              <div className="border-2 border-dashed border-white/20 rounded-2xl p-12 text-center hover:border-white/40 transition">
+                <div className="text-4xl mb-3">📸</div>
+                <p className="font-bold text-sm mb-1">Tap to take a photo</p>
+                <p className="text-xs text-muted">Capture your receipt, fridge, or grocery items</p>
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" onChange={handleCameraCapture} className="hidden" />
+            </label>
+          )}
+
+          {/* Step 2: Preview + Analyze */}
+          {cameraPreview && !detectedItems && (
             <div className="space-y-4">
-              <img src={cameraPreview} alt="Captured" className="w-full rounded-xl max-h-64 object-cover" />
+              <img src={cameraPreview} alt="Captured" className="w-full rounded-xl max-h-72 object-cover" />
+
+              {analyzeError && (
+                <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
+                  {analyzeError}
+                </div>
+              )}
+
               <div className="flex gap-3">
-                <button onClick={handleCameraUpload} disabled={uploading} className="btn btn-primary btn-lg flex-1 disabled:opacity-50">
-                  {uploading ? "ANALYZING..." : "DETECT ITEMS"}
+                <button onClick={handleAnalyze} disabled={analyzing} className="btn btn-primary btn-lg flex-1 disabled:opacity-50">
+                  {analyzing ? "ANALYZING WITH AI..." : "DETECT ITEMS"}
                 </button>
-                <button onClick={() => { setCameraPreview(null); fileInputRef.current?.click(); }} className="btn btn-lg">
+                <button onClick={() => { resetCamera(); fileInputRef.current?.click(); }} className="btn btn-lg">
                   RETAKE
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Review detected items */}
+          {detectedItems && (
+            <div className="space-y-4">
+              {cameraPreview && (
+                <img src={cameraPreview} alt="Captured" className="w-full rounded-xl max-h-48 object-cover opacity-60" />
+              )}
+
+              <div className="flex items-center justify-between">
+                <p className="font-pixel text-[10px] text-muted uppercase tracking-wider">
+                  {detectedItems.length} ITEM{detectedItems.length !== 1 ? "S" : ""} DETECTED
+                </p>
+                <button onClick={() => {
+                  setDetectedItems(detectedItems.map((i) => ({ ...i, selected: !detectedItems.every((x) => x.selected) })));
+                }} className="font-pixel text-[10px] text-muted hover:text-foreground cursor-pointer underline underline-offset-2">
+                  {detectedItems.every((i) => i.selected) ? "DESELECT ALL" : "SELECT ALL"}
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                {detectedItems.map((item, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => toggleItem(idx)}
+                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                      item.selected
+                        ? "bg-gradient-to-r from-emerald-950/40 to-emerald-900/10 border-emerald-500/20"
+                        : "bg-white/[0.02] border-white/[0.06] opacity-50"
+                    }`}
+                  >
+                    {/* Checkbox */}
+                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition ${
+                      item.selected ? "bg-safe/20 border-safe" : "border-white/20"
+                    }`}>
+                      {item.selected && (
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-safe"/>
+                        </svg>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm">{item.name}</p>
+                      <p className="text-xs text-muted">{item.quantity} · <span className="capitalize">{item.category}</span></p>
+                    </div>
+
+                    <span className="font-pixel text-sm">${item.estimatedPrice.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  onClick={handleAddDetectedItems}
+                  disabled={addingItems || !detectedItems.some((i) => i.selected)}
+                  className="btn btn-primary btn-lg flex-1 disabled:opacity-50"
+                >
+                  {addingItems ? "ADDING..." : `ADD ${detectedItems.filter((i) => i.selected).length} ITEM${detectedItems.filter((i) => i.selected).length !== 1 ? "S" : ""} TO ${location.toUpperCase()}`}
+                </button>
+                <button onClick={resetCamera} className="btn btn-lg">CANCEL</button>
               </div>
             </div>
           )}
         </div>
       )}
 
+      {/* ── QR ── */}
       {mode === "qr" && <QRUploadFlow />}
     </div>
   );
