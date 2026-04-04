@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRecoveryContext, setRecoveryPreset, store } from "@/lib/store";
-import { RecoveryPreset } from "@/lib/types";
+import { recoveryPresetSchema } from "@/lib/validation";
 
 export async function GET() {
   return NextResponse.json({
@@ -10,13 +10,20 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { preset } = await req.json();
-  if (!["post-strength", "low-recovery", "cardio-day"].includes(preset)) {
-    return NextResponse.json({ error: "Invalid preset" }, { status: 400 });
+  try {
+    const body = await req.json();
+    const parsed = recoveryPresetSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid preset" }, { status: 400 });
+    }
+
+    setRecoveryPreset(parsed.data.preset);
+    return NextResponse.json({
+      preset: store.currentRecoveryPreset,
+      context: getRecoveryContext(),
+    });
+  } catch {
+    return NextResponse.json({ error: "Failed to update recovery" }, { status: 500 });
   }
-  setRecoveryPreset(preset as RecoveryPreset);
-  return NextResponse.json({
-    preset: store.currentRecoveryPreset,
-    context: getRecoveryContext(),
-  });
 }

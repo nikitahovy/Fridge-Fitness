@@ -16,7 +16,7 @@ type InventoryItem = {
   status: string;
 };
 
-// Mock monthly history for demo
+// Mock monthly history for MVP
 const MOCK_MONTHS = [
   { month: "Jan", saved: 42.50, wasted: 18.30 },
   { month: "Feb", saved: 56.20, wasted: 12.10 },

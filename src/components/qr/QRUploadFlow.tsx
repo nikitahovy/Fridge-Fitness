@@ -115,7 +115,7 @@ export default function QRUploadFlow() {
     <div className="bg-card border border-card-border rounded-2xl p-6">
       <div className="flex items-center gap-3 mb-4">
         <span className="text-2xl">✅</span>
-        <h3 className="font-semibold text-lg">Items Detected (Demo)</h3>
+        <h3 className="font-semibold text-lg">Items Detected (MVP)</h3>
       </div>
 
       {uploadedImageUrl && (

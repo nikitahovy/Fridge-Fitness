@@ -1,66 +1,98 @@
 import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
 import { v4 as uuid } from "uuid";
+import { cartPatchSchema, uuidParamSchema } from "@/lib/validation";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ cartId: string }> }
 ) {
-  const { cartId } = await params;
-  const cart = store.carts.find((c) => c.id === cartId);
-  if (!cart) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(cart);
+  try {
+    const { cartId } = await params;
+    if (!uuidParamSchema.safeParse(cartId).success) {
+      return NextResponse.json({ error: "Invalid cart ID" }, { status: 400 });
+    }
+    const cart = store.carts.find((c) => c.id === cartId);
+    if (!cart) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(cart);
+  } catch {
+    return NextResponse.json({ error: "Failed to fetch cart" }, { status: 500 });
+  }
 }
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ cartId: string }> }
 ) {
-  const { cartId } = await params;
-  const cart = store.carts.find((c) => c.id === cartId);
-  if (!cart) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  try {
+    const { cartId } = await params;
+    if (!uuidParamSchema.safeParse(cartId).success) {
+      return NextResponse.json({ error: "Invalid cart ID" }, { status: 400 });
+    }
 
-  const body = await req.json();
+    const cart = store.carts.find((c) => c.id === cartId);
+    if (!cart) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  // Toggle item checked
-  if (body.toggleItemId) {
-    const item = cart.items.find((i) => i.id === body.toggleItemId);
-    if (item) item.checked = !item.checked;
+    const body = await req.json();
+    const parsed = cartPatchSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid input", details: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
+    const data = parsed.data;
+
+    if (data.toggleItemId) {
+      const item = cart.items.find((i) => i.id === data.toggleItemId);
+      if (item) item.checked = !item.checked;
+    }
+
+    if (data.addItem) {
+      if (cart.items.length >= 100) {
+        return NextResponse.json({ error: "Cart item limit reached (100)" }, { status: 400 });
+      }
+      cart.items.push({
+        id: uuid(),
+        name: data.addItem.name,
+        category: data.addItem.category,
+        quantity: data.addItem.quantity,
+        estimatedPrice: data.addItem.estimatedPrice,
+        fromRecipeId: data.addItem.fromRecipeId,
+        checked: false,
+      });
+    }
+
+    if (data.removeItemId) {
+      cart.items = cart.items.filter((i) => i.id !== data.removeItemId);
+    }
+
+    if (data.name) {
+      cart.name = data.name;
+    }
+
+    return NextResponse.json(cart);
+  } catch {
+    return NextResponse.json({ error: "Failed to update cart" }, { status: 500 });
   }
-
-  // Add item
-  if (body.addItem) {
-    cart.items.push({
-      id: uuid(),
-      name: body.addItem.name,
-      category: body.addItem.category || "other",
-      quantity: body.addItem.quantity || "1",
-      estimatedPrice: body.addItem.estimatedPrice || 0,
-      fromRecipeId: body.addItem.fromRecipeId || null,
-      checked: false,
-    });
-  }
-
-  // Remove item
-  if (body.removeItemId) {
-    cart.items = cart.items.filter((i) => i.id !== body.removeItemId);
-  }
-
-  // Rename cart
-  if (body.name) {
-    cart.name = body.name;
-  }
-
-  return NextResponse.json(cart);
 }
 
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ cartId: string }> }
 ) {
-  const { cartId } = await params;
-  const idx = store.carts.findIndex((c) => c.id === cartId);
-  if (idx === -1) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  store.carts.splice(idx, 1);
-  return NextResponse.json({ success: true });
+  try {
+    const { cartId } = await params;
+    if (!uuidParamSchema.safeParse(cartId).success) {
+      return NextResponse.json({ error: "Invalid cart ID" }, { status: 400 });
+    }
+    const idx = store.carts.findIndex((c) => c.id === cartId);
+    if (idx === -1) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    store.carts.splice(idx, 1);
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Failed to delete cart" }, { status: 500 });
+  }
 }

@@ -89,7 +89,7 @@ export default function Sidebar() {
         </nav>
 
         <div className="mx-3 mb-4 p-3 border border-white/[0.08] rounded-xl">
-          <p className="text-[9px] font-pixel text-[#555] uppercase tracking-wider">// DEMO MODE</p>
+          <p className="text-[9px] font-pixel text-[#555] uppercase tracking-wider">// MVP MODE</p>
           <p className="text-[10px] text-[#555] mt-1 leading-relaxed">Toggle WHOOP presets from dashboard.</p>
         </div>
       </aside>
