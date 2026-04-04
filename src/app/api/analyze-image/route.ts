@@ -101,9 +101,10 @@ export async function POST(req: NextRequest) {
     if (message.includes("API_KEY") || message.includes("api key")) {
       return NextResponse.json({ error: "Vision API key invalid" }, { status: 503 });
     }
-    if (message.includes("quota") || message.includes("rate")) {
-      return NextResponse.json({ error: "Rate limit reached. Try again in a minute." }, { status: 429 });
+    if (message.includes("quota") || message.includes("rate") || message.includes("429") || message.includes("RESOURCE_EXHAUSTED")) {
+      return NextResponse.json({ error: "Gemini free tier limit hit (15/min). Wait a minute and try again." }, { status: 429 });
     }
-    return NextResponse.json({ error: "Failed to analyze image" }, { status: 500 });
+    console.error("Analyze image error:", message);
+    return NextResponse.json({ error: "Failed to analyze image. Try again." }, { status: 500 });
   }
 }
