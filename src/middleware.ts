@@ -48,24 +48,21 @@ export function middleware(req: NextRequest) {
     );
   }
 
-  // Reject oversized request bodies (1MB limit)
+  // Reject oversized request bodies
   const contentLength = req.headers.get("content-length");
-  if (contentLength && parseInt(contentLength, 10) > 1_048_576) {
-    // Allow larger for upload routes (handled by upload validation)
-    if (!pathname.includes("/upload")) {
+  const isImageRoute = pathname.includes("/upload") || pathname.includes("/analyze-image");
+
+  if (contentLength) {
+    const size = parseInt(contentLength, 10);
+    // Image routes: 8MB limit (base64 inflates ~33%)
+    // Everything else: 1MB limit
+    const limit = isImageRoute ? 8_388_608 : 1_048_576;
+    if (size > limit) {
       return NextResponse.json(
         { error: "Request body too large" },
         { status: 413 }
       );
     }
-  }
-
-  // Upload routes get a 6MB limit
-  if (pathname.includes("/upload") && contentLength && parseInt(contentLength, 10) > 6_291_456) {
-    return NextResponse.json(
-      { error: "File too large. Max 5MB." },
-      { status: 413 }
-    );
   }
 
   // CORS: restrict API to same-origin

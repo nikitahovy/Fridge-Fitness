@@ -12,6 +12,7 @@ type DetectedItem = {
   estimatedPrice: number;
   quantity: string;
   selected: boolean;
+  bestByDate: string;
 };
 
 export default function AddItemPage() {
@@ -76,7 +77,7 @@ export default function AddItemPage() {
       }
 
       if (data.items && data.items.length > 0) {
-        setDetectedItems(data.items.map((item: DetectedItem) => ({ ...item, selected: true })));
+        setDetectedItems(data.items.map((item: DetectedItem) => ({ ...item, selected: true, bestByDate: "" })));
       } else {
         setAnalyzeError("No food items detected. Try a clearer photo.");
       }
@@ -102,6 +103,7 @@ export default function AddItemPage() {
           location,
           quantity: item.quantity,
           purchasePrice: item.estimatedPrice,
+          bestByDate: item.bestByDate || null,
         }),
       });
     }
@@ -287,30 +289,55 @@ export default function AddItemPage() {
                 {detectedItems.map((item, idx) => (
                   <div
                     key={idx}
-                    onClick={() => toggleItem(idx)}
-                    className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
+                    className={`rounded-xl border transition-all ${
                       item.selected
                         ? "bg-gradient-to-r from-emerald-950/40 to-emerald-900/10 border-emerald-500/20"
                         : "bg-white/[0.02] border-white/[0.06] opacity-50"
                     }`}
                   >
-                    {/* Checkbox */}
-                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition ${
-                      item.selected ? "bg-safe/20 border-safe" : "border-white/20"
-                    }`}>
-                      {item.selected && (
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                          <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-safe"/>
-                        </svg>
-                      )}
+                    <div className="flex items-center gap-3 p-3 cursor-pointer" onClick={() => toggleItem(idx)}>
+                      {/* Checkbox */}
+                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition ${
+                        item.selected ? "bg-safe/20 border-safe" : "border-white/20"
+                      }`}>
+                        {item.selected && (
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-safe"/>
+                          </svg>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <p className="font-bold text-sm">{item.name}</p>
+                        <p className="text-xs text-muted">{item.quantity} · <span className="capitalize">{item.category}</span></p>
+                      </div>
+
+                      <span className="font-pixel text-sm">${item.estimatedPrice.toFixed(2)}</span>
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm">{item.name}</p>
-                      <p className="text-xs text-muted">{item.quantity} · <span className="capitalize">{item.category}</span></p>
-                    </div>
-
-                    <span className="font-pixel text-sm">${item.estimatedPrice.toFixed(2)}</span>
+                    {/* Expiration date — only show when selected */}
+                    {item.selected && (
+                      <div className="px-3 pb-3 pl-11">
+                        <div className="flex items-center gap-2">
+                          <label className="font-pixel text-[9px] text-muted uppercase whitespace-nowrap">EXPIRES</label>
+                          <input
+                            type="date"
+                            value={item.bestByDate}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                              setDetectedItems((prev) =>
+                                prev!.map((it, i) => i === idx ? { ...it, bestByDate: e.target.value } : it)
+                              );
+                            }}
+                            className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-white/30 transition flex-1 max-w-[160px]"
+                            placeholder="Optional"
+                          />
+                          {!item.bestByDate && (
+                            <span className="text-[10px] text-muted italic">optional</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
