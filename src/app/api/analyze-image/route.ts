@@ -129,15 +129,24 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("Analyze image error:", message);
 
+    // Return debug info so we can see what's actually failing
+    const debug = {
+      errorType: "unknown",
+      rawMessage: message.substring(0, 300),
+    };
+
     if (message.includes("API_KEY") || message.includes("api key") || message.includes("API key")) {
-      return NextResponse.json({ error: "Gemini API key invalid. Check Vercel environment variables." }, { status: 503 });
+      return NextResponse.json({ error: "Gemini API key invalid. Check Vercel environment variables.", debug }, { status: 503 });
     }
     if (message.includes("quota") || message.includes("rate") || message.includes("429") || message.includes("RESOURCE_EXHAUSTED")) {
-      return NextResponse.json({ error: "Gemini free tier limit hit (15/min). Wait a minute and try again." }, { status: 429 });
+      debug.errorType = "rate_limit";
+      return NextResponse.json({ error: "Gemini free tier limit hit (15/min). Wait a minute and try again.", debug }, { status: 429 });
     }
     if (message.includes("400") || message.includes("INVALID_ARGUMENT")) {
-      return NextResponse.json({ error: "Gemini couldn't process this image. Try a different photo." }, { status: 400 });
+      debug.errorType = "bad_request";
+      return NextResponse.json({ error: "Gemini couldn't process this image. Try a different photo.", debug }, { status: 400 });
     }
-    return NextResponse.json({ error: "Failed to analyze image. Try again." }, { status: 500 });
+    debug.errorType = "unknown";
+    return NextResponse.json({ error: "Failed to analyze image. Try again.", debug }, { status: 500 });
   }
 }
