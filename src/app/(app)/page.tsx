@@ -159,8 +159,18 @@ export default function Dashboard() {
       <div>
         <div className="flex items-center justify-between mb-4 md:mb-5">
           <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em]">// EXPIRING SOON</p>
-          <Link href="/eat-first" className="btn text-[9px]">View all →</Link>
+          {atRiskItems.length > 0 && <Link href="/eat-first" className="btn text-[9px]">View all →</Link>}
         </div>
+
+        {atRiskItems.length === 0 ? (
+          <Link href="/add-item" className="glass rounded-2xl p-6 flex items-center gap-5 transition-all duration-200 hover:border-white/20 border border-transparent block">
+            <span className="text-3xl">➕</span>
+            <div>
+              <p className="font-bold mb-0.5">Nothing expiring yet</p>
+              <p className="text-xs text-muted">Add items to your inventory to start tracking freshness and saving food.</p>
+            </div>
+          </Link>
+        ) : (
         <div className="flex gap-3 md:gap-4 overflow-x-auto pb-3">
           {atRiskItems.slice(0, 6).map((item) => {
             const isToday = item.riskTier === "use-today";
@@ -191,6 +201,7 @@ export default function Dashboard() {
             );
           })}
         </div>
+        )}
       </div>
 
       {/* Recipes */}
