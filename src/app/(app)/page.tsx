@@ -27,9 +27,69 @@ export default function Dashboard() {
   const atRiskItems = eatFirst.filter((i) => i.riskTier === "use-today" || i.riskTier === "use-this-week");
   const dollarAtRisk = atRiskItems.reduce((sum, i) => sum + i.purchasePrice, 0);
   const topRecipe = recipes[0];
+  const hasInventory = eatFirst.length > 0;
 
   if (loading) {
     return <div className="max-w-6xl mx-auto flex items-center justify-center py-32"><p className="font-pixel text-muted text-sm">LOADING...</p></div>;
+  }
+
+  // Onboarding for new users with empty inventory
+  if (!hasInventory) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-8 py-8">
+        <div className="text-center">
+          <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-4">
+            <img src="/logo.png" alt="Fridge Fitness" className="w-20 h-20 object-cover scale-110" />
+          </div>
+          <h2 className="text-display text-4xl mb-3">Welcome!</h2>
+          <p className="text-muted max-w-md mx-auto">Your kitchen is empty. Let&apos;s stock it up — scan a receipt, take a photo of your fridge, or add items manually.</p>
+        </div>
+
+        <div className="space-y-3">
+          <Link href="/add-item" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-white/20 border border-transparent block">
+            <span className="text-3xl">📸</span>
+            <div>
+              <p className="font-bold">Scan with Camera</p>
+              <p className="text-xs text-muted">Take a photo of your groceries — AI detects items automatically</p>
+            </div>
+          </Link>
+
+          <Link href="/add-item" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-white/20 border border-transparent block">
+            <span className="text-3xl">✏️</span>
+            <div>
+              <p className="font-bold">Add Manually</p>
+              <p className="text-xs text-muted">Type in items one by one with prices and expiry dates</p>
+            </div>
+          </Link>
+
+          <Link href="/settings" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-white/20 border border-transparent block">
+            <span className="text-3xl">⚙️</span>
+            <div>
+              <p className="font-bold">Set Up Your Profile</p>
+              <p className="text-xs text-muted">Dietary preferences, fitness goals, household size</p>
+            </div>
+          </Link>
+        </div>
+
+        <div className="glass rounded-2xl p-6 text-center">
+          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3">// HOW IT WORKS</p>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <p className="text-2xl mb-2">1</p>
+              <p className="text-xs text-muted">Add your food items via camera or manually</p>
+            </div>
+            <div>
+              <p className="text-2xl mb-2">2</p>
+              <p className="text-xs text-muted">We track what&apos;s expiring and suggest what to cook</p>
+            </div>
+            <div>
+              <p className="text-2xl mb-2">3</p>
+              <p className="text-xs text-muted">Save money by eating food before it goes to waste</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

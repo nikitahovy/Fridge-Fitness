@@ -86,6 +86,10 @@ export default function Sidebar() {
 
           <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-[#555] px-3 pb-2">ANALYTICS</p>
           {navLink("/analytics", "📊", "Monthly +/−")}
+
+          <div className="py-3 px-2"><div className="h-px bg-white/[0.08]" /></div>
+
+          {navLink("/settings", "⚙️", "Settings")}
         </nav>
 
         <div className="mx-3 mb-4 space-y-2">
