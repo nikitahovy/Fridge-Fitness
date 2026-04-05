@@ -14,7 +14,7 @@ export async function GET() {
   try {
     const groq = new Groq({ apiKey });
     const result = await groq.chat.completions.create({
-      model: "llama-4-scout-17b-16e-instruct",
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
       messages: [{ role: "user", content: "Reply with exactly: OK" }],
       max_tokens: 10,
     });
@@ -24,7 +24,7 @@ export async function GET() {
       status: "OK",
       keyPrefix: apiKey.substring(0, 8) + "...",
       response: text,
-      model: "llama-4-scout-17b-16e-instruct",
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

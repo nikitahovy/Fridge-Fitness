@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const groq = new Groq({ apiKey });
 
     const result = await groq.chat.completions.create({
-      model: "llama-4-scout-17b-16e-instruct",
+      model: "meta-llama/llama-4-scout-17b-16e-instruct",
       messages: [
         {
           role: "user",
