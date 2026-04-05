@@ -1,20 +1,25 @@
 import { NextResponse } from "next/server";
-import { store } from "@/lib/store";
+import { getAuthenticatedClient } from "@/utils/supabase/api";
 
 export async function GET() {
   try {
-    const consumed = store.inventory.filter((i) => i.status === "consumed");
-    const discarded = store.inventory.filter((i) => i.status === "discarded");
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { data: events } = await supabase
+      .from("food_events")
+      .select("*")
+      .eq("user_id", user.id);
+
+    const consumed = (events || []).filter((e) => e.event_type === "consumed");
+    const discarded = (events || []).filter((e) => e.event_type === "discarded");
 
     return NextResponse.json({
-      wastedValue: store.wastedValue,
-      savedValue: store.savedValue,
+      wastedValue: discarded.reduce((sum, e) => sum + Number(e.dollar_value || 0), 0),
+      savedValue: consumed.reduce((sum, e) => sum + Number(e.dollar_value || 0), 0),
       itemsConsumed: consumed.length,
       itemsDiscarded: discarded.length,
-      discardedItems: discarded.map((i) => ({
-        name: i.name,
-        price: i.purchasePrice,
-      })),
+      discardedItems: discarded.map((e) => ({ name: e.item_name, price: Number(e.dollar_value || 0) })),
     });
   } catch {
     return NextResponse.json({ error: "Failed to fetch stats" }, { status: 500 });

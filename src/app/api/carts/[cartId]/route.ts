@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { store } from "@/lib/store";
-import { v4 as uuid } from "uuid";
+import { getAuthenticatedClient } from "@/utils/supabase/api";
 import { cartPatchSchema, uuidParamSchema } from "@/lib/validation";
 
 export async function GET(
@@ -9,12 +8,20 @@ export async function GET(
 ) {
   try {
     const { cartId } = await params;
-    if (!uuidParamSchema.safeParse(cartId).success) {
-      return NextResponse.json({ error: "Invalid cart ID" }, { status: 400 });
-    }
-    const cart = store.carts.find((c) => c.id === cartId);
-    if (!cart) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    return NextResponse.json(cart);
+    if (!uuidParamSchema.safeParse(cartId).success) return NextResponse.json({ error: "Invalid cart ID" }, { status: 400 });
+
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { data } = await supabase
+      .from("shopping_carts")
+      .select("*, cart_items(*)")
+      .eq("id", cartId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!data) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json({ error: "Failed to fetch cart" }, { status: 500 });
   }
@@ -26,54 +33,53 @@ export async function PATCH(
 ) {
   try {
     const { cartId } = await params;
-    if (!uuidParamSchema.safeParse(cartId).success) {
-      return NextResponse.json({ error: "Invalid cart ID" }, { status: 400 });
-    }
+    if (!uuidParamSchema.safeParse(cartId).success) return NextResponse.json({ error: "Invalid cart ID" }, { status: 400 });
 
-    const cart = store.carts.find((c) => c.id === cartId);
-    if (!cart) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
     const parsed = cartPatchSchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid input", details: parsed.error.flatten().fieldErrors },
-        { status: 400 }
-      );
-    }
+    const d = parsed.data;
 
-    const data = parsed.data;
-
-    if (data.toggleItemId) {
-      const item = cart.items.find((i) => i.id === data.toggleItemId);
-      if (item) item.checked = !item.checked;
-    }
-
-    if (data.addItem) {
-      if (cart.items.length >= 100) {
-        return NextResponse.json({ error: "Cart item limit reached (100)" }, { status: 400 });
+    if (d.toggleItemId) {
+      const { data: item } = await supabase.from("cart_items").select("checked").eq("id", d.toggleItemId).eq("user_id", user.id).single();
+      if (item) {
+        await supabase.from("cart_items").update({ checked: !item.checked }).eq("id", d.toggleItemId);
       }
-      cart.items.push({
-        id: uuid(),
-        name: data.addItem.name,
-        category: data.addItem.category,
-        quantity: data.addItem.quantity,
-        estimatedPrice: data.addItem.estimatedPrice,
-        fromRecipeId: data.addItem.fromRecipeId,
-        checked: false,
+    }
+
+    if (d.addItem) {
+      await supabase.from("cart_items").insert({
+        cart_id: cartId,
+        user_id: user.id,
+        name: d.addItem.name,
+        category: d.addItem.category,
+        quantity: d.addItem.quantity,
+        estimated_price: d.addItem.estimatedPrice,
+        from_recipe_id: d.addItem.fromRecipeId,
       });
     }
 
-    if (data.removeItemId) {
-      cart.items = cart.items.filter((i) => i.id !== data.removeItemId);
+    if (d.removeItemId) {
+      await supabase.from("cart_items").delete().eq("id", d.removeItemId).eq("user_id", user.id);
     }
 
-    if (data.name) {
-      cart.name = data.name;
+    if (d.name) {
+      await supabase.from("shopping_carts").update({ name: d.name }).eq("id", cartId).eq("user_id", user.id);
     }
 
-    return NextResponse.json(cart);
+    // Refetch
+    const { data } = await supabase
+      .from("shopping_carts")
+      .select("*, cart_items(*)")
+      .eq("id", cartId)
+      .eq("user_id", user.id)
+      .single();
+
+    return NextResponse.json(data);
   } catch {
     return NextResponse.json({ error: "Failed to update cart" }, { status: 500 });
   }
@@ -85,12 +91,12 @@ export async function DELETE(
 ) {
   try {
     const { cartId } = await params;
-    if (!uuidParamSchema.safeParse(cartId).success) {
-      return NextResponse.json({ error: "Invalid cart ID" }, { status: 400 });
-    }
-    const idx = store.carts.findIndex((c) => c.id === cartId);
-    if (idx === -1) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    store.carts.splice(idx, 1);
+    if (!uuidParamSchema.safeParse(cartId).success) return NextResponse.json({ error: "Invalid cart ID" }, { status: 400 });
+
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    await supabase.from("shopping_carts").delete().eq("id", cartId).eq("user_id", user.id);
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Failed to delete cart" }, { status: 500 });

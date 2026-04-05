@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
-import { store, getRecoveryContext } from "@/lib/store";
-import { computeAllItemRisks } from "@/lib/shelf-life";
+import { getAuthenticatedClient } from "@/utils/supabase/api";
+import { computeItemRisk } from "@/lib/shelf-life";
+import { recoveryPresets } from "@/lib/seed-data";
+import { InventoryItem, RecoveryPreset } from "@/lib/types";
 
 const PROMPT = `You are a recipe generator for Fridge Fitness, a food waste reduction app.
 
@@ -33,10 +35,30 @@ export async function GET() {
       return NextResponse.json({ error: "GROQ_API_KEY not set" }, { status: 503 });
     }
 
-    const itemsWithRisk = computeAllItemRisks(store.inventory);
-    const recovery = getRecoveryContext();
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Build context about what user has
+    const { data: items } = await supabase
+      .from("inventory_items")
+      .select("*")
+      .eq("user_id", user.id)
+      .in("status", ["active", "frozen"]);
+
+    const mapped: InventoryItem[] = (items || []).map((row) => ({
+      id: row.id, name: row.name, category: row.category, location: row.location,
+      quantity: row.quantity || "1", purchasePrice: Number(row.purchase_price) || 0,
+      purchaseDate: row.purchase_date || new Date().toISOString().split("T")[0],
+      bestByDate: row.best_by_date, openedAt: row.opened_at, status: row.status,
+      nutritionTags: row.nutrition_tags || [],
+    }));
+
+    const itemsWithRisk = mapped.map(computeItemRisk);
+
+    const { data: recoveryRow } = await supabase
+      .from("recovery_state").select("preset").eq("user_id", user.id).single();
+    const preset = (recoveryRow?.preset || "post-strength") as RecoveryPreset;
+    const recovery = recoveryPresets[preset];
+
     const ingredientList = itemsWithRisk.map((item) => {
       const urgency = item.riskTier === "use-today" ? "⚠️ USE TODAY" :
         item.riskTier === "use-this-week" ? "⏰ use this week" :
@@ -104,9 +126,6 @@ export async function GET() {
       tags: Array.isArray(r.tags) ? r.tags.slice(0, 10).map(String) : [],
       steps: Array.isArray(r.steps) ? r.steps.slice(0, 10).map(String) : [],
     }));
-
-    // Store them so the scoring engine can rank them
-    store.recipes = sanitized;
 
     return NextResponse.json({ recipes: sanitized, count: sanitized.length });
   } catch (err) {

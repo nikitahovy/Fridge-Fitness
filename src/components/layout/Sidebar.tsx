@@ -88,9 +88,18 @@ export default function Sidebar() {
           {navLink("/analytics", "📊", "Monthly +/−")}
         </nav>
 
-        <div className="mx-3 mb-4 p-3 border border-white/[0.08] rounded-xl">
-          <p className="text-[9px] font-pixel text-[#555] uppercase tracking-wider">// MVP MODE</p>
-          <p className="text-[10px] text-[#555] mt-1 leading-relaxed">Toggle WHOOP presets from dashboard.</p>
+        <div className="mx-3 mb-4 space-y-2">
+          <button
+            onClick={async () => {
+              const { createClient } = await import("@/utils/supabase/client");
+              const supabase = createClient();
+              await supabase.auth.signOut();
+              window.location.href = "/login";
+            }}
+            className="w-full btn btn-danger text-[10px]"
+          >
+            SIGN OUT
+          </button>
         </div>
       </aside>
 
