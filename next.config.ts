@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self' https://fonts.gstatic.com",
-              "connect-src 'self' https://generativelanguage.googleapis.com",
+              "connect-src 'self' https://*.supabase.co https://generativelanguage.googleapis.com",
               "frame-ancestors 'none'",
             ].join("; "),
           },
