@@ -312,12 +312,27 @@ export default function AddItemPage() {
                         <p className="text-xs text-muted">{item.quantity} · <span className="capitalize">{item.category}</span></p>
                       </div>
 
-                      <span className="font-pixel text-sm">${item.estimatedPrice.toFixed(2)}</span>
+                      <span className="font-pixel text-sm text-muted">${item.estimatedPrice.toFixed(2)}</span>
                     </div>
 
-                    {/* Expiration date — only show when selected */}
+                    {/* Price + Expiration — only show when selected */}
                     {item.selected && (
-                      <div className="px-3 pb-3 pl-11">
+                      <div className="px-3 pb-3 pl-11 flex flex-wrap gap-3">
+                        <div className="flex items-center gap-2">
+                          <label className="font-pixel text-[9px] text-muted uppercase whitespace-nowrap">PRICE $</label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={item.estimatedPrice || ""}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                              setDetectedItems((prev) =>
+                                prev!.map((it, i) => i === idx ? { ...it, estimatedPrice: parseFloat(e.target.value) || 0 } : it)
+                              );
+                            }}
+                            className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-white/30 transition w-20"
+                          />
+                        </div>
                         <div className="flex items-center gap-2">
                           <label className="font-pixel text-[9px] text-muted uppercase whitespace-nowrap">EXPIRES</label>
                           <input
@@ -329,8 +344,7 @@ export default function AddItemPage() {
                                 prev!.map((it, i) => i === idx ? { ...it, bestByDate: e.target.value } : it)
                               );
                             }}
-                            className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-white/30 transition flex-1 max-w-[160px]"
-                            placeholder="Optional"
+                            className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-white/30 transition w-36"
                           />
                           {!item.bestByDate && (
                             <span className="text-[10px] text-muted italic">optional</span>
