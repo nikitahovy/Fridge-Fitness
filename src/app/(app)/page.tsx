@@ -2,35 +2,22 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ScoredRecipe, ItemWithRisk, DailyRecoveryContext, RecoveryPreset } from "@/lib/types";
-
-const PRESET_LABELS: Record<RecoveryPreset, string> = {
-  "post-strength": "Strength",
-  "low-recovery": "Low Recovery",
-  "cardio-day": "Cardio",
-};
+import { ScoredRecipe, ItemWithRisk } from "@/lib/types";
 
 export default function Dashboard() {
   const [recipes, setRecipes] = useState<ScoredRecipe[]>([]);
   const [eatFirst, setEatFirst] = useState<ItemWithRisk[]>([]);
-  const [recovery, setRecovery] = useState<{ preset: RecoveryPreset; context: DailyRecoveryContext } | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchAll = useCallback(async () => {
-    const [r, e, rec] = await Promise.all([
+    const [r, e] = await Promise.all([
       fetch("/api/recipes").then((r) => r.json()),
       fetch("/api/eat-first").then((r) => r.json()),
-      fetch("/api/recovery").then((r) => r.json()),
     ]);
-    setRecipes(r); setEatFirst(e); setRecovery(rec); setLoading(false);
+    setRecipes(r); setEatFirst(e); setLoading(false);
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
-
-  async function changePreset(preset: RecoveryPreset) {
-    await fetch("/api/recovery", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ preset }) });
-    fetchAll();
-  }
 
   async function markItem(id: string, status: string, extraUpdates?: Record<string, string>) {
     await fetch("/api/inventory", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, status, ...extraUpdates }) });
@@ -52,46 +39,20 @@ export default function Dashboard() {
         <h2 className="text-display text-4xl md:text-5xl">What&apos;s<br/>Cooking?</h2>
       </div>
 
-      {/* Recovery strip — liquid glass */}
-      {recovery && (
-        <div className="glass rounded-2xl p-4 md:p-6 flex flex-col md:flex-row md:items-center gap-5 md:gap-8 transition-all duration-200">
-          <div className="flex items-center gap-5 md:gap-8">
-            <div>
-              <p className="font-pixel text-[10px] text-muted uppercase tracking-wider mb-2">WHOOP RECOVERY</p>
-              <div className="text-display text-5xl md:text-6xl">
-                {recovery.context.recoveryScore}<span className="text-xl md:text-2xl text-muted">%</span>
-              </div>
-            </div>
-            <div className="h-12 md:h-16 w-px bg-white/[0.08]" />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 flex-1">
-              <div>
-                <p className="text-display text-xl md:text-2xl">{recovery.context.totalSleepHours}<span className="text-sm text-muted font-normal">h</span></p>
-                <p className="font-pixel text-[9px] text-muted uppercase mt-1">Sleep</p>
-              </div>
-              <div>
-                <p className="text-display text-xl md:text-2xl">{recovery.context.hrv}</p>
-                <p className="font-pixel text-[9px] text-muted uppercase mt-1">HRV</p>
-              </div>
-              <div>
-                <p className="text-display text-xl md:text-2xl">{recovery.context.restingHeartRate}<span className="text-sm text-muted font-normal">bpm</span></p>
-                <p className="font-pixel text-[9px] text-muted uppercase mt-1">Resting HR</p>
-              </div>
-              <div>
-                <p className="text-display text-xl md:text-2xl">{recovery.context.strainYesterday}</p>
-                <p className="font-pixel text-[9px] text-muted uppercase mt-1">Strain</p>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-1 glass-btn rounded-lg p-1 self-start md:self-auto">
-            {(Object.keys(PRESET_LABELS) as RecoveryPreset[]).map((p) => (
-              <button key={p} onClick={() => changePreset(p)}
-                className={`text-[11px] px-3 py-1.5 rounded-md transition-all cursor-pointer ${
-                  recovery.preset === p ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"
-                }`}>{PRESET_LABELS[p]}</button>
-            ))}
-          </div>
+      {/* WHOOP Recovery — Coming Soon */}
+      <div className="glass rounded-2xl p-6 md:p-8 flex items-center gap-6 transition-all duration-200">
+        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden flex-shrink-0 opacity-60">
+          <img src="/logo.png" alt="Fridge Fitness" className="w-full h-full object-cover scale-110" />
         </div>
-      )}
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <p className="font-pixel text-[10px] text-muted uppercase tracking-wider">WHOOP RECOVERY</p>
+            <span className="font-pixel text-[8px] px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 border border-yellow-500/20">BETA</span>
+          </div>
+          <p className="text-display text-xl md:text-2xl mb-1">Coming Soon</p>
+          <p className="text-xs text-muted">Wearable integration for recovery-based meal recommendations. Connect your WHOOP, Oura, or Apple Watch to get personalized nutrition aligned with your training.</p>
+        </div>
+      </div>
 
       {/* Hero + At Risk */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 md:gap-6">
