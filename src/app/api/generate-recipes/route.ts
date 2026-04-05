@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { getAuthenticatedClient } from "@/utils/supabase/api";
+import { mapInventoryRow } from "@/utils/supabase/mappers";
 import { computeItemRisk } from "@/lib/shelf-life";
 import { recoveryPresets } from "@/lib/seed-data";
-import { InventoryItem, RecoveryPreset } from "@/lib/types";
+import { RecoveryPreset } from "@/lib/types";
 
 const PROMPT = `You are a recipe generator for Fridge Fitness, a food waste reduction app.
 
@@ -44,13 +45,7 @@ export async function GET() {
       .eq("user_id", user.id)
       .in("status", ["active", "frozen"]);
 
-    const mapped: InventoryItem[] = (items || []).map((row) => ({
-      id: row.id, name: row.name, category: row.category, location: row.location,
-      quantity: row.quantity || "1", purchasePrice: Number(row.purchase_price) || 0,
-      purchaseDate: row.purchase_date || new Date().toISOString().split("T")[0],
-      bestByDate: row.best_by_date, openedAt: row.opened_at, status: row.status,
-      nutritionTags: row.nutrition_tags || [],
-    }));
+    const mapped = (items || []).map(mapInventoryRow);
 
     const itemsWithRisk = mapped.map(computeItemRisk);
 

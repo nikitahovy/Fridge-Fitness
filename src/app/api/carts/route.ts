@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/utils/supabase/api";
+import { mapCartRow } from "@/utils/supabase/mappers";
 import { cartCreateSchema } from "@/lib/validation";
 
 export async function GET() {
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
       .eq("id", cart.id)
       .single();
 
-    return NextResponse.json(fullCart, { status: 201 });
+    return NextResponse.json(mapCartRow(fullCart as Record<string, unknown>), { status: 201 });
   } catch {
     return NextResponse.json({ error: "Failed to create cart" }, { status: 500 });
   }

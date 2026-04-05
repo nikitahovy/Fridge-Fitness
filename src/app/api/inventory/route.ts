@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/utils/supabase/api";
+import { mapInventoryRow } from "@/utils/supabase/mappers";
 import { inventoryCreateSchema, inventoryPatchSchema } from "@/lib/validation";
+import { computeItemRisk } from "@/lib/shelf-life";
 
 export async function GET() {
   try {
@@ -15,7 +17,12 @@ export async function GET() {
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    return NextResponse.json(data || []);
+
+    // Map to camelCase + compute risk scores
+    const mapped = (data || []).map(mapInventoryRow);
+    const withRisk = mapped.map(computeItemRisk);
+
+    return NextResponse.json(withRisk);
   } catch {
     return NextResponse.json({ error: "Failed to fetch inventory" }, { status: 500 });
   }
@@ -51,7 +58,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) throw error;
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json(mapInventoryRow(data), { status: 201 });
   } catch {
     return NextResponse.json({ error: "Failed to create item" }, { status: 500 });
   }
@@ -80,7 +87,6 @@ export async function PATCH(req: NextRequest) {
 
     if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    // Build update object (only set defined fields)
     const updateObj: Record<string, unknown> = { updated_at: new Date().toISOString() };
     if (updates.name !== undefined) updateObj.name = updates.name;
     if (updates.status !== undefined) updateObj.status = updates.status;
@@ -108,7 +114,7 @@ export async function PATCH(req: NextRequest) {
       });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(mapInventoryRow(data));
   } catch {
     return NextResponse.json({ error: "Failed to update item" }, { status: 500 });
   }
