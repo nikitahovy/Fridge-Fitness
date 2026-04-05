@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 
 const PROMPT = `You are a food item detector for a grocery/kitchen inventory app.
 
@@ -21,10 +21,10 @@ If you cannot identify any food items, return: []`;
 
 export async function POST(req: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Vision API not configured. Set GEMINI_API_KEY environment variable." },
+        { error: "Vision API not configured. Set GROQ_API_KEY environment variable." },
         { status: 503 }
       );
     }
@@ -36,62 +36,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
-    // Extract base64 and media type — flexible parsing
-    let mimeType = "image/jpeg";
-    let base64Data = "";
-
-    if (imageDataUrl.startsWith("data:")) {
-      const commaIndex = imageDataUrl.indexOf(",");
-      if (commaIndex === -1) {
-        return NextResponse.json({ error: "Invalid image data URL" }, { status: 400 });
-      }
-
-      // Parse mime type from header
-      const header = imageDataUrl.substring(0, commaIndex);
-      const mimeMatch = header.match(/data:(image\/[a-zA-Z+]+)/);
-      if (mimeMatch) {
-        // Normalize jpg → jpeg
-        mimeType = mimeMatch[1].replace("image/jpg", "image/jpeg");
-      }
-
-      base64Data = imageDataUrl.substring(commaIndex + 1);
-    } else {
-      // Might be raw base64 without data: prefix
-      base64Data = imageDataUrl;
+    // Validate it's a data URL with image
+    if (!imageDataUrl.startsWith("data:image/")) {
+      return NextResponse.json({ error: "Invalid image format" }, { status: 400 });
     }
 
-    // Strip any whitespace/newlines from base64
-    base64Data = base64Data.replace(/\s/g, "");
+    const groq = new Groq({ apiKey });
 
-    if (!base64Data || base64Data.length < 100) {
-      return NextResponse.json({ error: "Image data too small or empty" }, { status: 400 });
-    }
-
-    // 10MB base64 limit (covers ~7.5MB raw images)
-    if (base64Data.length > 10_000_000) {
-      return NextResponse.json({ error: "Image too large. Try a lower resolution photo." }, { status: 400 });
-    }
-
-    // Ensure mime type is supported by Gemini
-    const supportedTypes = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
-    if (!supportedTypes.includes(mimeType)) {
-      mimeType = "image/jpeg"; // fallback
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-    const result = await model.generateContent([
-      PROMPT,
-      {
-        inlineData: {
-          mimeType,
-          data: base64Data,
+    const result = await groq.chat.completions.create({
+      model: "llama-4-scout-17b-16e-instruct",
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: PROMPT },
+            {
+              type: "image_url",
+              image_url: { url: imageDataUrl },
+            },
+          ],
         },
-      },
-    ]);
+      ],
+      max_tokens: 1024,
+      temperature: 0.1,
+    });
 
-    const responseText = result.response.text().trim();
+    const responseText = result.choices[0]?.message?.content?.trim() || "[]";
 
     // Parse JSON (strip markdown fences if present)
     let jsonText = responseText;
@@ -104,7 +74,7 @@ export async function POST(req: NextRequest) {
     try {
       items = JSON.parse(jsonText);
     } catch {
-      console.error("Failed to parse Gemini response:", jsonText.substring(0, 200));
+      console.error("Failed to parse Groq response:", jsonText.substring(0, 300));
       return NextResponse.json({ items: [], error: "Could not parse detected items" });
     }
 
@@ -129,24 +99,12 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("Analyze image error:", message);
 
-    // Return debug info so we can see what's actually failing
-    const debug = {
-      errorType: "unknown",
-      rawMessage: message.substring(0, 300),
-    };
-
-    if (message.includes("API_KEY") || message.includes("api key") || message.includes("API key")) {
-      return NextResponse.json({ error: "Gemini API key invalid. Check Vercel environment variables.", debug }, { status: 503 });
+    if (message.includes("api_key") || message.includes("API key") || message.includes("authentication")) {
+      return NextResponse.json({ error: "Groq API key invalid. Check Vercel environment variables." }, { status: 503 });
     }
-    if (message.includes("quota") || message.includes("rate") || message.includes("429") || message.includes("RESOURCE_EXHAUSTED")) {
-      debug.errorType = "rate_limit";
-      return NextResponse.json({ error: "Gemini free tier limit hit (15/min). Wait a minute and try again.", debug }, { status: 429 });
+    if (message.includes("rate") || message.includes("429") || message.includes("quota")) {
+      return NextResponse.json({ error: "Rate limit hit. Wait a moment and try again." }, { status: 429 });
     }
-    if (message.includes("400") || message.includes("INVALID_ARGUMENT")) {
-      debug.errorType = "bad_request";
-      return NextResponse.json({ error: "Gemini couldn't process this image. Try a different photo.", debug }, { status: 400 });
-    }
-    debug.errorType = "unknown";
-    return NextResponse.json({ error: "Failed to analyze image. Try again.", debug }, { status: 500 });
+    return NextResponse.json({ error: "Failed to analyze image. Try again.", debug: message.substring(0, 300) }, { status: 500 });
   }
 }
