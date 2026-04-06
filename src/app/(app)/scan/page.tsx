@@ -5,48 +5,104 @@ import { useRouter } from "next/navigation";
 
 export default function ScanPage() {
   const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const scannerRef = useRef<unknown>(null);
   const detectedRef = useRef(false);
 
   useEffect(() => {
     let mounted = true;
+    let animationId: number;
 
-    (async () => {
+    async function startScanning() {
       try {
-        const { Html5Qrcode } = await import("html5-qrcode");
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
 
-        const el = document.getElementById("scanner-view");
-        if (!el || !mounted) return;
+        if (!mounted) { stream.getTracks().forEach(t => t.stop()); return; }
 
-        const scanner = new Html5Qrcode("scanner-view");
-        scannerRef.current = scanner;
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play();
+        }
 
-        await scanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 280, height: 150 }, aspectRatio: 1.5 },
-          (decodedText) => {
-            if (!detectedRef.current && mounted) {
-              detectedRef.current = true;
-              if (navigator.vibrate) navigator.vibrate(100);
-              scanner.stop().catch(() => {});
-              // Navigate back to add-item with the barcode
-              router.replace(`/add-item?barcode=${encodeURIComponent(decodedText)}`);
+        // Check if native BarcodeDetector is available
+        if ("BarcodeDetector" in window) {
+          const detector = new (window as unknown as { BarcodeDetector: new (opts: { formats: string[] }) => { detect: (source: HTMLVideoElement) => Promise<{ rawValue: string }[]> } }).BarcodeDetector({
+            formats: ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39"]
+          });
+
+          const scan = async () => {
+            if (!mounted || detectedRef.current || !videoRef.current) return;
+            try {
+              const barcodes = await detector.detect(videoRef.current);
+              if (barcodes.length > 0 && !detectedRef.current) {
+                detectedRef.current = true;
+                if (navigator.vibrate) navigator.vibrate(100);
+                cleanup();
+                router.replace(`/add-item?barcode=${encodeURIComponent(barcodes[0].rawValue)}`);
+                return;
+              }
+            } catch { /* ignore detection errors */ }
+            if (mounted) animationId = requestAnimationFrame(scan);
+          };
+          animationId = requestAnimationFrame(scan);
+        } else {
+          // Fallback: use canvas + send frames to Groq periodically
+          let lastScan = 0;
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d")!;
+
+          const scan = async () => {
+            if (!mounted || detectedRef.current || !videoRef.current) return;
+            const now = Date.now();
+            if (now - lastScan > 2000 && videoRef.current.readyState >= 2) {
+              lastScan = now;
+              canvas.width = videoRef.current.videoWidth;
+              canvas.height = videoRef.current.videoHeight;
+              ctx.drawImage(videoRef.current, 0, 0);
+              const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+
+              try {
+                const res = await fetch("/api/read-barcode", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ imageDataUrl: dataUrl }),
+                });
+                const data = await res.json();
+                if (data.code && !detectedRef.current) {
+                  detectedRef.current = true;
+                  if (navigator.vibrate) navigator.vibrate(100);
+                  cleanup();
+                  router.replace(`/add-item?barcode=${encodeURIComponent(data.code)}`);
+                  return;
+                }
+              } catch { /* ignore */ }
             }
-          },
-          () => {}
-        );
-      } catch (err) {
-        if (mounted) setError("Camera access denied or not available");
-        console.error(err);
+            if (mounted) animationId = requestAnimationFrame(scan);
+          };
+          animationId = requestAnimationFrame(scan);
+        }
+      } catch {
+        if (mounted) setError("Camera access denied. Please allow camera permissions.");
       }
-    })();
+    }
+
+    function cleanup() {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+      if (animationId) cancelAnimationFrame(animationId);
+    }
+
+    startScanning();
 
     return () => {
       mounted = false;
-      if (scannerRef.current) {
-        (scannerRef.current as { stop: () => Promise<void> }).stop().catch(() => {});
-      }
+      cleanup();
     };
   }, [router]);
 
@@ -64,9 +120,22 @@ export default function ScanPage() {
         </div>
       ) : (
         <div className="space-y-4">
-          <div id="scanner-view" className="w-full rounded-2xl overflow-hidden bg-black/50" style={{ minHeight: 300 }} />
-          <p className="font-pixel text-[10px] text-muted text-center">Hold steady — it&apos;ll vibrate when detected</p>
-          <button onClick={() => router.back()} className="btn w-full">CANCEL</button>
+          <div className="relative rounded-2xl overflow-hidden bg-black" style={{ minHeight: 300 }}>
+            <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
+            {/* Scanning overlay */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-64 h-32 border-2 border-white/40 rounded-xl relative">
+                <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-white rounded-tl-lg" />
+                <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-white rounded-tr-lg" />
+                <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-white rounded-bl-lg" />
+                <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white rounded-br-lg" />
+                {/* Scanning line animation */}
+                <div className="absolute left-2 right-2 h-0.5 bg-danger/80 animate-pulse top-1/2" />
+              </div>
+            </div>
+          </div>
+          <p className="font-pixel text-[10px] text-muted text-center">Hold steady — vibrates when detected</p>
+          <button onClick={() => { if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop()); router.back(); }} className="btn w-full">CANCEL</button>
         </div>
       )}
     </div>

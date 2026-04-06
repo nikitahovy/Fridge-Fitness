@@ -175,20 +175,22 @@ function AddItemPage() {
       {/* Mode toggle */}
       <div className="flex gap-1 mb-6 bg-card border border-card-border rounded-xl p-1 w-fit overflow-x-auto">
         {[
-          { key: "manual" as const, label: "MANUAL" },
-          { key: "camera" as const, label: "📷 CAMERA" },
-          { key: "barcode" as const, label: "BARCODE" },
-          { key: "qr" as const, label: "QR SCAN" },
+          { key: "manual" as const, label: "MANUAL", href: null },
+          { key: "camera" as const, label: "📷 CAMERA", href: null },
+          { key: "barcode" as const, label: "BARCODE", href: "/scan" },
+          { key: "qr" as const, label: "QR SCAN", href: null },
         ].map((m) => (
-          <button
-            key={m.key}
-            onClick={() => { setMode(m.key); setSaved(false); }}
-            className={`font-pixel text-[10px] px-4 py-2 rounded-lg transition-all cursor-pointer ${
-              mode === m.key ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"
-            }`}
-          >
-            {m.label}
-          </button>
+          m.href ? (
+            <Link key={m.key} href={m.href}
+              className={`font-pixel text-[10px] px-4 py-2 rounded-lg transition-all cursor-pointer ${
+                mode === m.key ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"
+              }`}>{m.label}</Link>
+          ) : (
+            <button key={m.key} onClick={() => { setMode(m.key); setSaved(false); }}
+              className={`font-pixel text-[10px] px-4 py-2 rounded-lg transition-all cursor-pointer ${
+                mode === m.key ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"
+              }`}>{m.label}</button>
+          )
         ))}
       </div>
 
