@@ -78,9 +78,9 @@ export default function EatFirstPage() {
           <p className="text-display text-lg md:text-2xl">${totalValue.toFixed(2)}</p>
           <p className="font-pixel text-[8px] md:text-[9px] text-muted uppercase mt-1">In Stock</p>
         </div>
-        <div className="bg-card border border-card-border rounded-2xl p-3 md:p-4">
+        <div className="bg-gradient-to-br from-emerald-950/80 to-emerald-900/30 border border-emerald-500/20 rounded-2xl p-3 md:p-4">
           <p className="text-display text-lg md:text-2xl text-safe">${stats?.savedValue.toFixed(2) || "0.00"}</p>
-          <p className="font-pixel text-[8px] md:text-[9px] text-muted uppercase mt-1">Saved</p>
+          <p className="font-pixel text-[8px] md:text-[9px] text-safe/60 uppercase mt-1">Saved</p>
         </div>
         <div className="bg-card border border-card-border rounded-2xl p-3 md:p-4">
           <p className="text-display text-lg md:text-2xl text-danger">${stats?.wastedValue.toFixed(2) || "0.00"}</p>
