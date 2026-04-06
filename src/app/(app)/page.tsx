@@ -30,7 +30,17 @@ export default function Dashboard() {
   const hasInventory = eatFirst.length > 0;
 
   if (loading) {
-    return <div className="max-w-6xl mx-auto flex items-center justify-center py-32"><p className="font-pixel text-muted text-sm">LOADING...</p></div>;
+    return (
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div><div className="animate-pulse bg-white/[0.06] rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-white/[0.06] rounded-lg w-56 h-12" /></div>
+        <div className="animate-pulse bg-white/[0.06] rounded-2xl h-28" />
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-3 animate-pulse bg-white/[0.06] rounded-2xl h-56" />
+          <div className="lg:col-span-2 animate-pulse bg-white/[0.06] rounded-2xl h-56" />
+        </div>
+        <div className="flex gap-4">{[1,2,3].map((i) => <div key={i} className="animate-pulse bg-white/[0.06] rounded-2xl h-40 w-56 flex-shrink-0" />)}</div>
+      </div>
+    );
   }
 
   // Onboarding for new users with empty inventory

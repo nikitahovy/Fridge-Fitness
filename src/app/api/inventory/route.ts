@@ -119,3 +119,24 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Failed to update item" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { supabase, user } = await getAuthenticatedClient();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { id } = await req.json();
+    if (!id) return NextResponse.json({ error: "Missing item ID" }, { status: 400 });
+
+    const { error } = await supabase
+      .from("inventory_items")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (error) throw error;
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "Failed to delete item" }, { status: 500 });
+  }
+}

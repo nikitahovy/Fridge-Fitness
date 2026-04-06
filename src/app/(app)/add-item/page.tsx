@@ -17,7 +17,11 @@ type DetectedItem = {
 
 export default function AddItemPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<"manual" | "qr" | "camera">("manual");
+  const [mode, setMode] = useState<"manual" | "qr" | "camera" | "barcode">("manual");
+  const [barcodeInput, setBarcodeInput] = useState("");
+  const [barcodeLoading, setBarcodeLoading] = useState(false);
+  const [barcodeResult, setBarcodeResult] = useState<{name: string; brand: string; category: string; quantity: string; imageUrl: string | null} | null>(null);
+  const [barcodeError, setBarcodeError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [category, setCategory] = useState<FoodCategory>("other");
   const [location, setLocation] = useState<StorageLocation>("fridge");
@@ -138,10 +142,11 @@ export default function AddItemPage() {
       </div>
 
       {/* Mode toggle */}
-      <div className="flex gap-2 mb-6 bg-card border border-card-border rounded-xl p-1 w-fit">
+      <div className="flex gap-1 mb-6 bg-card border border-card-border rounded-xl p-1 w-fit overflow-x-auto">
         {[
           { key: "manual" as const, label: "MANUAL" },
           { key: "camera" as const, label: "📷 CAMERA" },
+          { key: "barcode" as const, label: "BARCODE" },
           { key: "qr" as const, label: "QR SCAN" },
         ].map((m) => (
           <button
@@ -367,6 +372,120 @@ export default function AddItemPage() {
                 <button onClick={resetCamera} className="btn btn-lg">CANCEL</button>
               </div>
             </div>
+          )}
+        </div>
+      )}
+
+      {/* ── QR ── */}
+      {/* ── BARCODE ── */}
+      {mode === "barcode" && (
+        <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6">
+          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// BARCODE LOOKUP</p>
+
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              inputMode="numeric"
+              value={barcodeInput}
+              onChange={(e) => setBarcodeInput(e.target.value.replace(/\D/g, ""))}
+              placeholder="Enter barcode number..."
+              className="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && barcodeInput.length >= 4) {
+                  e.preventDefault();
+                  (async () => {
+                    setBarcodeLoading(true);
+                    setBarcodeError(null);
+                    setBarcodeResult(null);
+                    const res = await fetch(`/api/barcode?code=${barcodeInput}`);
+                    const data = await res.json();
+                    if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error); }
+                    setBarcodeLoading(false);
+                  })();
+                }
+              }}
+            />
+            <button
+              onClick={async () => {
+                if (barcodeInput.length < 4) return;
+                setBarcodeLoading(true);
+                setBarcodeError(null);
+                setBarcodeResult(null);
+                const res = await fetch(`/api/barcode?code=${barcodeInput}`);
+                const data = await res.json();
+                if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error); }
+                setBarcodeLoading(false);
+              }}
+              disabled={barcodeLoading || barcodeInput.length < 4}
+              className="btn btn-primary disabled:opacity-50"
+            >
+              {barcodeLoading ? "..." : "LOOKUP"}
+            </button>
+          </div>
+
+          {barcodeError && (
+            <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger mb-4">
+              {barcodeError}
+            </div>
+          )}
+
+          {barcodeResult && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-3 bg-gradient-to-r from-emerald-950/40 to-emerald-900/10 border border-emerald-500/20 rounded-xl">
+                {barcodeResult.imageUrl && (
+                  <img src={barcodeResult.imageUrl} alt={barcodeResult.name} className="w-14 h-14 rounded-lg object-cover bg-white" />
+                )}
+                <div className="flex-1">
+                  <p className="font-bold text-sm">{barcodeResult.name}</p>
+                  <p className="text-xs text-muted">{barcodeResult.brand} · {barcodeResult.quantity} · <span className="capitalize">{barcodeResult.category}</span></p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="font-pixel text-[8px] text-muted uppercase">Price $</label>
+                  <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)}
+                    className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-white/30" placeholder="0.00" />
+                </div>
+                <div>
+                  <label className="font-pixel text-[8px] text-muted uppercase">Expires</label>
+                  <input type="date" value={bestBy} onChange={(e) => setBestBy(e.target.value)}
+                    className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-white/30" />
+                </div>
+              </div>
+
+              <button
+                onClick={async () => {
+                  setSaving(true);
+                  await fetch("/api/inventory", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      name: barcodeResult.name,
+                      category: barcodeResult.category,
+                      location,
+                      quantity: barcodeResult.quantity,
+                      purchasePrice: parseFloat(price) || 0,
+                      bestByDate: bestBy || null,
+                    }),
+                  });
+                  setSaving(false);
+                  setSaved(true);
+                  setBarcodeResult(null);
+                  setBarcodeInput("");
+                  setPrice("");
+                  setBestBy("");
+                }}
+                disabled={saving}
+                className="btn btn-primary btn-lg w-full disabled:opacity-50"
+              >
+                {saving ? "ADDING..." : `ADD ${barcodeResult.name.toUpperCase()}`}
+              </button>
+            </div>
+          )}
+
+          {!barcodeResult && !barcodeError && !barcodeLoading && (
+            <p className="text-xs text-muted text-center">Type or scan a barcode number (UPC/EAN). Powered by Open Food Facts — free and open source.</p>
           )}
         </div>
       )}

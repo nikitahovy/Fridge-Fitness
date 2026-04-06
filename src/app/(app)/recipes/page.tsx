@@ -31,7 +31,14 @@ export default function RecipesPage() {
     setGenerating(false);
   }
 
-  if (loading) return <div className="max-w-4xl mx-auto py-20"><p className="font-pixel text-muted text-sm">LOADING...</p></div>;
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8"><div className="animate-pulse bg-white/[0.06] rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-white/[0.06] rounded-lg w-40 h-10" /></div>
+        <div className="space-y-3">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse bg-white/[0.06] rounded-2xl h-36" />)}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto">

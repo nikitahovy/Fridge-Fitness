@@ -53,7 +53,15 @@ export default function EatFirstPage() {
     .reduce((sum, i) => sum + i.purchasePrice, 0);
   const totalValue = items.reduce((sum, i) => sum + i.purchasePrice, 0);
 
-  if (loading) return <div className="max-w-3xl mx-auto py-20"><p className="font-pixel text-muted text-sm">LOADING...</p></div>;
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8"><div className="animate-pulse bg-white/[0.06] rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-white/[0.06] rounded-lg w-48 h-10" /></div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse bg-white/[0.06] rounded-2xl h-16" />)}</div>
+        <div className="space-y-2">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse bg-white/[0.06] rounded-2xl h-24" />)}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
