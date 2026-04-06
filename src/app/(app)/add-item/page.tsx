@@ -1,11 +1,19 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FoodCategory, StorageLocation } from "@/lib/types";
 import QRUploadFlow from "@/components/qr/QRUploadFlow";
 import BarcodeScanner from "@/components/BarcodeScanner";
+
+export default function AddItemWrapper() {
+  return (
+    <Suspense fallback={<div className="max-w-2xl mx-auto py-20"><p className="font-pixel text-muted text-sm">LOADING...</p></div>}>
+      <AddItemPage />
+    </Suspense>
+  );
+}
 
 type DetectedItem = {
   name: string;
@@ -16,8 +24,9 @@ type DetectedItem = {
   bestByDate: string;
 };
 
-export default function AddItemPage() {
+function AddItemPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState<"manual" | "qr" | "camera" | "barcode">("manual");
   const [barcodeInput, setBarcodeInput] = useState("");
   const [barcodeLoading, setBarcodeLoading] = useState(false);
@@ -37,6 +46,27 @@ export default function AddItemPage() {
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [addingItems, setAddingItems] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle barcode returned from /scan page
+  useEffect(() => {
+    const code = searchParams.get("barcode");
+    if (code && code.length >= 4) {
+      setMode("barcode");
+      setBarcodeInput(code);
+      (async () => {
+        setBarcodeLoading(true);
+        setBarcodeError(null);
+        try {
+          const res = await fetch(`/api/barcode?code=${code}`);
+          const data = await res.json();
+          if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error || "Product not found"); }
+        } catch { setBarcodeError("Lookup failed"); }
+        setBarcodeLoading(false);
+      })();
+      // Clean URL
+      router.replace("/add-item", { scroll: false });
+    }
+  }, [searchParams, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -383,22 +413,17 @@ export default function AddItemPage() {
         <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6">
           <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// SCAN BARCODE</p>
 
-          {/* Photo-based barcode scanner */}
+          {/* Barcode scanner link + manual entry */}
           {!barcodeResult && (
             <div className="space-y-4">
-              <BarcodeScanner
-                onDetected={async (code: string) => {
-                  setBarcodeInput(code);
-                  setBarcodeLoading(true);
-                  setBarcodeError(null);
-                  try {
-                    const res = await fetch(`/api/barcode?code=${code}`);
-                    const data = await res.json();
-                    if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error || "Product not found"); }
-                  } catch { setBarcodeError("Failed to look up product"); }
-                  setBarcodeLoading(false);
-                }}
-              />
+              {!barcodeLoading && <BarcodeScanner />}
+
+              {barcodeLoading && (
+                <div className="flex items-center justify-center gap-2 py-8">
+                  <div className="w-4 h-4 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
+                  <span className="font-pixel text-[10px] text-muted">LOOKING UP PRODUCT...</span>
+                </div>
+              )}
 
               {/* Manual fallback */}
               <div className="flex gap-2">
