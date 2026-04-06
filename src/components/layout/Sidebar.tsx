@@ -38,6 +38,19 @@ const ALL_MOBILE_ITEMS = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Lock body scroll when drawer is open
+  const openDrawer = useCallback(() => {
+    setDrawerOpen(true);
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    setDrawerOpen(false);
+    document.body.style.overflow = "";
+    document.body.style.touchAction = "";
+  }, []);
   const touchStartY = useRef(0);
   const touchStartTime = useRef(0);
 
@@ -51,7 +64,7 @@ export default function Sidebar() {
     const deltaY = touchStartY.current - e.changedTouches[0].clientY;
     const deltaTime = Date.now() - touchStartTime.current;
     // Swipe up: at least 40px in under 500ms
-    if (deltaY > 40 && deltaTime < 500) setDrawerOpen(true);
+    if (deltaY > 40 && deltaTime < 500) openDrawer();
   }, []);
 
   const handleDrawerTouchStart = useCallback((e: React.TouchEvent) => {
@@ -63,7 +76,7 @@ export default function Sidebar() {
     const deltaY = e.changedTouches[0].clientY - touchStartY.current;
     const deltaTime = Date.now() - touchStartTime.current;
     // Swipe down: at least 60px in under 500ms
-    if (deltaY > 60 && deltaTime < 500) setDrawerOpen(false);
+    if (deltaY > 60 && deltaTime < 500) closeDrawer();
   }, []);
 
   function isActive(href: string) {
@@ -140,10 +153,10 @@ export default function Sidebar() {
 
       {/* Mobile: pull-up drawer overlay */}
       {drawerOpen && (
-        <div className="md:hidden fixed inset-0 z-50" onClick={() => setDrawerOpen(false)}>
+        <div className="md:hidden fixed inset-0 z-50" onClick={() => closeDrawer()}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-          <div className="absolute bottom-0 left-0 right-0 bg-[#0a0a0e] border-t border-white/[0.08] rounded-t-3xl max-h-[75vh] overflow-y-auto"
+          <div className="absolute bottom-0 left-0 right-0 bg-[#0a0a0e] border-t border-white/[0.08] rounded-t-3xl max-h-[75vh] overflow-y-auto overscroll-contain touch-pan-y"
             onClick={(e) => e.stopPropagation()}
             onTouchStart={handleDrawerTouchStart}
             onTouchEnd={handleDrawerTouchEnd}>
@@ -166,7 +179,7 @@ export default function Sidebar() {
             {/* All nav items */}
             <div className="px-4 pb-4 space-y-1">
               {ALL_MOBILE_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} onClick={() => setDrawerOpen(false)}
+                <Link key={item.href} href={item.href} onClick={() => closeDrawer()}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     isActive(item.href) ? "bg-white text-black font-bold" : "text-[#999] hover:bg-white/[0.04]"
                   }`}>
@@ -206,7 +219,7 @@ export default function Sidebar() {
         <div className="bg-[#0a0a0e]/95 backdrop-blur-lg border-t border-white/[0.08]">
           {/* Pull-up pill handle */}
           <div className="flex justify-center pt-2 -mb-0.5">
-            <button onClick={() => setDrawerOpen(true)}
+            <button onClick={() => openDrawer()}
               className="w-12 h-1.5 rounded-full bg-white/25 hover:bg-white/45 transition cursor-pointer active:scale-110" />
           </div>
 
