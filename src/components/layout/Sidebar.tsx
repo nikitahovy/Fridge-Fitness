@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -38,6 +38,33 @@ const ALL_MOBILE_ITEMS = [
 export default function Sidebar() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const touchStartY = useRef(0);
+  const touchStartTime = useRef(0);
+
+  // Swipe up on bottom bar to open, swipe down on drawer to close
+  const handleBarTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartTime.current = Date.now();
+  }, []);
+
+  const handleBarTouchEnd = useCallback((e: React.TouchEvent) => {
+    const deltaY = touchStartY.current - e.changedTouches[0].clientY;
+    const deltaTime = Date.now() - touchStartTime.current;
+    // Swipe up: at least 40px in under 500ms
+    if (deltaY > 40 && deltaTime < 500) setDrawerOpen(true);
+  }, []);
+
+  const handleDrawerTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartTime.current = Date.now();
+  }, []);
+
+  const handleDrawerTouchEnd = useCallback((e: React.TouchEvent) => {
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    const deltaTime = Date.now() - touchStartTime.current;
+    // Swipe down: at least 60px in under 500ms
+    if (deltaY > 60 && deltaTime < 500) setDrawerOpen(false);
+  }, []);
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
@@ -114,15 +141,15 @@ export default function Sidebar() {
       {/* Mobile: pull-up drawer overlay */}
       {drawerOpen && (
         <div className="md:hidden fixed inset-0 z-50" onClick={() => setDrawerOpen(false)}>
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
-          {/* Drawer */}
-          <div className="absolute bottom-0 left-0 right-0 bg-[#0a0a0e] border-t border-card-border rounded-t-3xl max-h-[75vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}>
-            {/* Pull handle */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-10 h-1 rounded-full bg-white/20" />
+          <div className="absolute bottom-0 left-0 right-0 bg-[#0a0a0e] border-t border-white/[0.08] rounded-t-3xl max-h-[75vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={handleDrawerTouchStart}
+            onTouchEnd={handleDrawerTouchEnd}>
+            {/* Pull handle — swipe down to close */}
+            <div className="flex justify-center pt-3 pb-2 cursor-grab">
+              <div className="w-12 h-1.5 rounded-full bg-white/30" />
             </div>
 
             {/* Logo */}
@@ -170,11 +197,18 @@ export default function Sidebar() {
       )}
 
       {/* Mobile bottom bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0a0a0e]/95 backdrop-blur-lg border-t border-card-border">
-        {/* Pull-up pill handle */}
-        <div className="flex justify-center pt-1.5 -mb-1">
-          <button onClick={() => setDrawerOpen(true)} className="w-10 h-1 rounded-full bg-white/20 hover:bg-white/40 transition cursor-pointer" />
-        </div>
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40"
+        onTouchStart={handleBarTouchStart}
+        onTouchEnd={handleBarTouchEnd}>
+        {/* Top edge glow — emphasizes pullability */}
+        <div className="h-4 bg-gradient-to-t from-[#0a0a0e] to-transparent pointer-events-none" />
+
+        <div className="bg-[#0a0a0e]/95 backdrop-blur-lg border-t border-white/[0.08]">
+          {/* Pull-up pill handle */}
+          <div className="flex justify-center pt-2 -mb-0.5">
+            <button onClick={() => setDrawerOpen(true)}
+              className="w-12 h-1.5 rounded-full bg-white/25 hover:bg-white/45 transition cursor-pointer active:scale-110" />
+          </div>
 
         <div className="flex justify-around items-center py-1.5 px-1 safe-bottom">
           {MOBILE_BAR.map((item) => {
@@ -188,6 +222,7 @@ export default function Sidebar() {
               </Link>
             );
           })}
+        </div>
         </div>
       </nav>
     </>

@@ -39,10 +39,16 @@ function calculateHealthScore(product: Record<string, unknown>) {
 
   // === 1. NUTRITION SCORE (0-65 points) ===
   // Negative points (bad stuff, 0-40)
-  const sugar100g = nutriments.sugars_100g || 0;
+  const sugar100g = nutriments.sugars_100g || nutriments["sugars_100g"] || 0;
   const salt100g = nutriments.salt_100g || (nutriments.sodium_100g || 0) * 2.5;
   const satFat100g = nutriments.saturated_fat_100g || nutriments["saturated-fat_100g"] || 0;
-  const energy100g = nutriments.energy_kcal_100g || nutriments["energy-kcal_100g"] || 0;
+  // Energy: try kcal fields first, fall back to kJ ÷ 4.184
+  const energy100g = nutriments["energy-kcal_100g"]
+    || nutriments.energy_kcal_100g
+    || (nutriments["energy-kj_100g"] ? nutriments["energy-kj_100g"] / 4.184 : 0)
+    || (nutriments.energy_kj_100g ? nutriments.energy_kj_100g / 4.184 : 0)
+    || (nutriments.energy_100g ? nutriments.energy_100g / 4.184 : 0)
+    || 0;
 
   let negativePoints = 0;
   negativePoints += Math.min(10, Math.floor(sugar100g / 4.5));
