@@ -1,81 +1,82 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+// Barcode scanning via photo capture — no live camera library needed
+// User takes a photo of the barcode, we send it to Groq to read the number
+
+import { useState, useRef } from "react";
 
 type Props = {
   onDetected: (code: string) => void;
-  scanning: boolean;
 };
 
-export default function BarcodeScanner({ onDetected, scanning }: Props) {
-  const scannerRef = useRef<unknown>(null);
-  const detectedRef = useRef(false);
-  const onDetectedRef = useRef(onDetected);
-  onDetectedRef.current = onDetected;
+export default function BarcodeScanner({ onDetected }: Props) {
+  const [preview, setPreview] = useState<string | null>(null);
+  const [reading, setReading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!scanning) {
-      // Stop scanner if it was running
-      if (scannerRef.current) {
-        (scannerRef.current as { stop: () => Promise<void> }).stop().catch(() => {});
-        scannerRef.current = null;
-      }
-      return;
-    }
-
-    let mounted = true;
-    detectedRef.current = false;
-
-    // Small delay to ensure the DOM element exists
-    const timer = setTimeout(async () => {
-      if (!mounted) return;
-
-      const el = document.getElementById("barcode-scanner");
-      if (!el) return;
+  function handleCapture(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError(null);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      setPreview(dataUrl);
+      setReading(true);
 
       try {
-        const { Html5Qrcode } = await import("html5-qrcode");
+        // Use Groq to read the barcode number from the image
+        const res = await fetch("/api/read-barcode", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageDataUrl: dataUrl }),
+        });
+        const data = await res.json();
 
-        // Clear any previous scanner content
-        el.innerHTML = "";
-
-        const scanner = new Html5Qrcode("barcode-scanner");
-        scannerRef.current = scanner;
-
-        await scanner.start(
-          { facingMode: "environment" },
-          {
-            fps: 10,
-            qrbox: { width: 260, height: 140 },
-            aspectRatio: 1.5,
-          },
-          (decodedText) => {
-            if (!detectedRef.current && mounted) {
-              detectedRef.current = true;
-              if (navigator.vibrate) navigator.vibrate(100);
-
-              // Stop scanner first, then notify
-              scanner.stop().catch(() => {}).finally(() => {
-                if (mounted) onDetectedRef.current(decodedText);
-              });
-            }
-          },
-          () => {} // ignore scan failures
-        );
-      } catch (err) {
-        console.error("Barcode scanner init error:", err);
+        if (data.code) {
+          if (navigator.vibrate) navigator.vibrate(100);
+          onDetected(data.code);
+        } else {
+          setError(data.error || "Couldn't read barcode. Try a clearer photo.");
+        }
+      } catch {
+        setError("Failed to read barcode");
       }
-    }, 300);
-
-    return () => {
-      mounted = false;
-      clearTimeout(timer);
-      if (scannerRef.current) {
-        (scannerRef.current as { stop: () => Promise<void> }).stop().catch(() => {});
-        scannerRef.current = null;
-      }
+      setReading(false);
     };
-  }, [scanning]);
+    reader.readAsDataURL(file);
+  }
 
-  return null;
+  return (
+    <div className="space-y-3">
+      {!preview ? (
+        <label className="block cursor-pointer">
+          <div className="border-2 border-dashed border-white/20 rounded-2xl p-8 text-center hover:border-white/40 transition">
+            <div className="text-3xl mb-2">📷</div>
+            <p className="font-bold text-sm mb-1">Tap to scan barcode</p>
+            <p className="text-[10px] text-muted">Point your camera at the barcode on the product</p>
+          </div>
+          <input ref={inputRef} type="file" accept="image/*" capture="environment" onChange={handleCapture} className="hidden" />
+        </label>
+      ) : (
+        <div>
+          <img src={preview} alt="Barcode" className="w-full rounded-xl max-h-48 object-cover" />
+          {reading && (
+            <div className="flex items-center justify-center gap-2 mt-3">
+              <div className="w-4 h-4 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
+              <span className="font-pixel text-[10px] text-muted">READING BARCODE...</span>
+            </div>
+          )}
+          {error && (
+            <div className="mt-3 space-y-2">
+              <p className="text-xs text-danger text-center">{error}</p>
+              <button onClick={() => { setPreview(null); setError(null); inputRef.current?.click(); }}
+                className="btn btn-primary w-full !text-[10px]">RETAKE PHOTO</button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }

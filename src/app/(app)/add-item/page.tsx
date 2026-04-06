@@ -383,46 +383,44 @@ export default function AddItemPage() {
         <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6">
           <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// SCAN BARCODE</p>
 
-          {/* Camera scanner — always mounted, hidden when result shown */}
-          <div className={barcodeResult ? "hidden" : "space-y-4"}>
-            <div id="barcode-scanner" className="w-full rounded-xl overflow-hidden bg-black/50" style={{ minHeight: 250 }} />
-            <BarcodeScanner
-              onDetected={async (code: string) => {
-                setBarcodeInput(code);
-                setBarcodeLoading(true);
-                setBarcodeError(null);
-                try {
-                  const res = await fetch(`/api/barcode?code=${code}`);
-                  const data = await res.json();
-                  if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error || "Product not found"); }
-                } catch { setBarcodeError("Failed to look up product"); }
-                setBarcodeLoading(false);
-              }}
-              scanning={!barcodeResult && !barcodeLoading && mode === "barcode"}
-            />
+          {/* Photo-based barcode scanner */}
+          {!barcodeResult && (
+            <div className="space-y-4">
+              <BarcodeScanner
+                onDetected={async (code: string) => {
+                  setBarcodeInput(code);
+                  setBarcodeLoading(true);
+                  setBarcodeError(null);
+                  try {
+                    const res = await fetch(`/api/barcode?code=${code}`);
+                    const data = await res.json();
+                    if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error || "Product not found"); }
+                  } catch { setBarcodeError("Failed to look up product"); }
+                  setBarcodeLoading(false);
+                }}
+              />
 
-            {/* Manual fallback */}
-            <div className="flex gap-2">
-              <input type="text" inputMode="numeric" value={barcodeInput}
-                onChange={(e) => setBarcodeInput(e.target.value.replace(/\D/g, ""))}
-                placeholder="Or type barcode number..."
-                className="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-white/30 transition" />
-              <button onClick={async () => {
-                if (barcodeInput.length < 4) return;
-                setBarcodeLoading(true); setBarcodeError(null); setBarcodeResult(null);
-                try {
-                  const res = await fetch(`/api/barcode?code=${barcodeInput}`);
-                  const data = await res.json();
-                  if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error); }
-                } catch { setBarcodeError("Lookup failed"); }
-                setBarcodeLoading(false);
-              }} disabled={barcodeLoading || barcodeInput.length < 4} className="btn btn-primary !text-[9px] disabled:opacity-50">
-                {barcodeLoading ? "..." : "LOOKUP"}
-              </button>
+              {/* Manual fallback */}
+              <div className="flex gap-2">
+                <input type="text" inputMode="numeric" value={barcodeInput}
+                  onChange={(e) => setBarcodeInput(e.target.value.replace(/\D/g, ""))}
+                  placeholder="Or type barcode number..."
+                  className="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-white/30 transition" />
+                <button onClick={async () => {
+                  if (barcodeInput.length < 4) return;
+                  setBarcodeLoading(true); setBarcodeError(null); setBarcodeResult(null);
+                  try {
+                    const res = await fetch(`/api/barcode?code=${barcodeInput}`);
+                    const data = await res.json();
+                    if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error); }
+                  } catch { setBarcodeError("Lookup failed"); }
+                  setBarcodeLoading(false);
+                }} disabled={barcodeLoading || barcodeInput.length < 4} className="btn btn-primary !text-[9px] disabled:opacity-50">
+                  {barcodeLoading ? "..." : "LOOKUP"}
+                </button>
+              </div>
             </div>
-
-            {barcodeLoading && <p className="font-pixel text-[10px] text-muted text-center animate-pulse">LOOKING UP PRODUCT...</p>}
-          </div>
+          )}
 
           {barcodeError && (
             <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger mb-4">
