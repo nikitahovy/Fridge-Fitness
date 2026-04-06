@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FoodCategory, StorageLocation } from "@/lib/types";
 import QRUploadFlow from "@/components/qr/QRUploadFlow";
+import BarcodeScanner from "@/components/BarcodeScanner";
 
 type DetectedItem = {
   name: string;
@@ -380,52 +381,51 @@ export default function AddItemPage() {
       {/* ── BARCODE ── */}
       {mode === "barcode" && (
         <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6">
-          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// BARCODE LOOKUP</p>
+          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// SCAN BARCODE</p>
 
-          <div className="flex gap-2 mb-4">
-            <input
-              type="text"
-              inputMode="numeric"
-              value={barcodeInput}
-              onChange={(e) => setBarcodeInput(e.target.value.replace(/\D/g, ""))}
-              placeholder="Enter barcode number..."
-              className="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && barcodeInput.length >= 4) {
-                  e.preventDefault();
-                  (async () => {
-                    setBarcodeLoading(true);
-                    setBarcodeError(null);
-                    setBarcodeResult(null);
-                    const res = await fetch(`/api/barcode?code=${barcodeInput}`);
-                    const data = await res.json();
-                    if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error); }
-                    setBarcodeLoading(false);
-                  })();
-                }
-              }}
-            />
-            <button
-              onClick={async () => {
-                if (barcodeInput.length < 4) return;
-                setBarcodeLoading(true);
-                setBarcodeError(null);
-                setBarcodeResult(null);
-                const res = await fetch(`/api/barcode?code=${barcodeInput}`);
-                const data = await res.json();
-                if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error); }
-                setBarcodeLoading(false);
-              }}
-              disabled={barcodeLoading || barcodeInput.length < 4}
-              className="btn btn-primary disabled:opacity-50"
-            >
-              {barcodeLoading ? "..." : "LOOKUP"}
-            </button>
-          </div>
+          {/* Camera scanner */}
+          {!barcodeResult && (
+            <div className="space-y-4">
+              <div id="barcode-scanner" className="w-full rounded-xl overflow-hidden bg-black/50" style={{ minHeight: 250 }} />
+              <BarcodeScanner
+                onDetected={async (code: string) => {
+                  setBarcodeInput(code);
+                  setBarcodeLoading(true);
+                  setBarcodeError(null);
+                  const res = await fetch(`/api/barcode?code=${code}`);
+                  const data = await res.json();
+                  if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error || "Product not found"); }
+                  setBarcodeLoading(false);
+                }}
+                scanning={!barcodeResult && !barcodeLoading}
+              />
+
+              {/* Manual fallback */}
+              <div className="flex gap-2">
+                <input type="text" inputMode="numeric" value={barcodeInput}
+                  onChange={(e) => setBarcodeInput(e.target.value.replace(/\D/g, ""))}
+                  placeholder="Or type barcode number..."
+                  className="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-white/30 transition" />
+                <button onClick={async () => {
+                  if (barcodeInput.length < 4) return;
+                  setBarcodeLoading(true); setBarcodeError(null); setBarcodeResult(null);
+                  const res = await fetch(`/api/barcode?code=${barcodeInput}`);
+                  const data = await res.json();
+                  if (res.ok) { setBarcodeResult(data); } else { setBarcodeError(data.error); }
+                  setBarcodeLoading(false);
+                }} disabled={barcodeLoading || barcodeInput.length < 4} className="btn btn-primary !text-[9px] disabled:opacity-50">
+                  {barcodeLoading ? "..." : "LOOKUP"}
+                </button>
+              </div>
+
+              {barcodeLoading && <p className="font-pixel text-[10px] text-muted text-center animate-pulse">LOOKING UP PRODUCT...</p>}
+            </div>
+          )}
 
           {barcodeError && (
             <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger mb-4">
               {barcodeError}
+              <button onClick={() => { setBarcodeError(null); setBarcodeResult(null); }} className="ml-2 underline text-xs">Try again</button>
             </div>
           )}
 
@@ -454,33 +454,36 @@ export default function AddItemPage() {
                 </div>
               </div>
 
-              <button
-                onClick={async () => {
-                  setSaving(true);
-                  await fetch("/api/inventory", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                      name: barcodeResult.name,
-                      category: barcodeResult.category,
-                      location,
-                      quantity: barcodeResult.quantity,
-                      purchasePrice: parseFloat(price) || 0,
-                      bestByDate: bestBy || null,
-                    }),
-                  });
-                  setSaving(false);
-                  setSaved(true);
-                  setBarcodeResult(null);
-                  setBarcodeInput("");
-                  setPrice("");
-                  setBestBy("");
-                }}
-                disabled={saving}
-                className="btn btn-primary btn-lg w-full disabled:opacity-50"
-              >
-                {saving ? "ADDING..." : `ADD ${barcodeResult.name.toUpperCase()}`}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    setSaving(true);
+                    await fetch("/api/inventory", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        name: barcodeResult.name,
+                        category: barcodeResult.category,
+                        location,
+                        quantity: barcodeResult.quantity,
+                        purchasePrice: parseFloat(price) || 0,
+                        bestByDate: bestBy || null,
+                      }),
+                    });
+                    setSaving(false);
+                    setSaved(true);
+                    setBarcodeResult(null);
+                    setBarcodeInput("");
+                    setPrice("");
+                    setBestBy("");
+                  }}
+                  disabled={saving}
+                  className="btn btn-primary btn-lg flex-1 disabled:opacity-50"
+                >
+                  {saving ? "ADDING..." : "ADD TO INVENTORY"}
+                </button>
+                <button onClick={() => { setBarcodeResult(null); setBarcodeInput(""); setBarcodeError(null); }} className="btn btn-lg">SCAN AGAIN</button>
+              </div>
             </div>
           )}
 
