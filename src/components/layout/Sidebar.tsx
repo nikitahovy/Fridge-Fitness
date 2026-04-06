@@ -153,11 +153,13 @@ export default function Sidebar() {
 
       {/* Mobile: pull-up drawer overlay */}
       {drawerOpen && (
-        <div className="md:hidden fixed inset-0 z-50" onClick={() => closeDrawer()}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end"
+          onTouchMove={(e) => e.stopPropagation()}>
+          {/* Backdrop — tap to close */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => closeDrawer()} />
 
-          <div className="absolute bottom-0 left-0 right-0 bg-[#0a0a0e] border-t border-white/[0.08] rounded-t-3xl max-h-[75vh] overflow-y-auto overscroll-contain touch-pan-y"
-            onClick={(e) => e.stopPropagation()}
+          {/* Drawer — fixed at bottom, own scroll */}
+          <div className="relative bg-[#0a0a0e] border-t border-white/[0.08] rounded-t-3xl max-h-[75vh] flex flex-col"
             onTouchStart={handleDrawerTouchStart}
             onTouchEnd={handleDrawerTouchEnd}>
             {/* Pull handle — swipe down to close */}
@@ -176,8 +178,8 @@ export default function Sidebar() {
               </div>
             </div>
 
-            {/* All nav items */}
-            <div className="px-4 pb-4 space-y-1">
+            {/* All nav items — scrollable */}
+            <div className="px-4 pb-4 space-y-1 overflow-y-auto flex-1 overscroll-contain">
               {ALL_MOBILE_ITEMS.map((item) => (
                 <Link key={item.href} href={item.href} onClick={() => closeDrawer()}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${

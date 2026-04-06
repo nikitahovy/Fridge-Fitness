@@ -4,8 +4,10 @@ import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
+type Nutriments = { sugar: number; salt: number; saturatedFat: number; calories: number; fiber: number; protein: number };
+
 type HealthData = {
-  product: { name: string; brand: string; imageUrl: string | null; quantity: string; barcode: string };
+  product: { name: string; brand: string; imageUrl: string | null; quantity: string; servingSize: string | null; barcode: string };
   score: number;
   grade: string;
   gradeColor: string;
@@ -16,7 +18,8 @@ type HealthData = {
   hasHighRisk: boolean;
   trafficLights: { sugar: string; salt: string; saturatedFat: string; calories: string };
   additives: { code: string; name: string; risk: string }[];
-  nutriments: { sugar: number; salt: number; saturatedFat: number; calories: number; fiber: number; protein: number };
+  nutriments: Nutriments;
+  perServing: Nutriments;
 };
 
 function HealthScoreContent() {
@@ -25,6 +28,7 @@ function HealthScoreContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [manualCode, setManualCode] = useState("");
+  const [viewMode, setViewMode] = useState<"100g" | "serving">("serving");
 
   const barcode = searchParams.get("barcode");
 
@@ -149,32 +153,56 @@ function HealthScoreContent() {
             </div>
           </div>
 
-          {/* Traffic lights */}
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "Sugar", value: `${data.nutriments.sugar.toFixed(1)}g`, level: data.trafficLights.sugar },
-              { label: "Salt", value: `${data.nutriments.salt.toFixed(1)}g`, level: data.trafficLights.salt },
-              { label: "Sat. Fat", value: `${data.nutriments.saturatedFat.toFixed(1)}g`, level: data.trafficLights.saturatedFat },
-              { label: "Calories", value: `${data.nutriments.calories.toFixed(0)}`, level: data.trafficLights.calories },
-            ].map((item) => (
-              <div key={item.label} className={`bg-gradient-to-br ${tlBg(item.level)} border rounded-2xl p-3`}>
-                <p className={`text-display text-lg ${tlColor(item.level)}`}>{item.value}</p>
-                <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">{item.label} /100g</p>
-              </div>
-            ))}
-          </div>
+          {/* View toggle: per 100g vs per serving */}
+          {(() => {
+            const hasServing = data.perServing.calories > 0 || data.perServing.sugar > 0;
+            const n = viewMode === "serving" && hasServing ? data.perServing : data.nutriments;
+            const label = viewMode === "serving" && hasServing ? (data.product.servingSize || "serving") : "100g";
 
-          {/* Good stuff */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-gradient-to-br from-emerald-950/40 to-emerald-900/10 border border-emerald-500/15 rounded-2xl p-3">
-              <p className="text-display text-lg text-safe">{data.nutriments.protein.toFixed(1)}g</p>
-              <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Protein /100g</p>
-            </div>
-            <div className="bg-gradient-to-br from-emerald-950/40 to-emerald-900/10 border border-emerald-500/15 rounded-2xl p-3">
-              <p className="text-display text-lg text-safe">{data.nutriments.fiber.toFixed(1)}g</p>
-              <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Fiber /100g</p>
-            </div>
-          </div>
+            return (
+              <>
+                {hasServing && (
+                  <div className="flex gap-1 bg-card border border-card-border rounded-xl p-1 w-fit mx-auto">
+                    <button onClick={() => setViewMode("100g")}
+                      className={`font-pixel text-[10px] px-4 py-1.5 rounded-lg transition-all cursor-pointer ${viewMode === "100g" ? "bg-white text-black font-bold" : "text-muted"}`}>
+                      PER 100G
+                    </button>
+                    <button onClick={() => setViewMode("serving")}
+                      className={`font-pixel text-[10px] px-4 py-1.5 rounded-lg transition-all cursor-pointer ${viewMode === "serving" ? "bg-white text-black font-bold" : "text-muted"}`}>
+                      PER SERVING
+                    </button>
+                  </div>
+                )}
+
+                {/* Traffic lights */}
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: "Sugar", value: `${n.sugar.toFixed(1)}g`, level: data.trafficLights.sugar },
+                    { label: "Salt", value: `${n.salt.toFixed(1)}g`, level: data.trafficLights.salt },
+                    { label: "Sat. Fat", value: `${n.saturatedFat.toFixed(1)}g`, level: data.trafficLights.saturatedFat },
+                    { label: "Calories", value: `${n.calories.toFixed(0)} kcal`, level: data.trafficLights.calories },
+                  ].map((item) => (
+                    <div key={item.label} className={`bg-gradient-to-br ${tlBg(item.level)} border rounded-2xl p-3`}>
+                      <p className={`text-display text-lg ${tlColor(item.level)}`}>{item.value}</p>
+                      <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">{item.label} /{label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Good stuff */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-gradient-to-br from-emerald-950/40 to-emerald-900/10 border border-emerald-500/15 rounded-2xl p-3">
+                    <p className="text-display text-lg text-safe">{n.protein.toFixed(1)}g</p>
+                    <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Protein /{label}</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-emerald-950/40 to-emerald-900/10 border border-emerald-500/15 rounded-2xl p-3">
+                    <p className="text-display text-lg text-safe">{n.fiber.toFixed(1)}g</p>
+                    <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Fiber /{label}</p>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
 
           {/* Additives */}
           {data.additives.length > 0 && (

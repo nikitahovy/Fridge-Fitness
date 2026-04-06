@@ -157,7 +157,19 @@ export async function GET(req: NextRequest) {
     if (data.status !== 1 || !data.product) return NextResponse.json({ error: "Product not found" }, { status: 404 });
 
     const p = data.product;
+    const n = (p.nutriments || {}) as Record<string, number>;
     const healthScore = calculateHealthScore(p);
+
+    // Per-serving data
+    const servingSize = p.serving_size || p.serving_quantity ? `${p.serving_quantity || ""}${p.serving_quantity_unit || "g"}` : null;
+    const perServing = {
+      sugar: n.sugars_serving || n["sugars_serving"] || 0,
+      salt: n.salt_serving || (n.sodium_serving || 0) * 2.5 || 0,
+      saturatedFat: n["saturated-fat_serving"] || n.saturated_fat_serving || 0,
+      calories: n["energy-kcal_serving"] || n.energy_kcal_serving || (n["energy-kj_serving"] ? n["energy-kj_serving"] / 4.184 : 0) || (n.energy_serving ? n.energy_serving / 4.184 : 0) || 0,
+      fiber: n.fiber_serving || 0,
+      protein: n.proteins_serving || 0,
+    };
 
     return NextResponse.json({
       product: {
@@ -165,10 +177,12 @@ export async function GET(req: NextRequest) {
         brand: p.brands || "Unknown Brand",
         imageUrl: p.image_front_small_url || null,
         quantity: p.quantity || "",
+        servingSize: servingSize || p.serving_size || null,
         categories: ((p.categories_tags || []) as string[]).slice(0, 5).map((c: string) => c.replace("en:", "").replace(/-/g, " ")),
         barcode,
       },
       ...healthScore,
+      perServing,
     });
   } catch {
     return NextResponse.json({ error: "Failed to analyze product" }, { status: 500 });
