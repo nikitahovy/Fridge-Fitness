@@ -39,7 +39,6 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false); // for animation
-  const pillRef = useRef<HTMLDivElement>(null);
   const touchStartY = useRef(0);
 
   const openDrawer = useCallback(() => {
@@ -64,24 +63,7 @@ export default function Sidebar() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // Pill swipe handler — only on the pill touch area
-  const handlePillTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartY.current = e.touches[0].clientY;
-    e.stopPropagation(); // don't let it scroll the page
-  }, []);
-
-  const handlePillTouchMove = useCallback((e: React.TouchEvent) => {
-    e.preventDefault(); // prevent page scroll while swiping pill
-    e.stopPropagation();
-  }, []);
-
-  const handlePillTouchEnd = useCallback((e: React.TouchEvent) => {
-    const deltaY = touchStartY.current - e.changedTouches[0].clientY;
-    if (deltaY > 30) openDrawer(); // swipe up
-    e.stopPropagation();
-  }, [openDrawer]);
-
-  // Drawer handle swipe down
+  // Drawer handle swipe down to close
   const handleDrawerHandleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
   }, []);
@@ -213,17 +195,19 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* Mobile bottom bar — NO swipe on nav, only on pill */}
+      {/* Mobile bottom bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40">
         <div className="h-3 bg-gradient-to-t from-[#0a0a0e] to-transparent pointer-events-none" />
 
         <div className="bg-[#0a0a0e]/95 backdrop-blur-lg border-t border-white/[0.08]">
-          {/* Pill handle — tall touch target, only this responds to swipe */}
-          <div ref={pillRef} className="flex justify-center py-3 -mb-2 cursor-grab"
-            onTouchStart={handlePillTouchStart}
-            onTouchMove={handlePillTouchMove}
-            onTouchEnd={handlePillTouchEnd}>
-            <div className="w-12 h-1.5 rounded-full bg-white/25" />
+          {/* Menu button — simple tap, no swipe */}
+          <div className="flex justify-center pt-1.5">
+            <button onClick={openDrawer}
+              className="flex items-center gap-1.5 px-4 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] active:bg-white/[0.15] transition">
+              <div className="w-6 h-0.5 rounded-full bg-white/40" />
+              <span className="font-pixel text-[8px] text-white/40 uppercase">Menu</span>
+              <div className="w-6 h-0.5 rounded-full bg-white/40" />
+            </button>
           </div>
 
           <div className="flex justify-around items-center py-1.5 px-1 safe-bottom">
