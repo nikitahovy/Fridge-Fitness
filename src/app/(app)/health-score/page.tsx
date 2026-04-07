@@ -20,6 +20,8 @@ type HealthData = {
   additives: { code: string; name: string; risk: string }[];
   nutriments: Nutriments;
   perServing: Nutriments;
+  total: Nutriments;
+  totalSize: string | null;
 };
 
 function HealthScoreContent() {
@@ -28,7 +30,7 @@ function HealthScoreContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [manualCode, setManualCode] = useState("");
-  const [viewMode, setViewMode] = useState<"100g" | "serving">("serving");
+  const [viewMode, setViewMode] = useState<"serving" | "total">("serving");
 
   const barcode = searchParams.get("barcode");
 
@@ -153,26 +155,26 @@ function HealthScoreContent() {
             </div>
           </div>
 
-          {/* View toggle: per 100g vs per serving */}
+          {/* Per Serving / Total toggle */}
           {(() => {
             const hasServing = data.perServing.calories > 0 || data.perServing.sugar > 0;
-            const n = viewMode === "serving" && hasServing ? data.perServing : data.nutriments;
-            const label = viewMode === "serving" && hasServing ? (data.product.servingSize || "serving") : "100g";
+            const n = viewMode === "total" ? data.total : (hasServing ? data.perServing : data.total);
+            const label = viewMode === "total"
+              ? (data.totalSize || data.product.quantity || "total")
+              : (data.product.servingSize || "serving");
 
             return (
               <>
-                {hasServing && (
-                  <div className="flex gap-1 bg-card border border-card-border rounded-xl p-1 w-fit mx-auto">
-                    <button onClick={() => setViewMode("100g")}
-                      className={`font-pixel text-[10px] px-4 py-1.5 rounded-lg transition-all cursor-pointer ${viewMode === "100g" ? "bg-white text-black font-bold" : "text-muted"}`}>
-                      PER 100G
-                    </button>
-                    <button onClick={() => setViewMode("serving")}
-                      className={`font-pixel text-[10px] px-4 py-1.5 rounded-lg transition-all cursor-pointer ${viewMode === "serving" ? "bg-white text-black font-bold" : "text-muted"}`}>
-                      PER SERVING
-                    </button>
-                  </div>
-                )}
+                <div className="flex gap-1 bg-card border border-card-border rounded-xl p-1 w-fit mx-auto">
+                  <button onClick={() => setViewMode("serving")}
+                    className={`font-pixel text-[10px] px-4 py-1.5 rounded-lg transition-all cursor-pointer ${viewMode === "serving" ? "bg-white text-black font-bold" : "text-muted"}`}>
+                    PER SERVING
+                  </button>
+                  <button onClick={() => setViewMode("total")}
+                    className={`font-pixel text-[10px] px-4 py-1.5 rounded-lg transition-all cursor-pointer ${viewMode === "total" ? "bg-white text-black font-bold" : "text-muted"}`}>
+                    TOTAL
+                  </button>
+                </div>
 
                 {/* Traffic lights */}
                 <div className="grid grid-cols-2 gap-3">

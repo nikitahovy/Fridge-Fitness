@@ -161,15 +161,28 @@ export async function GET(req: NextRequest) {
     const healthScore = calculateHealthScore(p);
 
     // Per-serving data
-    const servingSize = p.serving_size || p.serving_quantity ? `${p.serving_quantity || ""}${p.serving_quantity_unit || "g"}` : null;
+    const servingSize = p.serving_size || (p.serving_quantity ? `${p.serving_quantity}${p.serving_quantity_unit || "g"}` : null);
     const perServing = {
-      sugar: n.sugars_serving || n["sugars_serving"] || 0,
+      sugar: n.sugars_serving || 0,
       salt: n.salt_serving || (n.sodium_serving || 0) * 2.5 || 0,
       saturatedFat: n["saturated-fat_serving"] || n.saturated_fat_serving || 0,
       calories: n["energy-kcal_serving"] || n.energy_kcal_serving || (n["energy-kj_serving"] ? n["energy-kj_serving"] / 4.184 : 0) || (n.energy_serving ? n.energy_serving / 4.184 : 0) || 0,
       fiber: n.fiber_serving || 0,
       protein: n.proteins_serving || 0,
     };
+
+    // Total (whole package) — estimate from per-100g * product quantity, or use product-level fields
+    const productQuantityG = parseFloat(String(p.product_quantity || "0")) || 0;
+    const multiplier = productQuantityG > 0 ? productQuantityG / 100 : 1;
+    const total = {
+      sugar: healthScore.nutriments.sugar * multiplier,
+      salt: healthScore.nutriments.salt * multiplier,
+      saturatedFat: healthScore.nutriments.saturatedFat * multiplier,
+      calories: healthScore.nutriments.calories * multiplier,
+      fiber: healthScore.nutriments.fiber * multiplier,
+      protein: healthScore.nutriments.protein * multiplier,
+    };
+    const totalSize = p.product_quantity ? `${p.product_quantity}${p.product_quantity_unit || "g"}` : (p.quantity || null);
 
     return NextResponse.json({
       product: {
@@ -183,6 +196,8 @@ export async function GET(req: NextRequest) {
       },
       ...healthScore,
       perServing,
+      total,
+      totalSize,
     });
   } catch {
     return NextResponse.json({ error: "Failed to analyze product" }, { status: 500 });
