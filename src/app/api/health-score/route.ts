@@ -42,7 +42,7 @@ const FOOD_ADDITIVE_RISKS: Record<string, { risk: "high" | "moderate" | "low" | 
   "e476": { risk: "low", name: "Polyglycerol Polyricinoleate", concern: "Emulsifier, well tolerated in normal amounts" },
   "e481": { risk: "low", name: "Sodium Stearoyl Lactylate", concern: "Dough strengthener, generally safe" },
   "e551": { risk: "safe", name: "Silicon Dioxide", concern: "Anti-caking agent, passes through body unabsorbed" },
-  "e621": { risk: "moderate", name: "Monosodium Glutamate", concern: "Flavor enhancer, may cause sensitivity reactions" },
+  "e635": { risk: "low", name: "Disodium Ribonucleotides", concern: "Flavor enhancer often paired with MSG, generally safe" },
   "e901": { risk: "safe", name: "Beeswax", concern: "Natural glazing agent, safe" },
   "e903": { risk: "safe", name: "Carnauba Wax", concern: "Natural plant wax coating, safe" },
 };
