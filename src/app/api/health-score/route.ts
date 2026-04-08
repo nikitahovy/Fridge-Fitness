@@ -1,35 +1,50 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // ── FOOD ADDITIVE RISKS ──
-const FOOD_ADDITIVE_RISKS: Record<string, { risk: "high" | "moderate" | "low" | "safe"; name: string }> = {
-  "e950": { risk: "moderate", name: "Acesulfame K" },
-  "e951": { risk: "moderate", name: "Aspartame" },
-  "e955": { risk: "moderate", name: "Sucralose" },
-  "e621": { risk: "moderate", name: "MSG" },
-  "e250": { risk: "high", name: "Sodium Nitrite" },
-  "e251": { risk: "high", name: "Sodium Nitrate" },
-  "e320": { risk: "high", name: "BHA" },
-  "e321": { risk: "high", name: "BHT" },
-  "e171": { risk: "high", name: "Titanium Dioxide" },
-  "e102": { risk: "high", name: "Tartrazine" },
-  "e110": { risk: "high", name: "Sunset Yellow" },
-  "e122": { risk: "moderate", name: "Carmoisine" },
-  "e124": { risk: "high", name: "Ponceau 4R" },
-  "e129": { risk: "high", name: "Allura Red" },
-  "e211": { risk: "high", name: "Sodium Benzoate" },
-  "e220": { risk: "moderate", name: "Sulfur Dioxide" },
-  "e407": { risk: "moderate", name: "Carrageenan" },
-  "e450": { risk: "low", name: "Diphosphates" },
-  "e471": { risk: "safe", name: "Mono/Diglycerides" },
-  "e322": { risk: "safe", name: "Lecithin" },
-  "e330": { risk: "safe", name: "Citric Acid" },
-  "e300": { risk: "safe", name: "Ascorbic Acid (Vitamin C)" },
-  "e306": { risk: "safe", name: "Tocopherols (Vitamin E)" },
-  "e412": { risk: "safe", name: "Guar Gum" },
-  "e415": { risk: "safe", name: "Xanthan Gum" },
-  "e440": { risk: "safe", name: "Pectin" },
-  "e500": { risk: "safe", name: "Sodium Carbonates" },
-  "e503": { risk: "safe", name: "Ammonium Carbonates" },
+const FOOD_ADDITIVE_RISKS: Record<string, { risk: "high" | "moderate" | "low" | "safe"; name: string; concern: string }> = {
+  "e950": { risk: "moderate", name: "Acesulfame K", concern: "Artificial sweetener, possible insulin disruption" },
+  "e951": { risk: "moderate", name: "Aspartame", concern: "Artificial sweetener, linked to headaches and neurological concerns" },
+  "e955": { risk: "moderate", name: "Sucralose", concern: "Artificial sweetener, may affect gut bacteria" },
+  "e621": { risk: "moderate", name: "MSG", concern: "Flavor enhancer, can cause headaches in sensitive individuals" },
+  "e250": { risk: "high", name: "Sodium Nitrite", concern: "Preservative in processed meat, forms carcinogenic nitrosamines" },
+  "e251": { risk: "high", name: "Sodium Nitrate", concern: "Converts to nitrite in body, linked to colorectal cancer" },
+  "e320": { risk: "high", name: "BHA", concern: "Antioxidant preservative, possible carcinogen and endocrine disruptor" },
+  "e321": { risk: "high", name: "BHT", concern: "Preservative, potential endocrine disruptor and tumor promoter" },
+  "e171": { risk: "high", name: "Titanium Dioxide", concern: "Whitening agent, nanoparticles may damage DNA. Banned in EU food" },
+  "e102": { risk: "high", name: "Tartrazine", concern: "Yellow dye, linked to hyperactivity in children and allergic reactions" },
+  "e110": { risk: "high", name: "Sunset Yellow", concern: "Orange dye, linked to hyperactivity and may contain carcinogenic contaminants" },
+  "e122": { risk: "moderate", name: "Carmoisine", concern: "Red dye, may cause allergic reactions and hyperactivity" },
+  "e124": { risk: "high", name: "Ponceau 4R", concern: "Red dye, banned in US, linked to hyperactivity and allergies" },
+  "e129": { risk: "high", name: "Allura Red", concern: "Red dye, linked to hyperactivity in children and DNA damage" },
+  "e211": { risk: "high", name: "Sodium Benzoate", concern: "Preservative, forms carcinogenic benzene when combined with vitamin C" },
+  "e220": { risk: "moderate", name: "Sulfur Dioxide", concern: "Preservative, triggers asthma and allergic reactions" },
+  "e407": { risk: "moderate", name: "Carrageenan", concern: "Thickener from seaweed, may cause gut inflammation" },
+  "e450": { risk: "low", name: "Diphosphates", concern: "Emulsifier, excessive intake may affect calcium absorption" },
+  "e471": { risk: "safe", name: "Mono/Diglycerides", concern: "Emulsifier from fats, generally well tolerated" },
+  "e322": { risk: "safe", name: "Lecithin", concern: "Natural emulsifier from soy/eggs, safe" },
+  "e330": { risk: "safe", name: "Citric Acid", concern: "Natural acid found in citrus fruits, safe" },
+  "e300": { risk: "safe", name: "Ascorbic Acid", concern: "Vitamin C, antioxidant, safe" },
+  "e306": { risk: "safe", name: "Tocopherols", concern: "Vitamin E, natural antioxidant, safe" },
+  "e412": { risk: "safe", name: "Guar Gum", concern: "Natural thickener from beans, safe" },
+  "e415": { risk: "safe", name: "Xanthan Gum", concern: "Natural thickener, safe" },
+  "e440": { risk: "safe", name: "Pectin", concern: "Natural gelling agent from fruit, safe" },
+  "e500": { risk: "safe", name: "Sodium Carbonates", concern: "Baking soda, safe" },
+  "e503": { risk: "safe", name: "Ammonium Carbonates", concern: "Leavening agent, safe" },
+  "e150a": { risk: "safe", name: "Caramel Color I", concern: "Simple caramel, safe" },
+  "e150d": { risk: "moderate", name: "Caramel Color IV", concern: "Contains 4-MEI, a possible carcinogen at high doses" },
+  "e338": { risk: "moderate", name: "Phosphoric Acid", concern: "Acidifier in sodas, may weaken bones with excess consumption" },
+  "e339": { risk: "low", name: "Sodium Phosphates", concern: "Emulsifier, excess may affect kidney function" },
+  "e341": { risk: "low", name: "Calcium Phosphates", concern: "Mineral supplement, generally safe" },
+  "e420": { risk: "low", name: "Sorbitol", concern: "Sugar alcohol, may cause digestive issues in excess" },
+  "e422": { risk: "safe", name: "Glycerol", concern: "Moistener, naturally occurring, safe" },
+  "e460": { risk: "safe", name: "Cellulose", concern: "Plant fiber, safe" },
+  "e472e": { risk: "safe", name: "DATEM", concern: "Dough conditioner, generally safe" },
+  "e476": { risk: "low", name: "Polyglycerol Polyricinoleate", concern: "Emulsifier, well tolerated in normal amounts" },
+  "e481": { risk: "low", name: "Sodium Stearoyl Lactylate", concern: "Dough strengthener, generally safe" },
+  "e551": { risk: "safe", name: "Silicon Dioxide", concern: "Anti-caking agent, passes through body unabsorbed" },
+  "e621": { risk: "moderate", name: "Monosodium Glutamate", concern: "Flavor enhancer, may cause sensitivity reactions" },
+  "e901": { risk: "safe", name: "Beeswax", concern: "Natural glazing agent, safe" },
+  "e903": { risk: "safe", name: "Carnauba Wax", concern: "Natural plant wax coating, safe" },
 };
 
 // ── SKINCARE / COSMETIC INGREDIENT RISKS ──
@@ -127,7 +142,7 @@ function calculateFoodScore(product: Record<string, unknown>) {
   const nutritionScore = Math.min(60, Math.max(0, Math.round(((40 - negPts + posPts) / 40) * 60)));
 
   // Additives (heavier penalties)
-  const detectedAdditives: { code: string; name: string; risk: string }[] = [];
+  const detectedAdditives: { code: string; name: string; risk: string; concern: string }[] = [];
   let additivePenalty = 0;
   let highRiskCount = 0;
 
@@ -135,12 +150,12 @@ function calculateFoodScore(product: Record<string, unknown>) {
     const code = tag.replace("en:", "").toLowerCase();
     const info = FOOD_ADDITIVE_RISKS[code];
     if (info) {
-      detectedAdditives.push({ code: code.toUpperCase(), name: info.name, risk: info.risk });
+      detectedAdditives.push({ code: code.toUpperCase(), name: info.name, risk: info.risk, concern: info.concern });
       if (info.risk === "high") { additivePenalty += 15; highRiskCount++; }
       else if (info.risk === "moderate") additivePenalty += 7;
       else if (info.risk === "low") additivePenalty += 2;
     } else {
-      detectedAdditives.push({ code: code.toUpperCase(), name: code.toUpperCase(), risk: "unknown" });
+      detectedAdditives.push({ code: code.toUpperCase(), name: code.toUpperCase(), risk: "unknown", concern: "Not in database" });
       additivePenalty += 2;
     }
   }

@@ -42,6 +42,9 @@ export const inventoryPatchSchema = z.object({
   name: safeString(200).optional(),
   status: itemStatus.optional(),
   location: storageLocation.optional(),
+  quantity: safeString(100).optional(),
+  purchasePrice: z.number().min(0).max(10000).optional(),
+  bestByDate: isoDateOrNull,
   openedAt: isoDateOrNull,
 });
 

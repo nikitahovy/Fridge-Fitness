@@ -77,7 +77,13 @@ export default function InventoryPage() {
     await fetch("/api/inventory", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: editingId, name: editForm.name }),
+      body: JSON.stringify({
+        id: editingId,
+        name: editForm.name,
+        quantity: editForm.quantity,
+        purchasePrice: editForm.purchasePrice,
+        bestByDate: editForm.bestByDate || null,
+      }),
     });
     showFeedback("Item updated");
     setEditingId(null);

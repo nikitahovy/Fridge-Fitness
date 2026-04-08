@@ -91,6 +91,9 @@ export async function PATCH(req: NextRequest) {
     if (updates.name !== undefined) updateObj.name = updates.name;
     if (updates.status !== undefined) updateObj.status = updates.status;
     if (updates.location !== undefined) updateObj.location = updates.location;
+    if (updates.quantity !== undefined) updateObj.quantity = updates.quantity;
+    if (updates.purchasePrice !== undefined) updateObj.purchase_price = updates.purchasePrice;
+    if (updates.bestByDate !== undefined) updateObj.best_by_date = updates.bestByDate;
     if (updates.openedAt !== undefined) updateObj.opened_at = updates.openedAt;
 
     const { data, error } = await supabase
