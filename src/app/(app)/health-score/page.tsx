@@ -8,20 +8,25 @@ type Nutriments = { sugar: number; salt: number; saturatedFat: number; calories:
 
 type HealthData = {
   product: { name: string; brand: string; imageUrl: string | null; quantity: string; servingSize: string | null; barcode: string };
+  type: "food" | "skincare";
   score: number;
   grade: string;
   gradeColor: string;
-  nutritionScore: number;
-  additivePenalty: number;
+  nutritionScore?: number;
+  additivePenalty?: number;
+  badPenalty?: number;
+  goodCount?: number;
   organicBonus: number;
   isOrganic: boolean;
   hasHighRisk: boolean;
-  trafficLights: { sugar: string; salt: string; saturatedFat: string; calories: string };
-  additives: { code: string; name: string; risk: string }[];
-  nutriments: Nutriments;
-  perServing: Nutriments;
-  total: Nutriments;
+  highRiskCount: number;
+  trafficLights?: { sugar: string; salt: string; saturatedFat: string; calories: string };
+  additives: { code: string; name: string; risk: string; concern?: string }[];
+  nutriments?: Nutriments;
+  perServing: Nutriments | null;
+  total: Nutriments | null;
   totalSize: string | null;
+  ingredientCount?: number;
 };
 
 function HealthScoreContent() {
@@ -132,21 +137,34 @@ function HealthScoreContent() {
               </div>
             </div>
             <p className="text-display text-xl" style={{ color: data.gradeColor }}>{data.grade}</p>
+            <p className="font-pixel text-[9px] text-muted mt-1 uppercase">{data.type === "skincare" ? "SKINCARE / COSMETIC" : "FOOD / BEVERAGE"}</p>
             {data.isOrganic && <p className="font-pixel text-[9px] text-safe mt-1">ORGANIC +{data.organicBonus} BONUS</p>}
-            {data.hasHighRisk && <p className="font-pixel text-[9px] text-danger mt-1">SCORE CAPPED — HIGH-RISK ADDITIVE</p>}
+            {data.hasHighRisk && (
+              <p className="font-pixel text-[9px] text-danger mt-1">
+                SCORE CAPPED — {data.highRiskCount} HIGH-RISK {data.type === "skincare" ? "INGREDIENT" : "ADDITIVE"}{data.highRiskCount > 1 ? "S" : ""}
+              </p>
+            )}
           </div>
 
           {/* Score breakdown */}
           <div className="bg-card border border-card-border rounded-2xl p-5">
             <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// BREAKDOWN</p>
             <div className="space-y-3">
+              {data.type === "food" && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Nutrition Quality</span>
+                  <span className="font-pixel text-sm text-safe">+{data.nutritionScore}</span>
+                </div>
+              )}
+              {data.type === "skincare" && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm">Good Ingredients</span>
+                  <span className="font-pixel text-sm text-safe">+{data.goodCount || 0} found</span>
+                </div>
+              )}
               <div className="flex items-center justify-between">
-                <span className="text-sm">Nutrition Quality</span>
-                <span className="font-pixel text-sm text-safe">+{data.nutritionScore}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Additives Penalty</span>
-                <span className="font-pixel text-sm text-danger">{data.additivePenalty > 0 ? `-${data.additivePenalty}` : "0"}</span>
+                <span className="text-sm">{data.type === "skincare" ? "Harmful Ingredients" : "Additives Penalty"}</span>
+                <span className="font-pixel text-sm text-danger">{(data.badPenalty || data.additivePenalty || 0) > 0 ? `-${data.badPenalty || data.additivePenalty}` : "0"}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Organic Bonus</span>
@@ -155,8 +173,8 @@ function HealthScoreContent() {
             </div>
           </div>
 
-          {/* Per Serving / Total toggle */}
-          {(() => {
+          {/* Per Serving / Total toggle — food only */}
+          {data.type === "food" && data.perServing && data.total && (() => {
             const hasServing = data.perServing.calories > 0 || data.perServing.sugar > 0;
             const n = viewMode === "total" ? data.total : (hasServing ? data.perServing : data.total);
             const label = viewMode === "total"
@@ -179,10 +197,10 @@ function HealthScoreContent() {
                 {/* Traffic lights */}
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { label: "Sugar", value: `${n.sugar.toFixed(1)}g`, level: data.trafficLights.sugar },
-                    { label: "Salt", value: `${n.salt.toFixed(1)}g`, level: data.trafficLights.salt },
-                    { label: "Sat. Fat", value: `${n.saturatedFat.toFixed(1)}g`, level: data.trafficLights.saturatedFat },
-                    { label: "Calories", value: `${n.calories.toFixed(0)} kcal`, level: data.trafficLights.calories },
+                    { label: "Sugar", value: `${n.sugar.toFixed(1)}g`, level: data.trafficLights!.sugar },
+                    { label: "Salt", value: `${n.salt.toFixed(1)}g`, level: data.trafficLights!.salt },
+                    { label: "Sat. Fat", value: `${n.saturatedFat.toFixed(1)}g`, level: data.trafficLights!.saturatedFat },
+                    { label: "Calories", value: `${n.calories.toFixed(0)} kcal`, level: data.trafficLights!.calories },
                   ].map((item) => (
                     <div key={item.label} className={`bg-gradient-to-br ${tlBg(item.level)} border rounded-2xl p-3`}>
                       <p className={`text-display text-lg ${tlColor(item.level)}`}>{item.value}</p>
@@ -206,15 +224,21 @@ function HealthScoreContent() {
             );
           })()}
 
-          {/* Additives */}
+          {/* Ingredients / Additives */}
           {data.additives.length > 0 && (
             <div className="bg-card border border-card-border rounded-2xl p-5">
-              <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3">// ADDITIVES ({data.additives.length})</p>
-              <div className="flex flex-wrap gap-2">
+              <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3">
+                // {data.type === "skincare" ? "INGREDIENTS ANALYSIS" : "ADDITIVES"} ({data.additives.length})
+              </p>
+              <div className="space-y-2">
                 {data.additives.map((a) => (
-                  <span key={a.code} className={`text-[10px] font-pixel px-2 py-1 rounded-lg border ${riskColor(a.risk)}`}>
-                    {a.code} · {a.name}
-                  </span>
+                  <div key={a.code} className={`text-[11px] px-3 py-2 rounded-xl border ${riskColor(a.risk)} flex items-center justify-between gap-2`}>
+                    <div>
+                      <span className="font-bold">{a.name}</span>
+                      {a.concern && <span className="text-[9px] text-muted ml-2">— {a.concern}</span>}
+                    </div>
+                    <span className="font-pixel text-[8px] uppercase flex-shrink-0">{a.risk}</span>
+                  </div>
                 ))}
               </div>
             </div>
