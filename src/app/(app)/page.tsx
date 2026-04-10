@@ -26,8 +26,10 @@ export default function Dashboard() {
 
   const atRiskItems = eatFirst.filter((i) => i.riskTier === "use-today" || i.riskTier === "use-this-week");
   const dollarAtRisk = atRiskItems.reduce((sum, i) => sum + i.purchasePrice, 0);
+  const topAtRiskNames = atRiskItems.slice(0, 3).map((i) => i.name);
   const topRecipe = recipes[0];
   const hasInventory = eatFirst.length > 0;
+  const heroExplanation = topRecipe?.explanation?.[0];
 
   if (loading) {
     return (
@@ -124,45 +126,63 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Hero + At Risk */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 md:gap-6">
-        {/* Hero — glass */}
-        <div className="lg:col-span-3 glass rounded-2xl p-5 md:p-7 flex flex-col transition-all duration-200">
-          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// BEST NEXT MEAL</p>
-          {topRecipe ? (
-            <>
-              <h3 className="text-display text-3xl md:text-4xl mb-4 md:mb-5">{topRecipe.recipe.name}</h3>
-              <div className="flex flex-wrap gap-2 mb-4 md:mb-5">
-                {topRecipe.explanation.map((ex, i) => (
-                  <span key={i} className="glass-btn text-[11px] px-3 py-1.5 rounded-full text-muted">{ex}</span>
-                ))}
-              </div>
-              <div className="flex gap-6 md:gap-8 font-pixel text-xs text-muted mb-5 md:mb-6">
+      {/* Unified loss-aversion hero */}
+      <div className="glass rounded-2xl p-5 md:p-8 flex flex-col transition-all duration-200">
+        {dollarAtRisk > 0 ? (
+          <>
+            <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3">// AT RISK THIS WEEK</p>
+            <div className="text-display text-5xl md:text-7xl text-danger mb-2 leading-none">
+              ${dollarAtRisk.toFixed(0)}<span className="text-2xl md:text-3xl">.{dollarAtRisk.toFixed(2).split('.')[1]}</span>
+            </div>
+            {topAtRiskNames.length > 0 && (
+              <p className="text-sm md:text-base text-muted mb-1">
+                {topAtRiskNames.join(", ")}
+                {atRiskItems.length > 3 && ` + ${atRiskItems.length - 3} more`}
+              </p>
+            )}
+            <p className="text-xs text-muted mb-6 md:mb-7">losing quality soon.</p>
+          </>
+        ) : (
+          <>
+            <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3">// YOU&apos;RE ON TRACK</p>
+            <div className="text-display text-4xl md:text-5xl text-safe mb-2 leading-none">All clear</div>
+            <p className="text-xs text-muted mb-6 md:mb-7">Nothing at risk this week.</p>
+          </>
+        )}
+
+        {topRecipe && (
+          <>
+            <div className="border-t border-white/[0.06] pt-5 md:pt-6">
+              <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3">
+                // {dollarAtRisk > 0 ? "TONIGHT'S RESCUE" : "YOUR BEST MEAL RIGHT NOW"}
+              </p>
+              <h3 className="text-display text-2xl md:text-4xl mb-3">{topRecipe.recipe.name}</h3>
+              {heroExplanation && (
+                <p className="text-sm text-muted mb-4">{heroExplanation}</p>
+              )}
+              <div className="flex flex-wrap gap-x-6 gap-y-2 font-pixel text-xs text-muted mb-5 md:mb-6">
+                {topRecipe.wasteRescueValue > 0 && (
+                  <span className="text-danger">rescues ${topRecipe.wasteRescueValue.toFixed(2)}</span>
+                )}
                 <span>{topRecipe.recipe.macros.protein}g protein</span>
-                <span>{topRecipe.recipe.macros.carbs}g carbs</span>
                 <span>{topRecipe.recipe.cookTimeMinutes} min</span>
               </div>
-              <Link href={`/recipes/${topRecipe.recipe.id}`} className="glass-btn rounded-xl px-6 py-3 font-pixel text-xs font-bold uppercase tracking-wider self-start transition-all duration-200">
-                View Recipe →
-              </Link>
-            </>
-          ) : (
-            <p className="text-muted">No recipes available</p>
-          )}
-        </div>
-
-        {/* At Risk — glass */}
-        <div className="lg:col-span-2 glass rounded-2xl p-5 md:p-7 flex flex-col transition-all duration-200">
-          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// VALUE AT RISK</p>
-          <div className="text-display text-5xl md:text-6xl text-danger mb-2">
-            ${dollarAtRisk.toFixed(0)}<span className="text-xl md:text-2xl">.{dollarAtRisk.toFixed(2).split('.')[1]}</span>
-          </div>
-          <p className="text-sm text-muted mb-auto">{atRiskItems.length} item{atRiskItems.length !== 1 ? "s" : ""} expiring soon</p>
-          <div className="flex gap-3 mt-5 md:mt-6 pt-4 md:pt-5 border-t border-white/[0.06]">
-            <Link href="/eat-first" className="btn btn-primary">Eat-First →</Link>
-            <Link href="/inventory" className="btn">Inventory →</Link>
-          </div>
-        </div>
+              <div className="flex flex-wrap gap-3">
+                <Link href={`/recipes/${topRecipe.recipe.id}`} className="btn btn-primary">
+                  Cook this →
+                </Link>
+                {dollarAtRisk > 0 && (
+                  <Link href="/eat-first" className="btn">
+                    See all {atRiskItems.length} at-risk →
+                  </Link>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+        {!topRecipe && (
+          <p className="text-muted">No recipes available</p>
+        )}
       </div>
 
       {/* Expiring Soon */}

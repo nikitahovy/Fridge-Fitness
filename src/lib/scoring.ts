@@ -9,6 +9,15 @@ const WEIGHTS = {
   prepFriction: 0.10,
 };
 
+function formatItemList(names: string[], max = 2): string {
+  if (names.length === 0) return "";
+  if (names.length === 1) return names[0];
+  if (names.length === 2) return `${names[0]} + ${names[1]}`;
+  const head = names.slice(0, max).join(", ");
+  const remaining = names.length - max;
+  return `${head} + ${remaining} more`;
+}
+
 function matchInventoryItem(ingredientName: string, items: ItemWithRisk[]): ItemWithRisk | undefined {
   const normalized = ingredientName.toLowerCase();
   return items.find((item) => item.name.toLowerCase().includes(normalized) || normalized.includes(item.name.toLowerCase()));
@@ -92,26 +101,38 @@ export function scoreRecipe(
     WEIGHTS.userPreference * 0.5 - // neutral default
     WEIGHTS.prepFriction * prepFriction;
 
-  // Generate explanations
+  // Generate explanations — priority-ordered, loss-aversion-first
   const explanation: string[] = [];
-  if (atRiskItemsRescued.length > 0) {
-    const names = atRiskItemsRescued.map((i) => i.name).join(" and ");
-    explanation.push(`Uses ${names} expiring soon`);
+
+  // Priority 1-3: at-risk rescue framing (lead with loss aversion)
+  if (atRiskItemsRescued.length >= 2) {
+    explanation.push(`Uses your ${formatItemList(atRiskItemsRescued.map((i) => i.name))} before they spoil`);
+  } else if (atRiskItemsRescued.length === 1) {
+    const itemName = atRiskItemsRescued[0].name;
+    if (wasteRescueValue >= 2) {
+      explanation.push(`Rescues $${wasteRescueValue.toFixed(2)} of ${itemName} losing quality soon`);
+    } else {
+      explanation.push(`Uses your ${itemName} before it spoils`);
+    }
   }
-  if (wasteRescueValue > 0) {
-    explanation.push(`Saves $${wasteRescueValue.toFixed(2)} in at-risk ingredients`);
-  }
+
+  // Priority 4: macro/recovery fit
   if (macroMatch > 0.7) {
     const dayLabel = recovery.inferredDayType === "strength" ? "strength training" :
       recovery.inferredDayType === "cardio" ? "cardio" : "recovery";
-    explanation.push(`Great ${recipe.macros.protein >= 30 ? "high-protein" : "balanced"} match for your ${dayLabel} day`);
+    explanation.push(`${recipe.macros.protein >= 30 ? "High-protein" : "Balanced"} fit for your ${dayLabel} day`);
   }
-  if (recipe.cookTimeMinutes <= 10) {
-    explanation.push("Ready in under 10 minutes");
+
+  // Priority 5: convenience fallback
+  if (explanation.length === 0 && recipe.cookTimeMinutes <= 10) {
+    explanation.push(`Quick ${recipe.cookTimeMinutes}-min meal`);
   }
-  if (missingIngredients.length === 0) {
+  if (explanation.length === 0 && missingIngredients.length === 0) {
     explanation.push("You have everything you need");
   }
+
+  // Cap at 3 to avoid noise on cards
+  while (explanation.length > 3) explanation.pop();
 
   return {
     recipe,

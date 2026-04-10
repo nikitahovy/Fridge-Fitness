@@ -129,32 +129,56 @@ function findShelfLifeRules(name: string) {
   return null;
 }
 
+function formatShortDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 export function computeItemRisk(item: InventoryItem): ItemWithRisk {
-  const rules = findShelfLifeRules(item.name) || CATEGORY_DEFAULTS[item.category] || CATEGORY_DEFAULTS.other;
+  const namedRules = findShelfLifeRules(item.name);
+  const rules = namedRules || CATEGORY_DEFAULTS[item.category] || CATEGORY_DEFAULTS.other;
+  const fromCategoryDefault = !namedRules;
 
   if (item.status === "frozen" || item.location === "freezer") {
+    const days = rules.frozen > 0 ? rules.frozen : 999;
     return {
       ...item,
-      daysUntilQualityDecline: rules.frozen > 0 ? rules.frozen : 999,
-      daysUntilDiscard: rules.frozen > 0 ? rules.frozen + 30 : 999,
+      daysUntilQualityDecline: days,
+      daysUntilDiscard: days + 30,
       spoilageRiskScore: 0,
       wasteValueScore: 0,
       riskTier: "frozen",
+      reason: "Frozen — spoilage paused",
+      confidence: 0.95,
     };
   }
 
   let expiryDays: number;
+  let reason: string;
+  let confidence: number;
 
   if (item.openedAt) {
-    // Use opened shelf life from the opened date
-    const daysSinceOpened = -daysBetween(item.openedAt, today());
+    const daysSinceOpened = Math.max(0, -daysBetween(item.openedAt, today()));
     expiryDays = rules.opened - daysSinceOpened;
+    const remaining = Math.max(0, expiryDays);
+    const openedLabel = daysSinceOpened === 0 ? "today" : `${daysSinceOpened}d ago`;
+    reason = `Opened ${openedLabel} · ${remaining}d quality life left`;
+    confidence = 0.9;
   } else if (item.bestByDate) {
     expiryDays = daysBetween(item.bestByDate, today());
+    const remaining = Math.max(0, expiryDays);
+    reason = `Best-by ${formatShortDate(item.bestByDate)} · ${remaining}d left`;
+    confidence = 0.85;
   } else {
-    // Estimate from purchase date
-    const daysSincePurchase = -daysBetween(item.purchaseDate, today());
+    const daysSincePurchase = Math.max(0, -daysBetween(item.purchaseDate, today()));
     expiryDays = rules.sealed - daysSincePurchase;
+    if (fromCategoryDefault) {
+      reason = `Estimated from ${item.category} default`;
+      confidence = 0.5;
+    } else {
+      reason = `Sealed ${item.category} · est. ${rules.sealed}d from purchase`;
+      confidence = 0.7;
+    }
   }
 
   const daysUntilQualityDecline = Math.max(0, expiryDays);
@@ -175,6 +199,8 @@ export function computeItemRisk(item: InventoryItem): ItemWithRisk {
     spoilageRiskScore,
     wasteValueScore: Math.min(100, wasteValueScore),
     riskTier,
+    reason,
+    confidence,
   };
 }
 

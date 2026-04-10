@@ -35,6 +35,8 @@ export type ItemWithRisk = InventoryItem & {
   spoilageRiskScore: number;
   wasteValueScore: number;
   riskTier: RiskTier;
+  reason: string;
+  confidence: number;
 };
 
 export type DailyRecoveryContext = {

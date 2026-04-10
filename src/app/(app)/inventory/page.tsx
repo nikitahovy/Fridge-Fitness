@@ -184,15 +184,34 @@ export default function InventoryPage() {
                           {item.quantity} · {item.location} · {item.category}
                           {isFrozen && " · paused"}
                         </p>
+                        {item.reason && (
+                          <p className="text-[10px] text-white/40 truncate mt-0.5">
+                            {item.reason}{item.confidence < 0.6 ? " · ~estimate" : ""}
+                          </p>
+                        )}
                       </div>
                       <p className="text-display text-base md:text-lg flex-shrink-0">${item.purchasePrice.toFixed(2)}</p>
                     </div>
 
                     {/* Buttons row */}
                     <div className="flex gap-1.5 flex-wrap">
+                      {!isFrozen && !item.openedAt && item.status === "active" && (
+                        <button
+                          onClick={() => updateItem(item.id, { openedAt: new Date().toISOString().split("T")[0] })}
+                          className="btn flex-1 !text-[9px] !px-2 !py-1 !border-violet-400/40 !text-violet-300"
+                        >
+                          OPENED
+                        </button>
+                      )}
                       <button onClick={() => updateItem(item.id, { status: "consumed" })} className="btn btn-eat flex-1 !text-[9px] !px-2 !py-1">EATEN</button>
                       {isFrozen ? (
-                        <button onClick={() => updateItem(item.id, { status: "active", location: "fridge" })} className="btn btn-freeze flex-1 !text-[9px] !px-2 !py-1">THAW</button>
+                        <button
+                          onClick={() => updateItem(item.id, { status: "active", location: "fridge" })}
+                          title="Thawing starts a shorter freshness window"
+                          className="btn btn-freeze flex-1 !text-[9px] !px-2 !py-1"
+                        >
+                          THAW
+                        </button>
                       ) : (
                         <button onClick={() => updateItem(item.id, { status: "frozen", location: "freezer" })} className="btn btn-freeze flex-1 !text-[9px] !px-2 !py-1">FREEZE</button>
                       )}

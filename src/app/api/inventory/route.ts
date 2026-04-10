@@ -96,6 +96,18 @@ export async function PATCH(req: NextRequest) {
     if (updates.bestByDate !== undefined) updateObj.best_by_date = updates.bestByDate;
     if (updates.openedAt !== undefined) updateObj.opened_at = updates.openedAt;
 
+    // Thawed-state penalty: when transitioning frozen → active, treat as opened
+    // (thawed meat/produce has a much shorter remaining life than the frozen window).
+    // Only set openedAt if the user hadn't already opened it before freezing.
+    if (
+      updates.status === "active" &&
+      item.status === "frozen" &&
+      !item.opened_at &&
+      updates.openedAt === undefined
+    ) {
+      updateObj.opened_at = new Date().toISOString().split("T")[0];
+    }
+
     const { data, error } = await supabase
       .from("inventory_items")
       .update(updateObj)
