@@ -186,6 +186,51 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 8px);
 }
 
+/* ── Running fridge loader ── */
+@keyframes fridge-run {
+  0% { left: calc(0% - 32px); }
+  100% { left: calc(100% + 4px); }
+}
+@keyframes fridge-bob {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-1.5px); }
+  75% { transform: translateY(-1.5px); }
+}
+@keyframes leg-step-a {
+  0%, 100% { transform: translateY(-1.5px); }
+  50% { transform: translateY(0); }
+}
+@keyframes leg-step-b {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+@keyframes track-scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: -16px 0; }
+}
+.fridge-runner {
+  animation: fridge-run 2.6s linear infinite;
+}
+.fridge-bob {
+  animation: fridge-bob 0.34s ease-in-out infinite;
+}
+.fridge-leg-a {
+  animation: leg-step-a 0.34s ease-in-out infinite;
+}
+.fridge-leg-b {
+  animation: leg-step-b 0.34s ease-in-out infinite;
+}
+.fridge-track {
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(255,255,255,0.18) 0,
+    rgba(255,255,255,0.18) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  animation: track-scroll 0.4s linear infinite;
+}
+
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #363645; border-radius: 10px; }

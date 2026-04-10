@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FoodCategory, StorageLocation } from "@/lib/types";
 import QRUploadFlow from "@/components/qr/QRUploadFlow";
 import BarcodeScanner from "@/components/BarcodeScanner";
+import RunningFridge from "@/components/loading/RunningFridge";
 
 export default function AddItemWrapper() {
   return (
@@ -288,6 +289,8 @@ function AddItemPage() {
             <div className="space-y-4">
               <img src={cameraPreview} alt="Captured" className="w-full rounded-xl max-h-72 object-cover" />
 
+              {analyzing && <RunningFridge />}
+
               {analyzeError && (
                 <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
                   {analyzeError}
@@ -298,7 +301,7 @@ function AddItemPage() {
                 <button onClick={handleAnalyze} disabled={analyzing} className="btn btn-primary btn-lg flex-1 disabled:opacity-50">
                   {analyzing ? "ANALYZING WITH AI..." : "DETECT ITEMS"}
                 </button>
-                <button onClick={() => { resetCamera(); fileInputRef.current?.click(); }} className="btn btn-lg">
+                <button onClick={() => { resetCamera(); fileInputRef.current?.click(); }} disabled={analyzing} className="btn btn-lg disabled:opacity-50">
                   RETAKE
                 </button>
               </div>
