@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { playScanFeedback } from "@/lib/scan-feedback";
 
 export default function HealthScanPage() {
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function HealthScanPage() {
               const barcodes = await detector.detect(videoRef.current);
               if (barcodes.length > 0 && !detectedRef.current) {
                 detectedRef.current = true;
-                if (navigator.vibrate) navigator.vibrate(100);
+                playScanFeedback();
                 cleanup();
                 router.replace(`/health-score?barcode=${encodeURIComponent(barcodes[0].rawValue)}`);
                 return;
@@ -63,7 +64,7 @@ export default function HealthScanPage() {
                 const data = await res.json();
                 if (data.code && !detectedRef.current) {
                   detectedRef.current = true;
-                  if (navigator.vibrate) navigator.vibrate(100);
+                  playScanFeedback();
                   cleanup();
                   router.replace(`/health-score?barcode=${encodeURIComponent(data.code)}`);
                   return;

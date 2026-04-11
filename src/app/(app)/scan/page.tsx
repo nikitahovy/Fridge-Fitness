@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { playScanFeedback } from "@/lib/scan-feedback";
 
 export default function ScanPage() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function ScanPage() {
               const barcodes = await detector.detect(videoRef.current);
               if (barcodes.length > 0 && !detectedRef.current) {
                 detectedRef.current = true;
-                if (navigator.vibrate) navigator.vibrate(100);
+                playScanFeedback();
                 cleanup();
                 router.replace(`/add-item?barcode=${encodeURIComponent(barcodes[0].rawValue)}`);
                 return;
@@ -74,7 +75,7 @@ export default function ScanPage() {
                 const data = await res.json();
                 if (data.code && !detectedRef.current) {
                   detectedRef.current = true;
-                  if (navigator.vibrate) navigator.vibrate(100);
+                  playScanFeedback();
                   cleanup();
                   router.replace(`/add-item?barcode=${encodeURIComponent(data.code)}`);
                   return;
@@ -134,7 +135,7 @@ export default function ScanPage() {
               </div>
             </div>
           </div>
-          <p className="font-pixel text-[10px] text-muted text-center">Hold steady — vibrates when detected</p>
+          <p className="font-pixel text-[10px] text-muted text-center">Hold steady — beeps when detected</p>
           <button onClick={() => { if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop()); router.back(); }} className="btn w-full">CANCEL</button>
         </div>
       )}
