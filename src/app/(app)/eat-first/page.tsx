@@ -56,9 +56,9 @@ export default function EatFirstPage() {
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto">
-        <div className="mb-8"><div className="animate-pulse bg-white/[0.06] rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-white/[0.06] rounded-lg w-48 h-10" /></div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse bg-white/[0.06] rounded-2xl h-16" />)}</div>
-        <div className="space-y-2">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse bg-white/[0.06] rounded-2xl h-24" />)}</div>
+        <div className="mb-8"><div className="animate-pulse bg-slate-300/60 rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-slate-300/60 rounded-lg w-48 h-10" /></div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-8">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse bg-slate-300/60 rounded-2xl h-16" />)}</div>
+        <div className="space-y-2">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse bg-slate-300/60 rounded-2xl h-24" />)}</div>
       </div>
     );
   }
@@ -78,21 +78,21 @@ export default function EatFirstPage() {
 
       {/* Stats row — 2x2 on mobile, 4 on desktop */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-6 md:mb-8">
-        <div className="bg-gradient-to-br from-red-950/80 to-red-900/30 border border-red-500/20 rounded-2xl p-3 md:p-4">
+        <div className="risk-urgent backdrop-blur-md shadow-[0_2px_10px_rgba(31,87,184,0.08)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.4)] rounded-2xl p-3 md:p-4">
           <p className="text-display text-lg md:text-2xl text-danger">${totalAtRisk.toFixed(2)}</p>
-          <p className="font-pixel text-[8px] md:text-[9px] text-red-400/60 uppercase mt-1">At Risk</p>
+          <p className="font-pixel text-[8px] md:text-[9px] text-rose-700 dark:text-rose-300 uppercase mt-1 font-bold">At Risk</p>
         </div>
         <div className="bg-card border border-card-border rounded-2xl p-3 md:p-4">
           <p className="text-display text-lg md:text-2xl">${totalValue.toFixed(2)}</p>
           <p className="font-pixel text-[8px] md:text-[9px] text-muted uppercase mt-1">In Stock</p>
         </div>
-        <div className="bg-gradient-to-br from-emerald-950/80 to-emerald-900/30 border border-emerald-500/20 rounded-2xl p-3 md:p-4">
+        <div className="risk-safe backdrop-blur-md shadow-[0_2px_10px_rgba(31,87,184,0.08)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.4)] rounded-2xl p-3 md:p-4">
           <p className="text-display text-lg md:text-2xl text-safe">${stats?.savedValue.toFixed(2) || "0.00"}</p>
-          <p className="font-pixel text-[8px] md:text-[9px] text-safe/60 uppercase mt-1">Saved</p>
+          <p className="font-pixel text-[8px] md:text-[9px] text-emerald-700 dark:text-emerald-300 uppercase mt-1 font-bold">Saved</p>
         </div>
-        <div className="bg-card border border-card-border rounded-2xl p-3 md:p-4">
+        <div className="risk-urgent backdrop-blur-md shadow-[0_2px_10px_rgba(31,87,184,0.08)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.4)] rounded-2xl p-3 md:p-4">
           <p className="text-display text-lg md:text-2xl text-danger">${stats?.wastedValue.toFixed(2) || "0.00"}</p>
-          <p className="font-pixel text-[8px] md:text-[9px] text-muted uppercase mt-1">Wasted</p>
+          <p className="font-pixel text-[8px] md:text-[9px] text-rose-700 dark:text-rose-300 uppercase mt-1 font-bold">Wasted</p>
         </div>
       </div>
 
@@ -115,19 +115,19 @@ export default function EatFirstPage() {
           return (
             <div
               key={item.id}
-              className={`rounded-2xl p-3 md:p-4 border transition-all duration-200 hover:border-white/30 cursor-default ${
+              className={`rounded-2xl p-3 md:p-4 transition-all duration-200 backdrop-blur-md shadow-[0_2px_10px_rgba(31,87,184,0.08)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.4)] cursor-default ${
                 isUrgent
-                  ? "bg-gradient-to-r from-red-950/80 to-red-900/30 border-red-500/20"
+                  ? "risk-urgent"
                   : item.riskTier === "use-this-week"
-                  ? "bg-gradient-to-r from-yellow-900/30 via-amber-950/20 to-card border-yellow-500/15"
+                  ? "risk-week"
                   : item.riskTier === "frozen"
-                  ? "bg-gradient-to-r from-blue-950/50 to-blue-900/15 border-blue-500/15"
-                  : "bg-gradient-to-r from-emerald-950/40 to-emerald-900/10 border-emerald-500/10"
+                  ? "risk-frozen"
+                  : "risk-safe"
               }`}
             >
               {/* Top row: rank, name, price */}
               <div className="flex items-center gap-2 md:gap-3 mb-2">
-                <span className={`font-pixel text-[10px] md:text-xs w-5 md:w-6 text-center flex-shrink-0 ${isUrgent ? "text-red-400/60" : "text-muted"}`}>
+                <span className={`font-pixel text-[10px] md:text-xs w-5 md:w-6 text-center flex-shrink-0 ${isUrgent ? "text-rose-700/80 font-bold" : "text-muted"}`}>
                   {String(idx + 1).padStart(2, "0")}
                 </span>
 

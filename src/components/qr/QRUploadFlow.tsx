@@ -174,11 +174,11 @@ export default function QRUploadFlow() {
           <div key={idx} onClick={() => toggleItem(idx)}
             className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${
               item.selected
-                ? "bg-gradient-to-r from-emerald-950/40 to-emerald-900/10 border-emerald-500/20"
-                : "bg-white/[0.02] border-white/[0.06] opacity-50"
+                ? "bg-gradient-to-r from-emerald-200/40 to-emerald-100/10 border-emerald-500/20"
+                : "bg-white/50 border-slate-300/50 opacity-50"
             }`}>
             <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition ${
-              item.selected ? "bg-safe/20 border-safe" : "border-white/20"
+              item.selected ? "bg-safe/20 border-safe" : "border-slate-300/60"
             }`}>
               {item.selected && (
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -196,7 +196,7 @@ export default function QRUploadFlow() {
       </div>
 
       {added ? (
-        <div className="bg-gradient-to-r from-emerald-950/50 to-emerald-900/20 border border-emerald-500/20 rounded-xl p-4 text-center">
+        <div className="bg-gradient-to-r from-emerald-200/50 to-emerald-100/20 border border-emerald-500/20 rounded-xl p-4 text-center">
           <p className="font-bold text-sm mb-3">Items added to inventory!</p>
           <div className="flex gap-3 justify-center">
             <button onClick={() => router.push("/inventory")} className="btn btn-primary">VIEW INVENTORY</button>

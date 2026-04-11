@@ -120,11 +120,31 @@ const CATEGORY_DEFAULTS: Record<string, { sealed: number; opened: number; frozen
 
 function findShelfLifeRules(name: string) {
   const normalized = name.toLowerCase().trim();
-  // Exact match
+
+  // Pass 1: exact key match
   if (SHELF_LIFE_RULES[normalized]) return SHELF_LIFE_RULES[normalized];
-  // Fuzzy: check if any rule key is contained in the item name or vice versa
+
+  // Pass 2: substring match in either direction
   for (const [key, rules] of Object.entries(SHELF_LIFE_RULES)) {
     if (normalized.includes(key) || key.includes(normalized)) return rules;
+  }
+
+  // Pass 3: For multi-word keys, match if the input contains the FIRST
+  // (distinguishing) word of the key. This catches "raw chicken" → "chicken
+  // breast" without incorrectly matching "Korean BBQ sauce" → "soy sauce"
+  // (the naive any-word overlap would match on the common word "sauce" and
+  // grant 2-year shelf life to a totally different sauce). Single-word keys
+  // are already handled by Pass 2 substring matching.
+  const inputWords = normalized.split(/\s+/).filter((w) => w.length > 2);
+  if (inputWords.length === 0) return null;
+
+  for (const [key, rules] of Object.entries(SHELF_LIFE_RULES)) {
+    const keyWords = key.split(/\s+/);
+    if (keyWords.length < 2) continue;
+    const firstWord = keyWords[0];
+    if (firstWord.length > 2 && inputWords.includes(firstWord)) {
+      return rules;
+    }
   }
   return null;
 }
@@ -158,8 +178,19 @@ export function computeItemRisk(item: InventoryItem): ItemWithRisk {
   let confidence: number;
 
   if (item.openedAt) {
+    // Two competing timers:
+    //  1. Opened life: rules.opened - daysSinceOpened (the post-opening shelf life)
+    //  2. Sealed life: rules.sealed - daysSincePurchase (the absolute purchase-based life)
+    //
+    // Take whichever is SHORTER. This prevents the bug where opening an
+    // already-expired item would magically grant fresh "opened" days. If a
+    // chicken sat sealed in the fridge for 6 days (sealed=3 → expired), opening
+    // it now should still read as expired, not give it 2 fresh days.
     const daysSinceOpened = Math.max(0, -daysBetween(item.openedAt, today()));
-    expiryDays = rules.opened - daysSinceOpened;
+    const daysSincePurchase = Math.max(0, -daysBetween(item.purchaseDate, today()));
+    const openedLife = rules.opened - daysSinceOpened;
+    const sealedLife = rules.sealed - daysSincePurchase;
+    expiryDays = Math.min(openedLife, sealedLife);
     const remaining = Math.max(0, expiryDays);
     const openedLabel = daysSinceOpened === 0 ? "today" : `${daysSinceOpened}d ago`;
     reason = `Opened ${openedLabel} · ${remaining}d quality life left`;

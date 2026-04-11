@@ -35,13 +35,13 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto space-y-8">
-        <div><div className="animate-pulse bg-white/[0.06] rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-white/[0.06] rounded-lg w-56 h-12" /></div>
-        <div className="animate-pulse bg-white/[0.06] rounded-2xl h-28" />
+        <div><div className="animate-pulse bg-slate-300/60 rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-slate-300/60 rounded-lg w-56 h-12" /></div>
+        <div className="animate-pulse bg-slate-300/60 rounded-2xl h-28" />
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          <div className="lg:col-span-3 animate-pulse bg-white/[0.06] rounded-2xl h-56" />
-          <div className="lg:col-span-2 animate-pulse bg-white/[0.06] rounded-2xl h-56" />
+          <div className="lg:col-span-3 animate-pulse bg-slate-300/60 rounded-2xl h-56" />
+          <div className="lg:col-span-2 animate-pulse bg-slate-300/60 rounded-2xl h-56" />
         </div>
-        <div className="flex gap-4">{[1,2,3].map((i) => <div key={i} className="animate-pulse bg-white/[0.06] rounded-2xl h-40 w-56 flex-shrink-0" />)}</div>
+        <div className="flex gap-4">{[1,2,3].map((i) => <div key={i} className="animate-pulse bg-slate-300/60 rounded-2xl h-40 w-56 flex-shrink-0" />)}</div>
       </div>
     );
   }
@@ -59,24 +59,24 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-3">
-          <Link href="/add-item" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-white/20 border border-transparent block">
-            <Camera className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
+          <Link href="/add-item" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-slate-300 border border-transparent block">
+            <Camera className="w-7 h-7 text-slate-700 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="font-bold">Scan with Camera</p>
               <p className="text-xs text-muted">Take a photo of your groceries — AI detects items automatically</p>
             </div>
           </Link>
 
-          <Link href="/add-item" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-white/20 border border-transparent block">
-            <Pencil className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
+          <Link href="/add-item" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-slate-300 border border-transparent block">
+            <Pencil className="w-7 h-7 text-slate-700 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="font-bold">Add Manually</p>
               <p className="text-xs text-muted">Type in items one by one with prices and expiry dates</p>
             </div>
           </Link>
 
-          <Link href="/settings" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-white/20 border border-transparent block">
-            <Settings className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
+          <Link href="/settings" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-slate-300 border border-transparent block">
+            <Settings className="w-7 h-7 text-slate-700 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="font-bold">Set Up Your Profile</p>
               <p className="text-xs text-muted">Dietary preferences, fitness goals, household size</p>
@@ -153,7 +153,7 @@ export default function Dashboard() {
 
         {topRecipe && (
           <>
-            <div className="border-t border-white/[0.06] pt-5 md:pt-6">
+            <div className="border-t border-slate-300/50 pt-5 md:pt-6">
               <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3">
                 // {dollarAtRisk > 0 ? "TONIGHT'S RESCUE" : "YOUR BEST MEAL RIGHT NOW"}
               </p>
@@ -194,8 +194,8 @@ export default function Dashboard() {
         </div>
 
         {atRiskItems.length === 0 ? (
-          <Link href="/add-item" className="glass rounded-2xl p-6 flex items-center gap-5 transition-all duration-200 hover:border-white/20 border border-transparent block">
-            <Plus className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
+          <Link href="/add-item" className="glass rounded-2xl p-6 flex items-center gap-5 transition-all duration-200 hover:border-slate-300 border border-transparent block">
+            <Plus className="w-7 h-7 text-slate-700 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="font-bold mb-0.5">Nothing expiring yet</p>
               <p className="text-xs text-muted">Add items to your inventory to start tracking freshness and saving food.</p>
@@ -210,10 +210,10 @@ export default function Dashboard() {
                 className="flex-shrink-0 w-48 md:w-56 rounded-2xl p-4 md:p-5 transition-all duration-200 backdrop-blur-2xl"
                 style={{
                   background: isToday
-                    ? "linear-gradient(135deg, rgba(127,29,29,0.5) 0%, rgba(255,255,255,0.05) 50%, rgba(127,29,29,0.25) 100%)"
-                    : "linear-gradient(135deg, rgba(113,63,18,0.25) 0%, rgba(255,255,255,0.05) 50%, rgba(113,63,18,0.1) 100%)",
-                  border: `1px solid ${isToday ? "rgba(255,107,107,0.2)" : "rgba(234,179,8,0.15)"}`,
-                  boxShadow: "0 4px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
+                    ? "linear-gradient(135deg, rgba(254,205,211,0.75) 0%, rgba(255,255,255,0.5) 50%, rgba(254,205,211,0.55) 100%)"
+                    : "linear-gradient(135deg, rgba(254,215,170,0.65) 0%, rgba(255,255,255,0.5) 50%, rgba(254,215,170,0.4) 100%)",
+                  border: `1px solid ${isToday ? "rgba(244,63,94,0.35)" : "rgba(234,179,8,0.35)"}`,
+                  boxShadow: "0 4px 16px rgba(31,87,184,0.12), inset 0 1px 0 rgba(255,255,255,0.95)",
                 }}>
                 <div className="flex items-center justify-between mb-3">
                   <span className={`font-pixel text-[9px] uppercase tracking-wider ${isToday ? "text-danger" : "text-yellow-400"}`}>
@@ -262,7 +262,7 @@ export default function Dashboard() {
 
       {/* Mobile: Quick camera — glass button */}
       <div className="md:hidden fixed bottom-20 right-4 z-40">
-        <Link href="/add-item" className="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-white">
+        <Link href="/add-item" className="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-slate-700">
           <Camera className="w-6 h-6" strokeWidth={1.75} />
         </Link>
       </div>

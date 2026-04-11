@@ -1,20 +1,43 @@
 @import "tailwindcss";
 
+/* Tailwind v4 dark-mode variant: triggered by .dark on <html>.
+   Uses :where() so the variant has zero specificity weight. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
-  --background: #0a0a0a;
+  /* Light mode (Frutiger Aero / Apple liquid glass) — default */
+  --background: #e0ecf5;
+  --foreground: #1a2438;
+  --card: rgba(255, 255, 255, 0.55);
+  --card-border: rgba(255, 255, 255, 0.7);
+  --accent: #1a2438;
+  --accent-dark: #2a3548;
+  --danger: #ff5570;
+  --warning: #f5a623;
+  --safe: #34c759;
+  --muted: #5a6b8a;
+  --sidebar-bg: rgba(255, 255, 255, 0.45);
+  --sidebar-text: #5a6b8a;
+  --sidebar-active: rgba(255, 255, 255, 0.85);
+  --sidebar-hover: rgba(255, 255, 255, 0.55);
+}
+
+.dark {
+  /* Dark mode — pure neutral matte, deep black with slight grey cards */
+  --background: #08080a;
   --foreground: #f5f5f5;
-  --card: #1a1a1a;
-  --card-border: #2e2e2e;
+  --card: #141417;
+  --card-border: #26262a;
   --accent: #ffffff;
   --accent-dark: #e8e8e8;
   --danger: #ff6b6b;
   --warning: #f0c060;
   --safe: #4ade80;
   --muted: #8a8a8a;
-  --sidebar-bg: #050505;
+  --sidebar-bg: #050507;
   --sidebar-text: #8a8a8a;
-  --sidebar-active: #1a1a1a;
-  --sidebar-hover: #131313;
+  --sidebar-active: #141417;
+  --sidebar-hover: #101012;
 }
 
 @theme inline {
@@ -36,10 +59,23 @@
 }
 
 body {
-  background: var(--background);
+  /* LIGHT mode body — subtle off-white with very gentle blue/green tints */
+  background:
+    radial-gradient(circle 1100px at 12% 18%, rgba(140, 220, 195, 0.16), transparent 65%),
+    radial-gradient(circle  900px at 80% 20%, rgba(160, 200, 240, 0.13), transparent 60%),
+    radial-gradient(circle 1300px at 88% 85%, rgba(130, 220, 180, 0.20), transparent 60%),
+    radial-gradient(circle 1000px at 18% 88%, rgba(150, 200, 230, 0.15), transparent 62%),
+    linear-gradient(165deg, #e8f0f5 0%, #ecf2f3 35%, #eef2ee 65%, #ecf1ec 100%);
+  background-attachment: fixed;
   color: var(--foreground);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
+  transition: background 300ms ease, color 300ms ease;
+}
+
+.dark body {
+  /* DARK mode body — pure matte black, no visible gradient */
+  background: #08080a;
 }
 
 .font-pixel {
@@ -53,13 +89,14 @@ body {
   line-height: 0.9;
 }
 
-/* ── Buttons: white outline, pixel font ── */
+
+/* ── Buttons: liquid glass pill, pixel font ── */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 1px solid rgba(255,255,255,0.25);
+  border: 1px solid rgba(255,255,255,0.7);
   border-radius: 10px;
   font-family: var(--font-mono), monospace;
   font-weight: 700;
@@ -69,40 +106,102 @@ body {
   padding: 6px 14px;
   cursor: pointer;
   transition: all 150ms;
-  background: transparent;
+  background: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,255,255,0.3));
+  backdrop-filter: blur(14px) saturate(1.6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
   color: var(--foreground);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    0 1px 3px rgba(31, 87, 184, 0.12);
 }
 .btn:hover {
-  border-color: rgba(255,255,255,0.5);
-  background: rgba(255,255,255,0.06);
-  box-shadow: 0 0 12px rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.9);
+  background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(255,255,255,0.45));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 2px 8px rgba(31, 87, 184, 0.18);
 }
+.dark .btn {
+  background: #141417;
+  border-color: #2e2e34;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.05),
+    0 1px 3px rgba(0,0,0,0.5);
+}
+.dark .btn:hover {
+  background: #1a1a1e;
+  border-color: #3c3c44;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 2px 6px rgba(0,0,0,0.6);
+}
+
+/* Colored action buttons — light pastel tinted background so they pop
+   off the colored row cards while keeping a subtle semantic hint.
+   Dark mode keeps the dark transparent style for matte panel feel. */
 .btn-eat {
-  border-color: rgba(74,222,128,0.3);
-  color: var(--safe);
-  background: rgba(74,222,128,0.06);
+  border-color: rgba(22,163,74,0.7);
+  color: rgb(21,128,61);
+  background: linear-gradient(135deg, rgba(220,252,231,0.95), rgba(240,253,244,0.75));
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 .btn-eat:hover {
-  border-color: rgba(74,222,128,0.55);
-  background: rgba(74,222,128,0.12);
+  border-color: rgba(22,163,74,1);
+  background: linear-gradient(135deg, rgba(187,247,208,0.95), rgba(220,252,231,0.85));
+  box-shadow: 0 2px 6px rgba(22,163,74,0.22);
 }
+.dark .btn-eat {
+  border-color: rgba(74,222,128,0.35);
+  color: var(--safe);
+  background: rgba(74,222,128,0.08);
+}
+.dark .btn-eat:hover {
+  border-color: rgba(74,222,128,0.6);
+  background: rgba(74,222,128,0.14);
+}
+
 .btn-freeze {
-  border-color: rgba(96,165,250,0.3);
-  color: #60a5fa;
-  background: rgba(96,165,250,0.06);
+  border-color: rgba(37,99,235,0.7);
+  color: rgb(29,78,216);
+  background: linear-gradient(135deg, rgba(219,234,254,0.95), rgba(239,246,255,0.75));
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 .btn-freeze:hover {
-  border-color: rgba(96,165,250,0.55);
-  background: rgba(96,165,250,0.12);
+  border-color: rgba(37,99,235,1);
+  background: linear-gradient(135deg, rgba(191,219,254,0.95), rgba(219,234,254,0.85));
+  box-shadow: 0 2px 6px rgba(37,99,235,0.22);
 }
+.dark .btn-freeze {
+  border-color: rgba(96,165,250,0.35);
+  color: #60a5fa;
+  background: rgba(96,165,250,0.08);
+}
+.dark .btn-freeze:hover {
+  border-color: rgba(96,165,250,0.6);
+  background: rgba(96,165,250,0.14);
+}
+
 .btn-danger {
-  border-color: rgba(255,107,107,0.3);
-  color: var(--danger);
-  background: rgba(255,107,107,0.06);
+  border-color: rgba(220,38,38,0.7);
+  color: rgb(185,28,28);
+  background: linear-gradient(135deg, rgba(254,226,226,0.95), rgba(254,242,242,0.75));
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 .btn-danger:hover {
-  border-color: rgba(255,107,107,0.55);
-  background: rgba(255,107,107,0.12);
+  border-color: rgba(220,38,38,1);
+  background: linear-gradient(135deg, rgba(254,202,202,0.95), rgba(254,226,226,0.85));
+  box-shadow: 0 2px 6px rgba(220,38,38,0.22);
+}
+.dark .btn-danger {
+  border-color: rgba(255,107,107,0.35);
+  color: var(--danger);
+  background: rgba(255,107,107,0.08);
+}
+.dark .btn-danger:hover {
+  border-color: rgba(255,107,107,0.6);
+  background: rgba(255,107,107,0.14);
 }
 .btn-primary {
   border-color: rgba(255,255,255,0.5);
@@ -118,53 +217,148 @@ body {
   border-radius: 14px;
 }
 
-/* ── Solid matte surfaces (analog / techy) ──
-   Cards are flat solid panels CLEARLY elevated above the dark body.
-   Crisp 1px border, visible top highlight (etched panel feel), real
-   drop shadow for elevation. No blur, no gradients — like instrument
-   hardware. Risk-tier cards (red/yellow/blue/green gradients) live
-   elsewhere and are unaffected. */
+/* ── Liquid glass surfaces (Frutiger Aero / Apple) ── */
 .glass {
-  background: #1a1a1a;
-  border: 1px solid #2e2e2e;
-  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.65) 0%, rgba(255,255,255,0.35) 100%);
+  backdrop-filter: blur(30px) saturate(1.8);
+  -webkit-backdrop-filter: blur(30px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 20px;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.10),
-    inset 0 -1px 0 rgba(0,0,0,0.45),
-    0 4px 16px rgba(0,0,0,0.55),
-    0 1px 2px rgba(0,0,0,0.4);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    inset 0 1px 0 rgba(255,255,255,0.95),
+    inset 0 -1px 0 rgba(31, 87, 184, 0.06),
+    0 8px 32px rgba(31, 87, 184, 0.14),
+    0 2px 8px rgba(31, 87, 184, 0.08);
+  transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 .glass:hover {
-  background: #232323;
-  border-color: #404040;
+  background: linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.45) 100%);
+  border-color: rgba(255,255,255,0.9);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.13),
-    inset 0 -1px 0 rgba(0,0,0,0.45),
-    0 6px 22px rgba(0,0,0,0.65),
-    0 1px 2px rgba(0,0,0,0.4);
+    inset 0 1px 0 rgba(255,255,255,1),
+    inset 0 -1px 0 rgba(31, 87, 184, 0.06),
+    0 12px 40px rgba(31, 87, 184, 0.2),
+    0 4px 12px rgba(31, 87, 184, 0.12);
+}
+.dark .glass {
+  background: #141417;
+  border-color: #26262a;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 4px 16px rgba(0,0,0,0.6),
+    0 1px 2px rgba(0,0,0,0.5);
+}
+.dark .glass:hover {
+  background: #1a1a1e;
+  border-color: #36363c;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    inset 0 -1px 0 rgba(0,0,0,0.4),
+    0 6px 22px rgba(0,0,0,0.7),
+    0 1px 2px rgba(0,0,0,0.5);
 }
 
 .glass-btn {
-  background: #232323;
-  border: 1px solid #3a3a3a;
-  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.4) 100%);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 12px;
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.10),
-    0 1px 3px rgba(0,0,0,0.5);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  transition: background 150ms ease, border-color 150ms ease;
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 2px 8px rgba(31, 87, 184, 0.12);
+  transition: background 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  color: var(--foreground);
 }
 .glass-btn:hover {
-  background: #2a2a2a;
-  border-color: #4d4d4d;
+  background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.55) 100%);
+  border-color: rgba(255,255,255,1);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,0.13),
-    0 2px 5px rgba(0,0,0,0.55);
+    inset 0 1px 0 rgba(255,255,255,1),
+    0 4px 14px rgba(31, 87, 184, 0.18);
+  transform: translateY(-1px);
 }
+.dark .glass-btn {
+  background: #1a1a1e;
+  border-color: #2e2e34;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.06),
+    0 1px 3px rgba(0,0,0,0.5);
+}
+.dark .glass-btn:hover {
+  background: #20202a;
+  border-color: #3c3c44;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    0 2px 6px rgba(0,0,0,0.6);
+  transform: none;
+}
+
+/* ── Risk-tier card classes (used in inventory + eat-first) ──
+   Colored gradient background + colored full outline border.
+   LIGHT mode: bright pastel gradients
+   DARK mode: subtle dark gradients (the original matte default) */
+
+/* URGENT — rose */
+.risk-urgent {
+  background: linear-gradient(to right, rgba(253,164,175,0.80), rgba(254,205,211,0.60));
+  border: 1px solid rgba(251,113,133,0.70);
+}
+.risk-urgent:hover { border-color: rgba(244,63,94,0.85); }
+.dark .risk-urgent {
+  background:
+    linear-gradient(to right, rgba(127,29,29,0.32), transparent 70%),
+    #141417;
+  border-color: rgba(239,68,68,0.22);
+}
+.dark .risk-urgent:hover { border-color: rgba(239,68,68,0.40); }
+
+/* THIS WEEK — amber */
+.risk-week {
+  background: linear-gradient(to right, rgba(253,224,71,0.75), rgba(254,243,199,0.55));
+  border: 1px solid rgba(251,191,36,0.70);
+}
+.risk-week:hover { border-color: rgba(245,158,11,0.85); }
+.dark .risk-week {
+  background:
+    linear-gradient(to right, rgba(113,63,18,0.28), transparent 70%),
+    #141417;
+  border-color: rgba(234,179,8,0.18);
+}
+.dark .risk-week:hover { border-color: rgba(234,179,8,0.35); }
+
+/* FROZEN — sky */
+.risk-frozen {
+  background: linear-gradient(to right, rgba(125,211,252,0.75), rgba(186,230,253,0.55));
+  border: 1px solid rgba(56,189,248,0.70);
+}
+.risk-frozen:hover { border-color: rgba(14,165,233,0.85); }
+.dark .risk-frozen {
+  background:
+    linear-gradient(to right, rgba(30,58,138,0.32), transparent 70%),
+    #141417;
+  border-color: rgba(59,130,246,0.20);
+}
+.dark .risk-frozen:hover { border-color: rgba(59,130,246,0.38); }
+
+/* SAFE — emerald */
+.risk-safe {
+  background: linear-gradient(to right, rgba(110,231,183,0.65), rgba(167,243,208,0.40));
+  border: 1px solid rgba(52,211,153,0.55);
+}
+.risk-safe:hover { border-color: rgba(16,185,129,0.70); }
+.dark .risk-safe {
+  background:
+    linear-gradient(to right, rgba(6,78,59,0.30), transparent 70%),
+    #141417;
+  border-color: rgba(16,185,129,0.18);
+}
+.dark .risk-safe:hover { border-color: rgba(16,185,129,0.32); }
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 8px);
@@ -207,17 +401,29 @@ body {
 .fridge-track {
   background-image: repeating-linear-gradient(
     to right,
-    rgba(255,255,255,0.18) 0,
-    rgba(255,255,255,0.18) 4px,
+    rgba(0,0,0,0.25) 0,
+    rgba(0,0,0,0.25) 4px,
     transparent 4px,
     transparent 8px
   );
   animation: track-scroll 0.4s linear infinite;
 }
+.dark .fridge-track {
+  background-image: repeating-linear-gradient(
+    to right,
+    rgba(255,255,255,0.20) 0,
+    rgba(255,255,255,0.20) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #363645; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #46465a; }
+::-webkit-scrollbar-thumb { background: rgba(31, 87, 184, 0.25); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(31, 87, 184, 0.4); }
+.dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); }
+.dark ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
-::selection { background: #ffffff22; }
+::selection { background: rgba(31, 87, 184, 0.18); }
+.dark ::selection { background: rgba(56, 189, 248, 0.3); }

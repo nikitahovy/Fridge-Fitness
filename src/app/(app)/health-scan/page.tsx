@@ -94,7 +94,7 @@ export default function HealthScanPage() {
         <h2 className="text-display text-3xl">Scan<br/>Product</h2>
       </div>
       {error ? (
-        <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-2xl p-5 text-center">
+        <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-2xl p-5 text-center">
           <p className="text-sm text-danger mb-4">{error}</p>
           <button onClick={() => router.back()} className="btn btn-primary">GO BACK</button>
         </div>

@@ -197,7 +197,7 @@ function AddItemPage() {
       </div>
 
       {saved && (
-        <div className="bg-gradient-to-r from-emerald-950/50 to-emerald-900/20 border border-emerald-500/20 rounded-2xl p-4 mb-5">
+        <div className="bg-gradient-to-r from-emerald-200/50 to-emerald-100/20 border border-emerald-500/20 rounded-2xl p-4 mb-5">
           <p className="text-sm">Items added to inventory!{" "}
             <button onClick={() => setSaved(false)} className="underline cursor-pointer">Add more</button>
             {" · "}
@@ -212,13 +212,13 @@ function AddItemPage() {
           <div>
             <label className="block text-xs font-pixel text-muted uppercase mb-1.5">Item Name</label>
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} required
-              className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition" placeholder="e.g., Chicken Breast" />
+              className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition" placeholder="e.g., Chicken Breast" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-pixel text-muted uppercase mb-1.5">Category</label>
               <select value={category} onChange={(e) => setCategory(e.target.value as FoodCategory)}
-                className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition">
+                className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition">
                 <option value="protein">Protein</option><option value="dairy">Dairy</option><option value="produce">Produce</option>
                 <option value="grain">Grain</option><option value="snack">Snack</option><option value="beverage">Beverage</option>
                 <option value="condiment">Condiment</option><option value="frozen">Frozen</option><option value="other">Other</option>
@@ -227,7 +227,7 @@ function AddItemPage() {
             <div>
               <label className="block text-xs font-pixel text-muted uppercase mb-1.5">Location</label>
               <select value={location} onChange={(e) => setLocation(e.target.value as StorageLocation)}
-                className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition">
+                className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition">
                 <option value="fridge">Fridge</option><option value="freezer">Freezer</option><option value="pantry">Pantry</option>
               </select>
             </div>
@@ -236,18 +236,18 @@ function AddItemPage() {
             <div>
               <label className="block text-xs font-pixel text-muted uppercase mb-1.5">Quantity</label>
               <input type="text" value={quantity} onChange={(e) => setQuantity(e.target.value)}
-                className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition" placeholder="e.g., 2 lbs" />
+                className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition" placeholder="e.g., 2 lbs" />
             </div>
             <div>
               <label className="block text-xs font-pixel text-muted uppercase mb-1.5">Price ($)</label>
               <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)}
-                className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition" placeholder="e.g., 8.99" />
+                className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition" placeholder="e.g., 8.99" />
             </div>
           </div>
           <div>
             <label className="block text-xs font-pixel text-muted uppercase mb-1.5">Best By Date (optional)</label>
             <input type="date" value={bestBy} onChange={(e) => setBestBy(e.target.value)}
-              className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition" />
+              className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition" />
           </div>
           <button type="submit" disabled={saving || !name} className="btn btn-primary btn-lg w-full disabled:opacity-50">
             {saving ? "ADDING..." : "ADD TO INVENTORY"}
@@ -263,7 +263,7 @@ function AddItemPage() {
           {/* Storage location selector */}
           <div className="mb-4">
             <label className="block text-xs font-pixel text-muted uppercase mb-1.5">Add items to</label>
-            <div className="flex gap-1 bg-white/[0.04] rounded-lg p-1 w-fit">
+            <div className="flex gap-1 bg-white/60 rounded-lg p-1 w-fit">
               {(["fridge", "freezer", "pantry"] as StorageLocation[]).map((loc) => (
                 <button key={loc} onClick={() => setLocation(loc)}
                   className={`font-pixel text-[10px] px-3 py-1.5 rounded-md transition-all cursor-pointer capitalize ${
@@ -276,8 +276,8 @@ function AddItemPage() {
           {/* Step 1: Capture */}
           {!cameraPreview && !detectedItems && (
             <label className="block cursor-pointer">
-              <div className="border-2 border-dashed border-white/20 rounded-2xl p-12 text-center hover:border-white/40 transition">
-                <Camera className="w-10 h-10 mx-auto mb-3 text-white/80" strokeWidth={1.75} />
+              <div className="border-2 border-dashed border-slate-300/60 rounded-2xl p-12 text-center hover:border-slate-400 transition">
+                <Camera className="w-10 h-10 mx-auto mb-3 text-slate-700" strokeWidth={1.75} />
                 <p className="font-bold text-sm mb-1">Tap to take a photo</p>
                 <p className="text-xs text-muted">Capture your receipt, fridge, or grocery items</p>
               </div>
@@ -293,7 +293,7 @@ function AddItemPage() {
               {analyzing && <RunningFridge />}
 
               {analyzeError && (
-                <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
+                <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
                   {analyzeError}
                 </div>
               )}
@@ -333,14 +333,14 @@ function AddItemPage() {
                     key={idx}
                     className={`rounded-xl border transition-all ${
                       item.selected
-                        ? "bg-gradient-to-r from-emerald-950/40 to-emerald-900/10 border-emerald-500/20"
-                        : "bg-white/[0.02] border-white/[0.06] opacity-50"
+                        ? "bg-gradient-to-r from-emerald-200/40 to-emerald-100/10 border-emerald-500/20"
+                        : "bg-white/50 border-slate-300/50 opacity-50"
                     }`}
                   >
                     <div className="flex items-center gap-3 p-3 cursor-pointer" onClick={() => toggleItem(idx)}>
                       {/* Checkbox */}
                       <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition ${
-                        item.selected ? "bg-safe/20 border-safe" : "border-white/20"
+                        item.selected ? "bg-safe/20 border-safe" : "border-slate-300/60"
                       }`}>
                         {item.selected && (
                           <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -372,7 +372,7 @@ function AddItemPage() {
                                 prev!.map((it, i) => i === idx ? { ...it, estimatedPrice: parseFloat(e.target.value) || 0 } : it)
                               );
                             }}
-                            className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-white/30 transition w-20"
+                            className="bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-sky-400 transition w-20"
                           />
                         </div>
                         <div className="flex items-center gap-2">
@@ -386,7 +386,7 @@ function AddItemPage() {
                                 prev!.map((it, i) => i === idx ? { ...it, bestByDate: e.target.value } : it)
                               );
                             }}
-                            className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-white/30 transition w-36"
+                            className="bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-sky-400 transition w-36"
                           />
                           {!item.bestByDate && (
                             <span className="text-[10px] text-muted italic">optional</span>
@@ -436,7 +436,7 @@ function AddItemPage() {
                 <input type="text" inputMode="numeric" value={barcodeInput}
                   onChange={(e) => setBarcodeInput(e.target.value.replace(/\D/g, ""))}
                   placeholder="Or type barcode number..."
-                  className="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-white/30 transition" />
+                  className="flex-1 bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2 text-xs text-foreground focus:outline-none focus:border-sky-400 transition" />
                 <button onClick={async () => {
                   if (barcodeInput.length < 4) return;
                   setBarcodeLoading(true); setBarcodeError(null); setBarcodeResult(null);
@@ -454,7 +454,7 @@ function AddItemPage() {
           )}
 
           {barcodeError && (
-            <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger mb-4">
+            <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger mb-4">
               {barcodeError}
               <button onClick={() => { setBarcodeError(null); setBarcodeResult(null); }} className="ml-2 underline text-xs">Try again</button>
             </div>
@@ -462,7 +462,7 @@ function AddItemPage() {
 
           {barcodeResult && (
             <div className="space-y-4">
-              <div className="flex items-center gap-4 p-3 bg-gradient-to-r from-emerald-950/40 to-emerald-900/10 border border-emerald-500/20 rounded-xl">
+              <div className="flex items-center gap-4 p-3 bg-gradient-to-r from-emerald-200/40 to-emerald-100/10 border border-emerald-500/20 rounded-xl">
                 {barcodeResult.imageUrl && (
                   <img src={barcodeResult.imageUrl} alt={barcodeResult.name} className="w-14 h-14 rounded-lg object-cover bg-white" />
                 )}
@@ -476,12 +476,12 @@ function AddItemPage() {
                 <div>
                   <label className="font-pixel text-[8px] text-muted uppercase">Price $</label>
                   <input type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)}
-                    className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-white/30" placeholder="0.00" />
+                    className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-sky-400" placeholder="0.00" />
                 </div>
                 <div>
                   <label className="font-pixel text-[8px] text-muted uppercase">Expires</label>
                   <input type="date" value={bestBy} onChange={(e) => setBestBy(e.target.value)}
-                    className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-white/30" />
+                    className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-sky-400" />
                 </div>
               </div>
 

@@ -64,14 +64,14 @@ function HealthScoreContent() {
   }
 
   const tlColor = (level: string) => level === "high" ? "text-danger" : level === "moderate" ? "text-yellow-400" : "text-safe";
-  const tlBg = (level: string) => level === "high" ? "from-red-950/50 to-red-900/15 border-red-500/15" : level === "moderate" ? "from-yellow-900/30 to-card border-yellow-500/15" : "from-emerald-950/40 to-emerald-900/10 border-emerald-500/15";
-  const riskColor = (risk: string) => risk === "high" ? "bg-danger/15 text-danger border-danger/20" : risk === "moderate" ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" : risk === "low" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-white/[0.04] text-muted border-white/10";
+  const tlBg = (level: string) => level === "high" ? "from-rose-200/50 to-rose-100/15 border-red-500/15" : level === "moderate" ? "from-amber-200/30 to-card border-yellow-500/15" : "from-emerald-200/40 to-emerald-100/10 border-emerald-500/15";
+  const riskColor = (risk: string) => risk === "high" ? "bg-danger/15 text-danger border-danger/20" : risk === "moderate" ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" : risk === "low" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-white/60 text-muted border-white/10";
 
   if (loading) {
     return (
       <div className="max-w-lg mx-auto">
-        <div className="mb-8"><div className="animate-pulse bg-white/[0.06] rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-white/[0.06] rounded-lg w-48 h-10" /></div>
-        <div className="animate-pulse bg-white/[0.06] rounded-2xl h-64" />
+        <div className="mb-8"><div className="animate-pulse bg-slate-300/60 rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-slate-300/60 rounded-lg w-48 h-10" /></div>
+        <div className="animate-pulse bg-slate-300/60 rounded-2xl h-64" />
       </div>
     );
   }
@@ -86,8 +86,8 @@ function HealthScoreContent() {
       {/* No barcode — show scan + manual entry */}
       {!barcode && !data && (
         <div className="space-y-4">
-          <Link href="/health-scan" className="glass rounded-2xl p-6 flex items-center gap-4 block transition-all hover:border-white/20 border border-transparent">
-            <Camera className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
+          <Link href="/health-scan" className="glass rounded-2xl p-6 flex items-center gap-4 block transition-all hover:border-slate-300 border border-transparent">
+            <Camera className="w-7 h-7 text-slate-700 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="font-bold">Scan Food or Skincare Barcode</p>
               <p className="text-xs text-muted">Instant 0-100 health score for groceries, drinks, and cosmetics</p>
@@ -108,14 +108,14 @@ function HealthScoreContent() {
           <div className="flex gap-2">
             <input type="text" inputMode="numeric" value={manualCode} onChange={(e) => setManualCode(e.target.value.replace(/\D/g, ""))}
               placeholder="Or type barcode number..."
-              className="flex-1 bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition" />
+              className="flex-1 bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition" />
             <button onClick={lookupManual} disabled={manualCode.length < 4} className="btn btn-primary disabled:opacity-50">ANALYZE</button>
           </div>
         </div>
       )}
 
       {error && (
-        <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-2xl p-4 mb-4">
+        <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-2xl p-4 mb-4">
           <p className="text-sm text-danger">{error}</p>
           <Link href="/health-scan" className="btn btn-primary mt-3 inline-block">SCAN AGAIN</Link>
         </div>
@@ -224,11 +224,11 @@ function HealthScoreContent() {
 
                 {/* Good stuff */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gradient-to-br from-emerald-950/40 to-emerald-900/10 border border-emerald-500/15 rounded-2xl p-3">
+                  <div className="bg-gradient-to-br from-emerald-200/40 to-emerald-100/10 border border-emerald-500/15 rounded-2xl p-3">
                     <p className="text-display text-lg text-safe">{n.protein.toFixed(1)}g</p>
                     <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Protein /{label}</p>
                   </div>
-                  <div className="bg-gradient-to-br from-emerald-950/40 to-emerald-900/10 border border-emerald-500/15 rounded-2xl p-3">
+                  <div className="bg-gradient-to-br from-emerald-200/40 to-emerald-100/10 border border-emerald-500/15 rounded-2xl p-3">
                     <p className="text-display text-lg text-safe">{n.fiber.toFixed(1)}g</p>
                     <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Fiber /{label}</p>
                   </div>

@@ -34,8 +34,8 @@ export default function RecipesPage() {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="mb-8"><div className="animate-pulse bg-white/[0.06] rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-white/[0.06] rounded-lg w-40 h-10" /></div>
-        <div className="space-y-3">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse bg-white/[0.06] rounded-2xl h-36" />)}</div>
+        <div className="mb-8"><div className="animate-pulse bg-slate-300/60 rounded-lg w-24 h-3 mb-3" /><div className="animate-pulse bg-slate-300/60 rounded-lg w-40 h-10" /></div>
+        <div className="space-y-3">{[1,2,3,4].map((i) => <div key={i} className="animate-pulse bg-slate-300/60 rounded-2xl h-36" />)}</div>
       </div>
     );
   }
@@ -77,10 +77,10 @@ export default function RecipesPage() {
             <Link
               key={sr.recipe.id}
               href={`/recipes/${sr.recipe.id}`}
-              className={`block rounded-2xl p-5 border transition-all duration-200 group ${
+              className={`block rounded-2xl p-5 transition-all duration-200 group ${
                 idx === 0
-                  ? "bg-gradient-to-r from-emerald-950/60 to-emerald-900/20 border-emerald-500/20 hover:border-emerald-400/40"
-                  : "bg-card border-card-border hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)]"
+                  ? "risk-safe"
+                  : "bg-card border border-card-border hover:border-slate-400 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)]"
               }`}
             >
               <div className="flex items-start justify-between mb-3">
@@ -96,7 +96,7 @@ export default function RecipesPage() {
               </div>
               <div className="flex flex-wrap gap-2 mb-3">
                 {sr.explanation.map((ex, i) => (
-                  <span key={i} className="text-[11px] px-3 py-1 rounded-full border border-white/10 text-muted group-hover:border-white/20">{ex}</span>
+                  <span key={i} className="text-[11px] px-3 py-1 rounded-full border border-white/10 text-muted group-hover:border-slate-300">{ex}</span>
                 ))}
               </div>
               <div className="flex gap-6 font-pixel text-[10px] text-muted uppercase">
@@ -118,7 +118,7 @@ export default function RecipesPage() {
                   {sr.missingIngredients.length > 0 && (
                     <div className="flex gap-1 flex-wrap">
                       {sr.missingIngredients.map((ing) => (
-                        <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/[0.06] text-muted">{ing.name}</span>
+                        <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
                       ))}
                     </div>
                   )}
@@ -136,7 +136,7 @@ export default function RecipesPage() {
             <Link
               key={recipe.id}
               href={`/recipes/${recipe.id}`}
-              className="block rounded-2xl p-5 bg-card border border-card-border hover:border-white/30 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all duration-200"
+              className="block rounded-2xl p-5 bg-card border border-card-border hover:border-slate-400 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all duration-200"
             >
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-xl font-bold">{recipe.name}</h3>
@@ -156,7 +156,7 @@ export default function RecipesPage() {
               </div>
               <div className="mt-2 flex gap-1 flex-wrap">
                 {recipe.ingredients.slice(0, 6).map((ing) => (
-                  <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/[0.06] text-muted">{ing.name}</span>
+                  <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
                 ))}
                 {recipe.ingredients.length > 6 && (
                   <span className="text-[10px] px-2 py-0.5 text-muted">+{recipe.ingredients.length - 6} more</span>

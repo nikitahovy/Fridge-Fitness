@@ -66,17 +66,17 @@ export default function AnalyticsPage() {
 
       {/* Big numbers */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
-        <div className="bg-gradient-to-br from-emerald-950/50 to-emerald-900/15 border border-emerald-500/15 rounded-2xl p-4 md:p-5">
+        <div className="bg-gradient-to-br from-emerald-200/50 to-emerald-100/15 border border-emerald-500/15 rounded-2xl p-4 md:p-5">
           <p className="text-display text-2xl md:text-3xl text-safe">${saved.toFixed(2)}</p>
           <p className="font-pixel text-[9px] text-safe/60 uppercase mt-1.5">Saved Total</p>
         </div>
-        <div className="bg-gradient-to-br from-red-950/50 to-red-900/15 border border-red-500/15 rounded-2xl p-4 md:p-5">
+        <div className="bg-gradient-to-br from-rose-200/50 to-rose-100/15 border border-red-500/15 rounded-2xl p-4 md:p-5">
           <p className="text-display text-2xl md:text-3xl text-danger">${wasted.toFixed(2)}</p>
           <p className="font-pixel text-[9px] text-danger/60 uppercase mt-1.5">Wasted Total</p>
         </div>
         <div className={`border rounded-2xl p-4 md:p-5 ${net >= 0
-          ? "bg-gradient-to-br from-emerald-950/30 to-card border-emerald-500/10"
-          : "bg-gradient-to-br from-red-950/30 to-card border-red-500/10"
+          ? "bg-gradient-to-br from-emerald-200/30 to-card border-emerald-500/10"
+          : "bg-gradient-to-br from-rose-200/30 to-card border-red-500/10"
         }`}>
           <p className={`text-display text-2xl md:text-3xl ${net >= 0 ? "text-safe" : "text-danger"}`}>
             {net >= 0 ? "+" : "−"}${Math.abs(net).toFixed(2)}
@@ -90,7 +90,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Monthly bar chart */}
-      <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6 mb-6 transition-all duration-200 hover:border-white/20">
+      <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6 mb-6 transition-all duration-200 hover:border-slate-300">
         <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-6">// SAVED VS WASTED BY MONTH</p>
 
         {months.length === 0 ? (
@@ -105,7 +105,7 @@ export default function AnalyticsPage() {
                 <span className="font-pixel text-xs text-muted w-8">{m.month}</span>
                 <div className="flex-1 flex flex-col gap-1.5">
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-4 bg-white/[0.03] rounded-lg overflow-hidden">
+                    <div className="flex-1 h-4 bg-white/50 rounded-lg overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-safe/40 to-safe/20 rounded-lg transition-all duration-500"
                         style={{ width: `${(m.saved / maxBar) * 100}%` }}
@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
                     <span className="font-pixel text-[10px] text-safe w-16 text-right">+${m.saved.toFixed(0)}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 h-4 bg-white/[0.03] rounded-lg overflow-hidden">
+                    <div className="flex-1 h-4 bg-white/50 rounded-lg overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-danger/40 to-danger/20 rounded-lg transition-all duration-500"
                         style={{ width: `${(m.wasted / maxBar) * 100}%` }}
@@ -167,13 +167,13 @@ export default function AnalyticsPage() {
 
       {/* Category breakdown */}
       {sortedCategories.length > 0 && (
-        <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6 mb-6 transition-all duration-200 hover:border-white/20">
+        <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6 mb-6 transition-all duration-200 hover:border-slate-300">
           <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-5">// STOCK BY CATEGORY</p>
           <div className="space-y-3">
             {sortedCategories.map(([cat, val]) => (
               <div key={cat} className="flex items-center gap-3">
                 <span className="font-pixel text-[10px] text-muted uppercase w-20">{cat}</span>
-                <div className="flex-1 h-5 bg-white/[0.03] rounded-lg overflow-hidden">
+                <div className="flex-1 h-5 bg-white/50 rounded-lg overflow-hidden">
                   <div
                     className="h-full bg-gradient-to-r from-white/15 to-white/5 rounded-lg"
                     style={{ width: `${(val / maxCat) * 100}%` }}
@@ -188,7 +188,7 @@ export default function AnalyticsPage() {
 
       {/* Wasted items detail */}
       {stats && stats.itemsDiscarded > 0 && (
-        <div className="bg-gradient-to-br from-red-950/40 to-red-900/10 border border-red-500/15 rounded-2xl p-5 md:p-6">
+        <div className="bg-gradient-to-br from-rose-200/40 to-rose-100/10 border border-red-500/15 rounded-2xl p-5 md:p-6">
           <p className="font-pixel text-[10px] text-danger/60 uppercase tracking-[0.2em] mb-3">// ITEMS LOST</p>
           <div className="space-y-2">
             {stats.discardedItems.map((item, i) => (

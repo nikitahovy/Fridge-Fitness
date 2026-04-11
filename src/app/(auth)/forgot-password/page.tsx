@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="bg-gradient-to-r from-emerald-950/50 to-emerald-900/20 border border-emerald-500/20 rounded-2xl p-6 text-center">
+      <div className="bg-gradient-to-r from-emerald-200/50 to-emerald-100/20 border border-emerald-500/20 rounded-2xl p-6 text-center">
         <p className="text-display text-xl mb-2">Check Your Email</p>
         <p className="text-sm text-muted mb-4">We sent a reset link to <span className="text-foreground">{email}</span></p>
         <Link href="/login" className="btn btn-primary">BACK TO LOGIN</Link>
@@ -46,12 +46,12 @@ export default function ForgotPasswordPage() {
 
       <form onSubmit={handleReset} className="bg-card border border-card-border rounded-2xl p-6 space-y-4">
         {error && (
-          <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">{error}</div>
+          <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">{error}</div>
         )}
         <div>
           <label className="block font-pixel text-[9px] text-muted uppercase mb-1.5">Email</label>
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-            className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition"
+            className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition"
             placeholder="you@email.com" />
         </div>
         <button type="submit" disabled={loading} className="btn btn-primary btn-lg w-full disabled:opacity-50">
@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
       </form>
 
       <p className="text-center text-sm text-muted mt-4">
-        <Link href="/login" className="text-foreground underline underline-offset-4 hover:text-white">Back to login</Link>
+        <Link href="/login" className="text-foreground underline underline-offset-4 hover:text-slate-900">Back to login</Link>
       </p>
     </div>
   );

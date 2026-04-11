@@ -19,14 +19,14 @@ export default function RunningFridge({ label = "SCANNING WITH AI" }: { label?: 
       </div>
 
       {/* The track */}
-      <div className="relative h-10 rounded-full overflow-hidden bg-white/[0.04] border border-white/[0.08]">
+      <div className="relative h-10 rounded-full overflow-hidden bg-white/60 dark:bg-neutral-900/60 border border-slate-300/60 dark:border-neutral-700/60">
         {/* Scrolling dashed ground line */}
         <div className="fridge-track absolute left-0 right-0 bottom-1.5 h-[2px] opacity-70" />
 
         {/* The runner — absolutely positioned, animates `left` across the bar.
             Uses top-0/bottom-0 + flex to vertically center (instead of -translate-y-1/2)
             so the runner has no transform of its own and the `left` animation runs cleanly. */}
-        <div className="fridge-runner absolute top-0 bottom-0 w-7 flex items-center justify-center text-white">
+        <div className="fridge-runner absolute top-0 bottom-0 w-7 flex items-center justify-center text-slate-700">
           <FridgeMascot size={22} running className="fridge-bob" />
         </div>
       </div>

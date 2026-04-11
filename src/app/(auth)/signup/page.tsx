@@ -53,7 +53,7 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="bg-gradient-to-r from-emerald-950/50 to-emerald-900/20 border border-emerald-500/20 rounded-2xl p-6 text-center">
+      <div className="bg-gradient-to-r from-emerald-200/50 to-emerald-100/20 border border-emerald-500/20 rounded-2xl p-6 text-center">
         <p className="font-bold mb-2">Account created!</p>
         <p className="text-sm text-muted">Check your email for a confirmation link, or you may be redirected automatically.</p>
       </div>
@@ -66,7 +66,7 @@ export default function SignupPage() {
 
       <form onSubmit={handleSignup} className="bg-card border border-card-border rounded-2xl p-6 space-y-4">
         {error && (
-          <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
+          <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
             {error}
           </div>
         )}
@@ -77,7 +77,7 @@ export default function SignupPage() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition"
+            className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition"
             placeholder="Your name"
           />
         </div>
@@ -89,7 +89,7 @@ export default function SignupPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition"
+            className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition"
             placeholder="you@email.com"
           />
         </div>
@@ -102,7 +102,7 @@ export default function SignupPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
-            className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition"
+            className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition"
             placeholder="Min 6 characters"
           />
         </div>
@@ -118,7 +118,7 @@ export default function SignupPage() {
 
       <p className="text-center text-sm text-muted mt-4">
         Already have an account?{" "}
-        <Link href="/login" className="text-foreground underline underline-offset-4 hover:text-white">
+        <Link href="/login" className="text-foreground underline underline-offset-4 hover:text-slate-900">
           Sign in
         </Link>
       </p>

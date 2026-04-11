@@ -12,7 +12,7 @@ const LOCATIONS: { key: StorageLocation | "all"; label: string }[] = [
 ];
 
 function Skeleton({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse bg-white/[0.06] rounded-lg ${className}`} />;
+  return <div className={`animate-pulse bg-slate-300/60 rounded-lg ${className}`} />;
 }
 
 export default function InventoryPage() {
@@ -158,11 +158,11 @@ export default function InventoryPage() {
 
             return (
               <div key={item.id}
-                className={`rounded-2xl border transition-all duration-200 hover:border-white/30 ${
-                  isUrgent ? "bg-gradient-to-r from-red-950/80 to-red-900/30 border-red-500/20"
-                  : item.riskTier === "use-this-week" ? "bg-gradient-to-r from-yellow-900/30 via-amber-950/20 to-card border-yellow-500/15"
-                  : isFrozen ? "bg-gradient-to-r from-blue-950/50 to-blue-900/15 border-blue-500/15"
-                  : "bg-gradient-to-r from-emerald-950/40 to-emerald-900/10 border-emerald-500/10"
+                className={`rounded-2xl transition-all duration-200 backdrop-blur-md shadow-[0_2px_10px_rgba(31,87,184,0.08)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.4)] ${
+                  isUrgent ? "risk-urgent"
+                  : item.riskTier === "use-this-week" ? "risk-week"
+                  : isFrozen ? "risk-frozen"
+                  : "risk-safe"
                 }`}>
 
                 {/* View mode */}
@@ -172,9 +172,9 @@ export default function InventoryPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <h4 className="font-bold text-sm truncate">{item.name}</h4>
-                          <span className={`font-pixel text-[8px] md:text-[9px] uppercase tracking-wider ${
-                            isUrgent ? "text-danger" : item.riskTier === "use-this-week" ? "text-yellow-400"
-                            : isFrozen ? "text-blue-400" : "text-safe"
+                          <span className={`font-pixel text-[8px] md:text-[9px] uppercase tracking-wider font-bold ${
+                            isUrgent ? "text-rose-700 dark:text-rose-300" : item.riskTier === "use-this-week" ? "text-amber-700 dark:text-amber-300"
+                            : isFrozen ? "text-sky-700 dark:text-sky-300" : "text-emerald-700 dark:text-emerald-300"
                           }`}>
                             {isUrgent ? "TODAY" : item.riskTier === "use-this-week" ? `${item.daysUntilQualityDecline}D`
                             : isFrozen ? "FROZEN" : "SAFE"}
@@ -185,7 +185,7 @@ export default function InventoryPage() {
                           {isFrozen && " · paused"}
                         </p>
                         {item.reason && (
-                          <p className="text-[10px] text-white/40 truncate mt-0.5">
+                          <p className="text-[10px] text-slate-500/70 truncate mt-0.5">
                             {item.reason}{item.confidence < 0.6 ? " · ~estimate" : ""}
                           </p>
                         )}
@@ -195,7 +195,13 @@ export default function InventoryPage() {
 
                     {/* Buttons row */}
                     <div className="flex gap-1.5 flex-wrap">
-                      {!isFrozen && !item.openedAt && item.status === "active" && (
+                      {!isFrozen
+                        && !item.openedAt
+                        && item.status === "active"
+                        && item.category !== "produce"  // produce doesn't have an "opened" state
+                        && item.category !== "protein"  // whole proteins (chicken, steak) don't either
+                        && item.riskTier !== "use-today"  // already expired — opening doesn't bring it back
+                        && (
                         <button
                           onClick={() => updateItem(item.id, { openedAt: new Date().toISOString().split("T")[0] })}
                           className="btn flex-1 !text-[9px] !px-2 !py-1 !border-violet-400/40 !text-violet-300"
@@ -230,22 +236,22 @@ export default function InventoryPage() {
                       <div>
                         <label className="font-pixel text-[8px] text-muted uppercase">Name</label>
                         <input type="text" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                          className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-white/30" />
+                          className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-sky-400" />
                       </div>
                       <div>
                         <label className="font-pixel text-[8px] text-muted uppercase">Quantity</label>
                         <input type="text" value={editForm.quantity} onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
-                          className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-white/30" />
+                          className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-sky-400" />
                       </div>
                       <div>
                         <label className="font-pixel text-[8px] text-muted uppercase">Price $</label>
                         <input type="number" step="0.01" value={editForm.purchasePrice} onChange={(e) => setEditForm({ ...editForm, purchasePrice: parseFloat(e.target.value) || 0 })}
-                          className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-white/30" />
+                          className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-sky-400" />
                       </div>
                       <div>
                         <label className="font-pixel text-[8px] text-muted uppercase">Expires</label>
                         <input type="date" value={editForm.bestByDate} onChange={(e) => setEditForm({ ...editForm, bestByDate: e.target.value })}
-                          className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-white/30" />
+                          className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-2 py-1.5 text-xs text-foreground focus:outline-none focus:border-sky-400" />
                       </div>
                     </div>
                     <div className="flex gap-2">

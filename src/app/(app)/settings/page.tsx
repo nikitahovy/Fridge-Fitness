@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const FITNESS_GOALS = [
   { value: "maintenance", label: "Maintenance" },
@@ -66,35 +67,49 @@ export default function SettingsPage() {
       </div>
 
       {saved && (
-        <div className="bg-gradient-to-r from-emerald-950/50 to-emerald-900/20 border border-emerald-500/20 rounded-2xl p-4 mb-5">
+        <div className="bg-gradient-to-r from-emerald-200/50 to-emerald-100/20 border border-emerald-500/20 rounded-2xl p-4 mb-5">
           <p className="text-sm">Settings saved!</p>
         </div>
       )}
 
       <div className="space-y-6">
+        {/* Appearance — theme toggle */}
+        <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6">
+          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// APPEARANCE</p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-bold text-sm">Theme</p>
+              <p className="text-xs text-muted">Switch between light and dark mode</p>
+            </div>
+            <ThemeToggle />
+          </div>
+        </div>
+
         {/* Account info */}
         <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6 space-y-4">
           <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em]">// ACCOUNT</p>
 
           <div>
             <label className="block font-pixel text-[9px] text-muted uppercase mb-1.5">Email</label>
-            <p className="text-sm text-foreground/60 bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-2.5">{email}</p>
+            <p className="text-sm text-foreground/60 bg-white/50 dark:bg-neutral-900/60 border border-slate-300/50 dark:border-neutral-700/60 rounded-lg px-3 py-2.5">{email}</p>
           </div>
 
           <div>
             <label className="block font-pixel text-[9px] text-muted uppercase mb-1.5">Display Name</label>
             <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)}
-              className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition"
+              className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition"
               placeholder="Your name" />
           </div>
 
           <div>
             <label className="block font-pixel text-[9px] text-muted uppercase mb-1.5">Household Size</label>
-            <div className="flex gap-1 bg-white/[0.04] rounded-lg p-1 w-fit">
+            <div className="flex gap-1 bg-white/60 dark:bg-neutral-900/70 border border-slate-300/60 dark:border-neutral-700 rounded-lg p-1 w-fit">
               {[1, 2, 3, 4, 5, 6].map((n) => (
                 <button key={n} onClick={() => setHouseholdSize(n)}
                   className={`font-pixel text-[11px] w-9 py-1.5 rounded-md transition-all cursor-pointer ${
-                    householdSize === n ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"
+                    householdSize === n
+                      ? "bg-white dark:bg-neutral-200 text-black font-bold shadow-sm"
+                      : "text-muted hover:text-foreground hover:bg-white/40 dark:hover:bg-neutral-800/60"
                   }`}>{n}</button>
               ))}
             </div>
@@ -110,7 +125,7 @@ export default function SettingsPage() {
                 className={`font-pixel text-[10px] px-4 py-2 rounded-xl border transition-all cursor-pointer ${
                   fitnessGoal === g.value
                     ? "bg-white text-black font-bold border-white"
-                    : "text-muted border-white/[0.08] hover:border-white/25"
+                    : "text-muted border-slate-300/60 hover:border-white/25"
                 }`}>{g.label}</button>
             ))}
           </div>
@@ -124,8 +139,8 @@ export default function SettingsPage() {
               <button key={pref} onClick={() => toggleDietary(pref)}
                 className={`font-pixel text-[10px] px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
                   dietaryPreferences.includes(pref)
-                    ? "bg-gradient-to-r from-emerald-950/60 to-emerald-900/20 border-emerald-500/30 text-safe"
-                    : "text-muted border-white/[0.08] hover:border-white/25"
+                    ? "bg-gradient-to-r from-emerald-200/60 to-emerald-100/20 border-emerald-500/30 text-safe"
+                    : "text-muted border-slate-300/60 hover:border-white/25"
                 }`}>{pref}</button>
             ))}
           </div>

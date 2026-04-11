@@ -36,7 +36,7 @@ export default function LoginPage() {
 
       <form onSubmit={handleLogin} className="bg-card border border-card-border rounded-2xl p-6 space-y-4">
         {error && (
-          <div className="bg-gradient-to-r from-red-950/40 to-red-900/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
+          <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
             {error}
           </div>
         )}
@@ -48,7 +48,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition"
+            className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition"
             placeholder="you@email.com"
           />
         </div>
@@ -63,7 +63,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-white/30 transition"
+            className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-sky-400 transition"
             placeholder="••••••••"
           />
         </div>
@@ -79,7 +79,7 @@ export default function LoginPage() {
 
       <p className="text-center text-sm text-muted mt-4">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-foreground underline underline-offset-4 hover:text-white">
+        <Link href="/signup" className="text-foreground underline underline-offset-4 hover:text-slate-900">
           Sign up
         </Link>
       </p>

@@ -144,7 +144,7 @@ export default function CartPage() {
                 value={newCartName}
                 onChange={(e) => setNewCartName(e.target.value)}
                 placeholder="Cart name..."
-                className="bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 text-foreground py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 text-foreground py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 autoFocus
                 onKeyDown={(e) => e.key === "Enter" && createCart()}
               />
@@ -156,7 +156,7 @@ export default function CartPage() {
               </button>
               <button
                 onClick={() => setCreating(false)}
-                className="px-3 py-1.5 rounded-lg text-sm border border-gray-300 hover:bg-white/[0.03] transition cursor-pointer"
+                className="px-3 py-1.5 rounded-lg text-sm border border-gray-300 hover:bg-white/50 transition cursor-pointer"
               >
                 Cancel
               </button>
@@ -212,7 +212,7 @@ export default function CartPage() {
       {/* Existing carts */}
       {carts.length === 0 ? (
         <div className="text-center py-12 panel">
-          <ShoppingCartIcon className="w-10 h-10 mx-auto mb-3 text-white/60" strokeWidth={1.75} />
+          <ShoppingCartIcon className="w-10 h-10 mx-auto mb-3 text-slate-600" strokeWidth={1.75} />
           <p className="text-muted mb-2">No shopping carts yet</p>
           <p className="text-xs text-muted">Create one above or build a cart from a recipe with missing ingredients.</p>
         </div>
@@ -225,9 +225,9 @@ export default function CartPage() {
             return (
               <div key={cart.id} className="bg-card border border-card-border rounded-2xl overflow-hidden">
                 {/* Cart header */}
-                <div className="p-4 border-b white/[0.06] flex items-center justify-between bg-white/[0.03]">
+                <div className="p-4 border-b border-slate-300/60 flex items-center justify-between bg-white/50">
                   <div className="flex items-center gap-3">
-                    <ShoppingCartIcon className="w-5 h-5 text-white/80" strokeWidth={1.75} />
+                    <ShoppingCartIcon className="w-5 h-5 text-slate-700" strokeWidth={1.75} />
                     <div>
                       <h3 className="font-semibold">{cart.name}</h3>
                       <p className="text-xs text-muted">
@@ -254,7 +254,7 @@ export default function CartPage() {
 
                 {/* Add item inline form */}
                 {addingTo === cart.id && (
-                  <div className="p-4 border-b white/[0.06] bg-safe/5">
+                  <div className="p-4 border-b border-slate-300/60 bg-safe/5">
                     <div className="flex gap-2 items-end">
                       <div className="flex-1">
                         <label className="block text-xs font-medium mb-1">Item</label>
@@ -263,7 +263,7 @@ export default function CartPage() {
                           value={newItemName}
                           onChange={(e) => setNewItemName(e.target.value)}
                           placeholder="e.g., Soy Sauce"
-                          className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 text-foreground py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 text-foreground py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                           autoFocus
                         />
                       </div>
@@ -274,7 +274,7 @@ export default function CartPage() {
                           value={newItemQty}
                           onChange={(e) => setNewItemQty(e.target.value)}
                           placeholder="1"
-                          className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 text-foreground py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 text-foreground py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                       </div>
                       <div className="w-24">
@@ -285,7 +285,7 @@ export default function CartPage() {
                           value={newItemPrice}
                           onChange={(e) => setNewItemPrice(e.target.value)}
                           placeholder="3.99"
-                          className="w-full bg-white/[0.06] border border-white/[0.1] rounded-lg px-3 text-foreground py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          className="w-full bg-white/75 dark:bg-neutral-900/70 border border-slate-300/70 dark:border-neutral-700 rounded-lg px-3 text-foreground py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                       </div>
                       <div className="w-28">
@@ -323,7 +323,7 @@ export default function CartPage() {
                     cart.items.map((item) => (
                       <div
                         key={item.id}
-                        className={`p-3 px-4 flex items-center gap-3 ${item.checked ? "bg-white/[0.03] opacity-60" : ""}`}
+                        className={`p-3 px-4 flex items-center gap-3 ${item.checked ? "bg-white/50 opacity-60" : ""}`}
                       >
                         <button
                           onClick={() => toggleItem(cart.id, item.id)}
@@ -360,7 +360,7 @@ export default function CartPage() {
 
                 {/* Cart footer */}
                 {cart.items.length > 0 && (
-                  <div className="p-3 px-4 border-t white/[0.06] bg-white/[0.03] flex items-center justify-between">
+                  <div className="p-3 px-4 border-t border-slate-300/60 bg-white/50 flex items-center justify-between">
                     <span className="text-sm font-semibold">
                       Total: ${total.toFixed(2)}
                     </span>

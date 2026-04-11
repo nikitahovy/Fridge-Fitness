@@ -40,14 +40,12 @@ const ALL_MOBILE_ITEMS: NavItem[] = [
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-// Mobile bottom bar — 3 pinned tabs always on the left
 const PINNED_MOBILE: NavItem[] = [
   { href: "/", label: "Home", icon: Home },
   { href: "/inventory", label: "Inventory", icon: Refrigerator },
   { href: "/recipes", label: "Recipes", icon: ChefHat },
 ];
 
-// Lookup table for non-pinned routes that can show up in the recents slots
 const RECENT_ROUTE_META: Record<string, { label: string; icon: LucideIcon }> = {
   "/eat-first":    { label: "Eat",      icon: Zap },
   "/add-item":     { label: "Add",      icon: Plus },
@@ -63,7 +61,6 @@ function useRecentRoutes(maxRecent = 2): string[] {
   const pathname = usePathname();
   const [recents, setRecents] = useState<string[]>([]);
 
-  // Load on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(RECENT_STORAGE_KEY);
@@ -74,12 +71,11 @@ function useRecentRoutes(maxRecent = 2): string[] {
     } catch {}
   }, [maxRecent]);
 
-  // Track pathname changes — only tracked, non-pinned routes get added
   useEffect(() => {
     if (!RECENT_ROUTE_META[pathname]) return;
     if (PINNED_MOBILE.some((p) => p.href === pathname)) return;
     setRecents((prev) => {
-      if (prev[0] === pathname) return prev; // no change
+      if (prev[0] === pathname) return prev;
       const next = [pathname, ...prev.filter((r) => r !== pathname)].slice(0, maxRecent);
       try {
         localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(next));
@@ -94,7 +90,7 @@ function useRecentRoutes(maxRecent = 2): string[] {
 export default function Sidebar() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerVisible, setDrawerVisible] = useState(false); // for animation
+  const [drawerVisible, setDrawerVisible] = useState(false);
   const touchStartY = useRef(0);
   const recents = useRecentRoutes(2);
 
@@ -112,13 +108,11 @@ export default function Sidebar() {
     }, 300);
   }, []);
 
-  // Close drawer on route change
   useEffect(() => {
     if (drawerOpen) closeDrawer();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
-  // Drawer handle swipe down to close
   const handleDrawerHandleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
   }, []);
@@ -133,50 +127,77 @@ export default function Sidebar() {
     return pathname.startsWith(href);
   }
 
-  const navLink = (href: string, Icon: LucideIcon, label: string) => (
-    <Link key={href} href={href}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-150 border ${
-        isActive(href) ? "bg-white text-black font-bold border-white/80"
-        : "text-[#999] border-white/[0.08] hover:text-white hover:border-white/25 hover:bg-white/[0.04] font-medium"
-      }`}>
-      <Icon className="w-5 h-5" strokeWidth={1.75} />
-      {label}
-    </Link>
-  );
+  // Inactive nav link classes — text + border + hover, both themes
+  const inactiveLink =
+    "text-slate-800 dark:text-slate-300 border-white/40 dark:border-white/15 " +
+    "hover:text-slate-950 dark:hover:text-slate-50 " +
+    "hover:border-white/80 dark:hover:border-white/25 " +
+    "hover:bg-white/60 dark:hover:bg-white/10 " +
+    "font-medium";
+
+  // Active pill — light has white→sky gradient, dark has matte neutral.
+  // Drop shadow ONLY at the bottom (no inset top highlight).
+  const activeLink =
+    "bg-gradient-to-br from-white via-sky-50 to-sky-100/80 " +
+    "dark:from-neutral-800 dark:via-neutral-800 dark:to-neutral-900 " +
+    "text-slate-950 dark:text-neutral-50 font-bold " +
+    "border-sky-300/70 dark:border-neutral-600/60 " +
+    "shadow-[0_3px_10px_rgba(56,128,200,0.22),0_1px_3px_rgba(56,128,200,0.15)] " +
+    "dark:shadow-[0_3px_10px_rgba(0,0,0,0.55),0_1px_3px_rgba(0,0,0,0.4)]";
+
+  const navLink = (href: string, Icon: LucideIcon, label: string) => {
+    const active = isActive(href);
+    return (
+      <Link key={href} href={href}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-150 border ${
+          active ? activeLink : inactiveLink
+        }`}>
+        <Icon className="w-5 h-5" strokeWidth={active ? 2.5 : 2} />
+        {label}
+      </Link>
+    );
+  };
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-[240px] min-h-screen bg-sidebar-bg border-r border-card-border flex-col flex-shrink-0">
+      {/* Desktop sidebar — frosted glass */}
+      <aside className="hidden md:flex w-[240px] h-screen flex-col flex-shrink-0 backdrop-blur-2xl bg-slate-100/55 dark:bg-neutral-900/85 border-r border-white/70 dark:border-white/10 shadow-[1px_0_20px_rgba(31,87,184,0.08)] dark:shadow-[1px_0_20px_rgba(0,0,0,0.4)]">
         <div className="p-5">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-[14px] overflow-hidden flex-shrink-0 ring-1 ring-white/20">
-              <Image src="/logo.png" alt="Fridge Fitness" width={44} height={44} className="w-11 h-11 object-contain" />
+            <div className="w-14 h-14 flex-shrink-0 overflow-hidden rounded-[16px] bg-black">
+              <Image
+                src="/logo.png"
+                alt="Fridge Fitness"
+                width={112}
+                height={112}
+                quality={100}
+                className="w-14 h-14 object-contain"
+              />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-white tracking-tight">Fridge Fitness</h1>
-              <p className="text-[10px] font-pixel text-[#666]">SAVE FOOD. EAT SMART.</p>
+              <h1 className="text-[15px] font-extrabold text-slate-950 dark:text-slate-50 tracking-tight leading-tight">Fridge Fitness</h1>
+              <p className="text-[10px] font-pixel text-slate-600 dark:text-slate-400">SAVE FOOD. EAT SMART.</p>
             </div>
           </Link>
         </div>
-        <div className="mx-4 h-px bg-white/[0.08] mb-2" />
-        <nav className="flex-1 px-3 space-y-1">
+        <div className="mx-4 h-px bg-slate-300/50 dark:bg-white/10 mb-2" />
+        <nav className="flex-1 px-3 space-y-1 overflow-y-auto overscroll-contain min-h-0">
           {NAV_ITEMS.map((item) => navLink(item.href, item.icon, item.label))}
-          <div className="py-3 px-2"><div className="h-px bg-white/[0.08]" /></div>
-          <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-[#555] px-3 pb-2">SHOPPING</p>
+          <div className="py-3 px-2"><div className="h-px bg-slate-300/50 dark:bg-white/10" /></div>
+          <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-slate-500 dark:text-slate-500 px-3 pb-2">SHOPPING</p>
           {navLink("/cart", ShoppingCart, "Instacart Lists")}
           <a href="https://www.toogoodtogo.com" target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-150 border text-[#999] border-white/[0.08] hover:text-white hover:border-white/25 hover:bg-white/[0.04] font-medium">
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-150 border ${inactiveLink}`}>
             <UtensilsCrossed className="w-5 h-5" strokeWidth={1.75} />
             Too Good To Go
           </a>
-          <div className="py-3 px-2"><div className="h-px bg-white/[0.08]" /></div>
-          <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-[#555] px-3 pb-2">TOOLS</p>
+          <div className="py-3 px-2"><div className="h-px bg-slate-300/50 dark:bg-white/10" /></div>
+          <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-slate-500 dark:text-slate-500 px-3 pb-2">TOOLS</p>
           {navLink("/health-score", FlaskConical, "Health Score")}
-          <div className="py-3 px-2"><div className="h-px bg-white/[0.08]" /></div>
-          <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-[#555] px-3 pb-2">ANALYTICS</p>
+          <div className="py-3 px-2"><div className="h-px bg-slate-300/50 dark:bg-white/10" /></div>
+          <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-slate-500 dark:text-slate-500 px-3 pb-2">ANALYTICS</p>
           {navLink("/analytics", BarChart3, "Monthly +/−")}
-          <div className="py-3 px-2"><div className="h-px bg-white/[0.08]" /></div>
+          <div className="py-3 px-2"><div className="h-px bg-slate-300/50 dark:bg-white/10" /></div>
           {navLink("/settings", Settings, "Settings")}
         </nav>
         <div className="mx-3 mb-4 space-y-2">
@@ -191,44 +212,49 @@ export default function Sidebar() {
       {/* Mobile drawer overlay — animated */}
       {drawerVisible && (
         <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end">
-          {/* Backdrop */}
           <div
-            className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${drawerOpen ? "opacity-100" : "opacity-0"}`}
+            className={`absolute inset-0 bg-slate-900/30 dark:bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${drawerOpen ? "opacity-100" : "opacity-0"}`}
             onClick={closeDrawer}
           />
 
-          {/* Drawer — slides up */}
           <div
-            className={`relative bg-[#0a0a0e] border-t border-white/[0.08] rounded-t-3xl max-h-[75vh] flex flex-col transition-transform duration-300 ease-out ${
+            className={`relative backdrop-blur-2xl bg-white/70 dark:bg-neutral-900/85 border-t border-white/80 dark:border-white/15 rounded-t-3xl max-h-[75vh] flex flex-col transition-transform duration-300 ease-out shadow-[0_-8px_32px_rgba(31,87,184,0.18)] dark:shadow-[0_-8px_32px_rgba(0,0,0,0.5)] ${
               drawerOpen ? "translate-y-0" : "translate-y-full"
             }`}
           >
-            {/* Drag handle — swipe down to close */}
             <div className="flex justify-center py-3 cursor-grab"
               onTouchStart={handleDrawerHandleTouchStart}
               onTouchEnd={handleDrawerHandleTouchEnd}>
-              <div className="w-12 h-1.5 rounded-full bg-white/30" />
+              <div className="w-12 h-1.5 rounded-full bg-slate-400/60 dark:bg-white/30" />
             </div>
 
-            {/* Logo */}
             <div className="flex items-center gap-3 px-5 pb-4">
-              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 ring-1 ring-white/20">
-                <Image src="/logo.png" alt="Fridge Fitness" width={36} height={36} className="w-9 h-9 object-contain" />
+              <div className="w-12 h-12 flex-shrink-0 overflow-hidden rounded-[14px] bg-black">
+                <Image
+                  src="/logo.png"
+                  alt="Fridge Fitness"
+                  width={96}
+                  height={96}
+                  quality={100}
+                  className="w-12 h-12 object-contain"
+                />
               </div>
               <div>
-                <p className="text-sm font-bold text-white">Fridge Fitness</p>
-                <p className="font-pixel text-[9px] text-[#666]">SAVE FOOD. EAT SMART.</p>
+                <p className="text-[15px] font-extrabold text-slate-950 dark:text-slate-50 leading-tight">Fridge Fitness</p>
+                <p className="font-pixel text-[9px] text-slate-600 dark:text-slate-400">SAVE FOOD. EAT SMART.</p>
               </div>
             </div>
 
-            {/* Nav items — scrollable */}
             <div className="px-4 pb-4 space-y-1 overflow-y-auto flex-1 overscroll-contain">
               {ALL_MOBILE_ITEMS.map((item) => {
                 const Icon = item.icon;
+                const active = isActive(item.href);
                 return (
                   <Link key={item.href} href={item.href} onClick={closeDrawer}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                      isActive(item.href) ? "bg-white text-black font-bold" : "text-[#999]"
+                      active
+                        ? "bg-white dark:bg-neutral-800 text-slate-950 dark:text-neutral-50 font-bold shadow-sm border border-sky-300/60 dark:border-neutral-600/60"
+                        : "text-slate-700 dark:text-slate-300 border border-transparent"
                     }`}>
                     <Icon className="w-5 h-5" strokeWidth={1.75} />
                     <span className="text-sm">{item.label}</span>
@@ -236,13 +262,12 @@ export default function Sidebar() {
                 );
               })}
               <a href="https://www.toogoodtogo.com" target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#999]">
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 dark:text-slate-300">
                 <UtensilsCrossed className="w-5 h-5" strokeWidth={1.75} />
                 <span className="text-sm">Too Good To Go</span>
               </a>
             </div>
 
-            {/* Sign out */}
             <div className="px-4 pb-6 safe-bottom">
               <button onClick={async () => {
                 const { createClient } = await import("@/utils/supabase/client");
@@ -254,41 +279,36 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* Mobile bottom bar */}
+      {/* Mobile bottom bar — frosted glass */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40">
-        <div className="h-3 bg-gradient-to-t from-[#0a0a0e] to-transparent pointer-events-none" />
+        <div className="h-3 bg-gradient-to-t from-white/40 dark:from-neutral-900/40 to-transparent pointer-events-none" />
 
-        <div className="bg-[#0a0a0e]/95 backdrop-blur-lg border-t border-white/[0.08]">
-          {/* Menu button — opens the full drawer */}
+        <div className="bg-white/55 dark:bg-neutral-900/85 backdrop-blur-2xl border-t border-white/70 dark:border-white/10 shadow-[0_-4px_20px_rgba(31,87,184,0.1)] dark:shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
           <div className="flex justify-center pt-1.5">
             <button onClick={openDrawer}
-              className="flex items-center gap-1.5 px-4 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] active:bg-white/[0.15] transition">
-              <div className="w-6 h-0.5 rounded-full bg-white/40" />
-              <span className="font-pixel text-[8px] text-white/40 uppercase">Menu</span>
-              <div className="w-6 h-0.5 rounded-full bg-white/40" />
+              className="flex items-center gap-1.5 px-4 py-1 rounded-full bg-white/60 dark:bg-neutral-800/80 border border-white/80 dark:border-white/15 active:bg-white/80 dark:active:bg-neutral-700/80 transition shadow-[inset_0_1px_0_rgba(255,255,255,1),0_1px_3px_rgba(31,87,184,0.1)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_1px_3px_rgba(0,0,0,0.4)]">
+              <div className="w-6 h-0.5 rounded-full bg-slate-500/60 dark:bg-slate-400/60" />
+              <span className="font-pixel text-[8px] text-slate-600 dark:text-slate-400 uppercase">Menu</span>
+              <div className="w-6 h-0.5 rounded-full bg-slate-500/60 dark:bg-slate-400/60" />
             </button>
           </div>
 
-          {/* Tabs row: 3 pinned on the left, recent slots on the right */}
           <div className="flex items-center py-1.5 px-2 safe-bottom gap-1">
-            {/* Pinned tabs */}
             {PINNED_MOBILE.map((item) => {
               const active = isActive(item.href);
               const Icon = item.icon;
               return (
                 <Link key={item.href} href={item.href}
-                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all flex-1 min-w-[44px] ${active ? "text-white" : "text-[#555]"}`}>
+                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all flex-1 min-w-[44px] ${active ? "text-slate-900 dark:text-neutral-100" : "text-slate-500 dark:text-slate-400"}`}>
                   <Icon className="w-5 h-5" strokeWidth={1.75} />
-                  <span className={`text-[8px] font-pixel ${active ? "text-white" : "text-[#555]"}`}>{item.label}</span>
-                  {active && <div className="w-1 h-1 rounded-full bg-white" />}
+                  <span className={`text-[8px] font-pixel ${active ? "text-slate-900 dark:text-neutral-100" : "text-slate-500 dark:text-slate-400"}`}>{item.label}</span>
+                  {active && <div className="w-1 h-1 rounded-full bg-slate-900 dark:bg-neutral-200" />}
                 </Link>
               );
             })}
 
-            {/* Subtle vertical divider between pinned and recents */}
-            {recents.length > 0 && <div className="w-px h-8 bg-white/10 mx-1" />}
+            {recents.length > 0 && <div className="w-px h-8 bg-slate-400/40 dark:bg-white/15 mx-1" />}
 
-            {/* Recent tabs — populated dynamically as you navigate */}
             {recents.map((href) => {
               const meta = RECENT_ROUTE_META[href];
               if (!meta) return null;
@@ -296,10 +316,10 @@ export default function Sidebar() {
               const Icon = meta.icon;
               return (
                 <Link key={href} href={href}
-                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all flex-1 min-w-[44px] ${active ? "text-white" : "text-[#555]"}`}>
+                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all flex-1 min-w-[44px] ${active ? "text-slate-900 dark:text-neutral-100" : "text-slate-500 dark:text-slate-400"}`}>
                   <Icon className="w-5 h-5" strokeWidth={1.75} />
-                  <span className={`text-[8px] font-pixel ${active ? "text-white" : "text-[#555]"}`}>{meta.label}</span>
-                  {active && <div className="w-1 h-1 rounded-full bg-white" />}
+                  <span className={`text-[8px] font-pixel ${active ? "text-slate-900 dark:text-neutral-100" : "text-slate-500 dark:text-slate-400"}`}>{meta.label}</span>
+                  {active && <div className="w-1 h-1 rounded-full bg-slate-900 dark:bg-neutral-200" />}
                 </Link>
               );
             })}
