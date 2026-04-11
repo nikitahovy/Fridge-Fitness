@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { Camera, Pencil, Settings, Plus } from "lucide-react";
 import { ScoredRecipe, ItemWithRisk } from "@/lib/types";
 
 export default function Dashboard() {
@@ -59,7 +60,7 @@ export default function Dashboard() {
 
         <div className="space-y-3">
           <Link href="/add-item" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-white/20 border border-transparent block">
-            <span className="text-3xl">📸</span>
+            <Camera className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="font-bold">Scan with Camera</p>
               <p className="text-xs text-muted">Take a photo of your groceries — AI detects items automatically</p>
@@ -67,7 +68,7 @@ export default function Dashboard() {
           </Link>
 
           <Link href="/add-item" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-white/20 border border-transparent block">
-            <span className="text-3xl">✏️</span>
+            <Pencil className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="font-bold">Add Manually</p>
               <p className="text-xs text-muted">Type in items one by one with prices and expiry dates</p>
@@ -75,7 +76,7 @@ export default function Dashboard() {
           </Link>
 
           <Link href="/settings" className="glass rounded-2xl p-5 flex items-center gap-4 transition-all duration-200 hover:border-white/20 border border-transparent block">
-            <span className="text-3xl">⚙️</span>
+            <Settings className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="font-bold">Set Up Your Profile</p>
               <p className="text-xs text-muted">Dietary preferences, fitness goals, household size</p>
@@ -194,7 +195,7 @@ export default function Dashboard() {
 
         {atRiskItems.length === 0 ? (
           <Link href="/add-item" className="glass rounded-2xl p-6 flex items-center gap-5 transition-all duration-200 hover:border-white/20 border border-transparent block">
-            <span className="text-3xl">➕</span>
+            <Plus className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
             <div>
               <p className="font-bold mb-0.5">Nothing expiring yet</p>
               <p className="text-xs text-muted">Add items to your inventory to start tracking freshness and saving food.</p>
@@ -261,8 +262,8 @@ export default function Dashboard() {
 
       {/* Mobile: Quick camera — glass button */}
       <div className="md:hidden fixed bottom-20 right-4 z-40">
-        <Link href="/add-item" className="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-2xl">
-          📷
+        <Link href="/add-item" className="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-white">
+          <Camera className="w-6 h-6" strokeWidth={1.75} />
         </Link>
       </div>
     </div>

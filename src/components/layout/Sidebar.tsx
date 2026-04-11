@@ -4,53 +4,108 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import {
+  Home,
+  Refrigerator,
+  Zap,
+  ChefHat,
+  Plus,
+  ShoppingCart,
+  BarChart3,
+  FlaskConical,
+  Settings,
+  UtensilsCrossed,
+  type LucideIcon,
+} from "lucide-react";
 
-const NAV_ITEMS = [
-  { href: "/", label: "Dashboard", icon: "🏠" },
-  { href: "/inventory", label: "Inventory", icon: "🧊" },
-  { href: "/eat-first", label: "Eat First", icon: "⚡" },
-  { href: "/recipes", label: "Recipes", icon: "🍳" },
-  { href: "/add-item", label: "Add", icon: "➕" },
-  { href: "/cart", label: "Cart", icon: "🛒" },
-  { href: "/analytics", label: "Monthly", icon: "📊" },
+type NavItem = { href: string; label: string; icon: LucideIcon };
+
+const NAV_ITEMS: NavItem[] = [
+  { href: "/", label: "Dashboard", icon: Home },
+  { href: "/inventory", label: "Inventory", icon: Refrigerator },
+  { href: "/eat-first", label: "Eat First", icon: Zap },
+  { href: "/recipes", label: "Recipes", icon: ChefHat },
+  { href: "/add-item", label: "Add", icon: Plus },
 ];
 
-const MOBILE_BAR = [
-  { href: "/", label: "Home", icon: "🏠" },
-  { href: "/inventory", label: "Inventory", icon: "🧊" },
-  { href: "/eat-first", label: "Eat", icon: "⚡" },
-  { href: "/add-item", label: "Add", icon: "➕" },
-  { href: "/recipes", label: "Recipes", icon: "🍳" },
+const ALL_MOBILE_ITEMS: NavItem[] = [
+  { href: "/", label: "Dashboard", icon: Home },
+  { href: "/inventory", label: "Inventory", icon: Refrigerator },
+  { href: "/eat-first", label: "Eat First", icon: Zap },
+  { href: "/recipes", label: "Recipes", icon: ChefHat },
+  { href: "/add-item", label: "Add Item", icon: Plus },
+  { href: "/health-score", label: "Health Score", icon: FlaskConical },
+  { href: "/cart", label: "Instacart Lists", icon: ShoppingCart },
+  { href: "/analytics", label: "Monthly +/−", icon: BarChart3 },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
-const ALL_MOBILE_ITEMS = [
-  { href: "/", label: "Dashboard", icon: "🏠" },
-  { href: "/inventory", label: "Inventory", icon: "🧊" },
-  { href: "/eat-first", label: "Eat First", icon: "⚡" },
-  { href: "/recipes", label: "Recipes", icon: "🍳" },
-  { href: "/add-item", label: "Add Item", icon: "➕" },
-  { href: "/health-score", label: "Health Score", icon: "🔬" },
-  { href: "/cart", label: "Instacart Lists", icon: "🛒" },
-  { href: "/analytics", label: "Monthly +/−", icon: "📊" },
-  { href: "/settings", label: "Settings", icon: "⚙️" },
+// Mobile bottom bar — 3 pinned tabs always on the left
+const PINNED_MOBILE: NavItem[] = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/inventory", label: "Inventory", icon: Refrigerator },
+  { href: "/recipes", label: "Recipes", icon: ChefHat },
 ];
+
+// Lookup table for non-pinned routes that can show up in the recents slots
+const RECENT_ROUTE_META: Record<string, { label: string; icon: LucideIcon }> = {
+  "/eat-first":    { label: "Eat",      icon: Zap },
+  "/add-item":     { label: "Add",      icon: Plus },
+  "/cart":         { label: "Cart",     icon: ShoppingCart },
+  "/health-score": { label: "Health",   icon: FlaskConical },
+  "/analytics":    { label: "Stats",    icon: BarChart3 },
+  "/settings":     { label: "Settings", icon: Settings },
+};
+
+const RECENT_STORAGE_KEY = "ff_recent_routes";
+
+function useRecentRoutes(maxRecent = 2): string[] {
+  const pathname = usePathname();
+  const [recents, setRecents] = useState<string[]>([]);
+
+  // Load on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(RECENT_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setRecents(parsed.slice(0, maxRecent));
+      }
+    } catch {}
+  }, [maxRecent]);
+
+  // Track pathname changes — only tracked, non-pinned routes get added
+  useEffect(() => {
+    if (!RECENT_ROUTE_META[pathname]) return;
+    if (PINNED_MOBILE.some((p) => p.href === pathname)) return;
+    setRecents((prev) => {
+      if (prev[0] === pathname) return prev; // no change
+      const next = [pathname, ...prev.filter((r) => r !== pathname)].slice(0, maxRecent);
+      try {
+        localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }, [pathname, maxRecent]);
+
+  return recents;
+}
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false); // for animation
   const touchStartY = useRef(0);
+  const recents = useRecentRoutes(2);
 
   const openDrawer = useCallback(() => {
     setDrawerVisible(true);
     document.body.style.overflow = "hidden";
-    // Tiny delay for CSS transition to kick in
     requestAnimationFrame(() => requestAnimationFrame(() => setDrawerOpen(true)));
   }, []);
 
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false);
-    // Wait for close animation then unmount
     setTimeout(() => {
       setDrawerVisible(false);
       document.body.style.overflow = "";
@@ -70,7 +125,7 @@ export default function Sidebar() {
 
   const handleDrawerHandleTouchEnd = useCallback((e: React.TouchEvent) => {
     const deltaY = e.changedTouches[0].clientY - touchStartY.current;
-    if (deltaY > 50) closeDrawer(); // swipe down
+    if (deltaY > 50) closeDrawer();
   }, [closeDrawer]);
 
   function isActive(href: string) {
@@ -78,13 +133,13 @@ export default function Sidebar() {
     return pathname.startsWith(href);
   }
 
-  const navLink = (href: string, icon: string, label: string) => (
+  const navLink = (href: string, Icon: LucideIcon, label: string) => (
     <Link key={href} href={href}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-150 border ${
         isActive(href) ? "bg-white text-black font-bold border-white/80"
         : "text-[#999] border-white/[0.08] hover:text-white hover:border-white/25 hover:bg-white/[0.04] font-medium"
       }`}>
-      <span className="text-base">{icon}</span>
+      <Icon className="w-5 h-5" strokeWidth={1.75} />
       {label}
     </Link>
   );
@@ -106,22 +161,23 @@ export default function Sidebar() {
         </div>
         <div className="mx-4 h-px bg-white/[0.08] mb-2" />
         <nav className="flex-1 px-3 space-y-1">
-          {NAV_ITEMS.slice(0, 5).map((item) => navLink(item.href, item.icon, item.label))}
+          {NAV_ITEMS.map((item) => navLink(item.href, item.icon, item.label))}
           <div className="py-3 px-2"><div className="h-px bg-white/[0.08]" /></div>
           <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-[#555] px-3 pb-2">SHOPPING</p>
-          {navLink("/cart", "🛒", "Instacart Lists")}
+          {navLink("/cart", ShoppingCart, "Instacart Lists")}
           <a href="https://www.toogoodtogo.com" target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all duration-150 border text-[#999] border-white/[0.08] hover:text-white hover:border-white/25 hover:bg-white/[0.04] font-medium">
-            <span className="text-base">🥡</span>Too Good To Go
+            <UtensilsCrossed className="w-5 h-5" strokeWidth={1.75} />
+            Too Good To Go
           </a>
           <div className="py-3 px-2"><div className="h-px bg-white/[0.08]" /></div>
           <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-[#555] px-3 pb-2">TOOLS</p>
-          {navLink("/health-score", "🔬", "Health Score")}
+          {navLink("/health-score", FlaskConical, "Health Score")}
           <div className="py-3 px-2"><div className="h-px bg-white/[0.08]" /></div>
           <p className="text-[9px] font-pixel uppercase tracking-[0.2em] text-[#555] px-3 pb-2">ANALYTICS</p>
-          {navLink("/analytics", "📊", "Monthly +/−")}
+          {navLink("/analytics", BarChart3, "Monthly +/−")}
           <div className="py-3 px-2"><div className="h-px bg-white/[0.08]" /></div>
-          {navLink("/settings", "⚙️", "Settings")}
+          {navLink("/settings", Settings, "Settings")}
         </nav>
         <div className="mx-3 mb-4 space-y-2">
           <button onClick={async () => {
@@ -167,18 +223,21 @@ export default function Sidebar() {
 
             {/* Nav items — scrollable */}
             <div className="px-4 pb-4 space-y-1 overflow-y-auto flex-1 overscroll-contain">
-              {ALL_MOBILE_ITEMS.map((item) => (
-                <Link key={item.href} href={item.href} onClick={closeDrawer}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                    isActive(item.href) ? "bg-white text-black font-bold" : "text-[#999]"
-                  }`}>
-                  <span className="text-lg">{item.icon}</span>
-                  <span className="text-sm">{item.label}</span>
-                </Link>
-              ))}
+              {ALL_MOBILE_ITEMS.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link key={item.href} href={item.href} onClick={closeDrawer}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                      isActive(item.href) ? "bg-white text-black font-bold" : "text-[#999]"
+                    }`}>
+                    <Icon className="w-5 h-5" strokeWidth={1.75} />
+                    <span className="text-sm">{item.label}</span>
+                  </Link>
+                );
+              })}
               <a href="https://www.toogoodtogo.com" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-[#999]">
-                <span className="text-lg">🥡</span>
+                <UtensilsCrossed className="w-5 h-5" strokeWidth={1.75} />
                 <span className="text-sm">Too Good To Go</span>
               </a>
             </div>
@@ -200,7 +259,7 @@ export default function Sidebar() {
         <div className="h-3 bg-gradient-to-t from-[#0a0a0e] to-transparent pointer-events-none" />
 
         <div className="bg-[#0a0a0e]/95 backdrop-blur-lg border-t border-white/[0.08]">
-          {/* Menu button — simple tap, no swipe */}
+          {/* Menu button — opens the full drawer */}
           <div className="flex justify-center pt-1.5">
             <button onClick={openDrawer}
               className="flex items-center gap-1.5 px-4 py-1 rounded-full bg-white/[0.08] border border-white/[0.12] active:bg-white/[0.15] transition">
@@ -210,14 +269,36 @@ export default function Sidebar() {
             </button>
           </div>
 
-          <div className="flex justify-around items-center py-1.5 px-1 safe-bottom">
-            {MOBILE_BAR.map((item) => {
+          {/* Tabs row: 3 pinned on the left, recent slots on the right */}
+          <div className="flex items-center py-1.5 px-2 safe-bottom gap-1">
+            {/* Pinned tabs */}
+            {PINNED_MOBILE.map((item) => {
               const active = isActive(item.href);
+              const Icon = item.icon;
               return (
                 <Link key={item.href} href={item.href}
-                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all min-w-[44px] ${active ? "text-white" : "text-[#555]"}`}>
-                  <span className="text-lg">{item.icon}</span>
+                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all flex-1 min-w-[44px] ${active ? "text-white" : "text-[#555]"}`}>
+                  <Icon className="w-5 h-5" strokeWidth={1.75} />
                   <span className={`text-[8px] font-pixel ${active ? "text-white" : "text-[#555]"}`}>{item.label}</span>
+                  {active && <div className="w-1 h-1 rounded-full bg-white" />}
+                </Link>
+              );
+            })}
+
+            {/* Subtle vertical divider between pinned and recents */}
+            {recents.length > 0 && <div className="w-px h-8 bg-white/10 mx-1" />}
+
+            {/* Recent tabs — populated dynamically as you navigate */}
+            {recents.map((href) => {
+              const meta = RECENT_ROUTE_META[href];
+              if (!meta) return null;
+              const active = isActive(href);
+              const Icon = meta.icon;
+              return (
+                <Link key={href} href={href}
+                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl transition-all flex-1 min-w-[44px] ${active ? "text-white" : "text-[#555]"}`}>
+                  <Icon className="w-5 h-5" strokeWidth={1.75} />
+                  <span className={`text-[8px] font-pixel ${active ? "text-white" : "text-[#555]"}`}>{meta.label}</span>
                   {active && <div className="w-1 h-1 rounded-full bg-white" />}
                 </Link>
               );

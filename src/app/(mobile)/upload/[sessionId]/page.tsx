@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import { Camera, CircleCheck } from "lucide-react";
 
 export default function MobileUploadPage({
   params,
@@ -39,7 +40,7 @@ export default function MobileUploadPage({
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
         <div className="text-center">
-          <div className="text-5xl mb-4">✅</div>
+          <CircleCheck className="w-14 h-14 mx-auto mb-4 text-emerald-600" strokeWidth={1.75} />
           <h2 className="text-xl font-bold mb-2">Photo Uploaded!</h2>
           <p className="text-gray-600">You can close this page and return to your computer.</p>
         </div>
@@ -62,7 +63,7 @@ export default function MobileUploadPage({
           {!preview ? (
             <label className="block cursor-pointer">
               <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-emerald-400 transition">
-                <div className="text-4xl mb-3">📸</div>
+                <Camera className="w-10 h-10 mx-auto mb-3 text-gray-600" strokeWidth={1.75} />
                 <p className="font-medium text-sm">Tap to take a photo</p>
                 <p className="text-xs text-gray-500 mt-1">or choose from gallery</p>
               </div>

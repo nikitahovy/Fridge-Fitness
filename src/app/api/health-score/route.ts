@@ -394,7 +394,7 @@ function calculateFoodScore(product: Record<string, unknown>) {
   const additivesTags = (product.additives_tags || []) as string[];
   const labels = ((product.labels_tags || []) as string[]).join(" ").toLowerCase();
 
-  // Nutrition (0-60)
+  // Nutrition (0-100)
   const sugar100g = nutriments.sugars_100g || 0;
   const salt100g = nutriments.salt_100g || (nutriments.sodium_100g || 0) * 2.5;
   const satFat100g = nutriments.saturated_fat_100g || nutriments["saturated-fat_100g"] || 0;
@@ -417,7 +417,7 @@ function calculateFoodScore(product: Record<string, unknown>) {
     c.includes("fruit") || c.includes("vegetable") || c.includes("legume"));
   if (hasFruits) posPts += 5;
 
-  const nutritionScore = Math.min(60, Math.max(0, Math.round(((40 - negPts + posPts) / 40) * 60)));
+  const nutritionScore = Math.min(100, Math.max(0, Math.round(((40 - negPts + posPts) / 40) * 100)));
 
   // Additives (heavier penalties)
   const detectedAdditives: { code: string; name: string; risk: string; concern: string }[] = [];

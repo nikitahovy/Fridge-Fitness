@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Camera } from "lucide-react";
 
 type Nutriments = { sugar: number; salt: number; saturatedFat: number; calories: number; fiber: number; protein: number };
 
@@ -86,12 +87,24 @@ function HealthScoreContent() {
       {!barcode && !data && (
         <div className="space-y-4">
           <Link href="/health-scan" className="glass rounded-2xl p-6 flex items-center gap-4 block transition-all hover:border-white/20 border border-transparent">
-            <span className="text-3xl">📷</span>
+            <Camera className="w-7 h-7 text-white/80 flex-shrink-0" strokeWidth={1.75} />
             <div>
-              <p className="font-bold">Scan Product Barcode</p>
-              <p className="text-xs text-muted">Point camera at any product barcode</p>
+              <p className="font-bold">Scan Food or Skincare Barcode</p>
+              <p className="text-xs text-muted">Instant 0-100 health score for groceries, drinks, and cosmetics</p>
             </div>
           </Link>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-card border border-card-border rounded-2xl p-4">
+              <p className="font-pixel text-[9px] text-muted uppercase tracking-wider mb-2">// FOOD &amp; DRINKS</p>
+              <p className="text-xs text-muted leading-relaxed">Nutrition quality, sugar / salt / fat, and 300+ E-number additives flagged by risk level.</p>
+            </div>
+            <div className="bg-card border border-card-border rounded-2xl p-4">
+              <p className="font-pixel text-[9px] text-muted uppercase tracking-wider mb-2">// SKINCARE &amp; COSMETICS</p>
+              <p className="text-xs text-muted leading-relaxed">Parabens, SLS, phthalates, oxybenzone &amp; 40+ ingredients screened. Powered by Open Beauty Facts.</p>
+            </div>
+          </div>
+
           <div className="flex gap-2">
             <input type="text" inputMode="numeric" value={manualCode} onChange={(e) => setManualCode(e.target.value.replace(/\D/g, ""))}
               placeholder="Or type barcode number..."

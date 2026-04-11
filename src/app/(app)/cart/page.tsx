@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { ShoppingCart as ShoppingCartIcon } from "lucide-react";
 import { ShoppingCart, ScoredRecipe, FoodCategory } from "@/lib/types";
 
 export default function CartPage() {
@@ -211,7 +212,7 @@ export default function CartPage() {
       {/* Existing carts */}
       {carts.length === 0 ? (
         <div className="text-center py-12 panel">
-          <div className="text-4xl mb-3">🛒</div>
+          <ShoppingCartIcon className="w-10 h-10 mx-auto mb-3 text-white/60" strokeWidth={1.75} />
           <p className="text-muted mb-2">No shopping carts yet</p>
           <p className="text-xs text-muted">Create one above or build a cart from a recipe with missing ingredients.</p>
         </div>
@@ -226,7 +227,7 @@ export default function CartPage() {
                 {/* Cart header */}
                 <div className="p-4 border-b white/[0.06] flex items-center justify-between bg-white/[0.03]">
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">🛒</span>
+                    <ShoppingCartIcon className="w-5 h-5 text-white/80" strokeWidth={1.75} />
                     <div>
                       <h3 className="font-semibold">{cart.name}</h3>
                       <p className="text-xs text-muted">

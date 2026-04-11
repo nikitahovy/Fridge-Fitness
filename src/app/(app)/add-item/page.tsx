@@ -7,6 +7,7 @@ import { FoodCategory, StorageLocation } from "@/lib/types";
 import QRUploadFlow from "@/components/qr/QRUploadFlow";
 import BarcodeScanner from "@/components/BarcodeScanner";
 import RunningFridge from "@/components/loading/RunningFridge";
+import { Camera } from "lucide-react";
 
 export default function AddItemWrapper() {
   return (
@@ -177,7 +178,7 @@ function AddItemPage() {
       <div className="flex gap-1 mb-6 bg-card border border-card-border rounded-xl p-1 w-fit overflow-x-auto">
         {[
           { key: "manual" as const, label: "MANUAL", href: null },
-          { key: "camera" as const, label: "📷 CAMERA", href: null },
+          { key: "camera" as const, label: "CAMERA", href: null },
           { key: "barcode" as const, label: "BARCODE", href: "/scan" },
           { key: "qr" as const, label: "QR SCAN", href: null },
         ].map((m) => (
@@ -276,7 +277,7 @@ function AddItemPage() {
           {!cameraPreview && !detectedItems && (
             <label className="block cursor-pointer">
               <div className="border-2 border-dashed border-white/20 rounded-2xl p-12 text-center hover:border-white/40 transition">
-                <div className="text-4xl mb-3">📸</div>
+                <Camera className="w-10 h-10 mx-auto mb-3 text-white/80" strokeWidth={1.75} />
                 <p className="font-bold text-sm mb-1">Tap to take a photo</p>
                 <p className="text-xs text-muted">Capture your receipt, fridge, or grocery items</p>
               </div>
