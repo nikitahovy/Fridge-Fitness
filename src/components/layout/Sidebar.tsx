@@ -95,8 +95,8 @@ export default function Sidebar() {
       <aside className="hidden md:flex w-[240px] min-h-screen bg-sidebar-bg border-r border-card-border flex-col flex-shrink-0">
         <div className="p-5">
           <Link href="/" className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-[14px] overflow-hidden flex-shrink-0">
-              <Image src="/logo.png" alt="Fridge Fitness" width={44} height={44} className="w-11 h-11 object-cover scale-110" />
+            <div className="w-11 h-11 rounded-[14px] overflow-hidden flex-shrink-0 ring-1 ring-white/20">
+              <Image src="/logo.png" alt="Fridge Fitness" width={44} height={44} className="w-11 h-11 object-contain" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-white tracking-tight">Fridge Fitness</h1>
@@ -156,8 +156,8 @@ export default function Sidebar() {
 
             {/* Logo */}
             <div className="flex items-center gap-3 px-5 pb-4">
-              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0">
-                <Image src="/logo.png" alt="Fridge Fitness" width={36} height={36} className="w-9 h-9 object-cover scale-110" />
+              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 ring-1 ring-white/20">
+                <Image src="/logo.png" alt="Fridge Fitness" width={36} height={36} className="w-9 h-9 object-contain" />
               </div>
               <div>
                 <p className="text-sm font-bold text-white">Fridge Fitness</p>

@@ -24,7 +24,7 @@ function LoadingShell({ children }: { children: React.ReactNode }) {
 export function LogoPulse() {
   return (
     <LoadingShell>
-      <div className="w-20 h-20 rounded-2xl overflow-hidden animate-pulse">
+      <div className="w-20 h-20 rounded-2xl overflow-hidden animate-pulse ring-1 ring-white/20">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="" className="w-20 h-20 object-contain" />
       </div>
@@ -38,7 +38,7 @@ export function LogoOrbit() {
     <LoadingShell>
       <div className="relative w-24 h-24 flex items-center justify-center">
         <div className="absolute inset-0 rounded-2xl border-2 border-transparent border-t-white/40 border-r-white/10 animate-spin" />
-        <div className="w-16 h-16 rounded-2xl overflow-hidden">
+        <div className="w-16 h-16 rounded-2xl overflow-hidden ring-1 ring-white/20">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="" className="w-16 h-16 object-contain" />
         </div>

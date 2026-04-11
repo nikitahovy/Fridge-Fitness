@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0c0c10;
-  --foreground: #f0eff2;
-  --card: #1e1e28;
-  --card-border: #363645;
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --card: #1a1a1a;
+  --card-border: #2e2e2e;
   --accent: #ffffff;
-  --accent-dark: #e8e6e3;
+  --accent-dark: #e8e8e8;
   --danger: #ff6b6b;
   --warning: #f0c060;
   --safe: #4ade80;
-  --muted: #8886a0;
-  --sidebar-bg: #08080b;
-  --sidebar-text: #8886a0;
-  --sidebar-active: #1e1e28;
-  --sidebar-hover: #131318;
+  --muted: #8a8a8a;
+  --sidebar-bg: #050505;
+  --sidebar-text: #8a8a8a;
+  --sidebar-active: #1a1a1a;
+  --sidebar-hover: #131313;
 }
 
 @theme inline {
@@ -118,68 +118,52 @@ body {
   border-radius: 14px;
 }
 
-/* ── Liquid glass effect ── */
+/* ── Solid matte surfaces (analog / techy) ──
+   Cards are flat solid panels CLEARLY elevated above the dark body.
+   Crisp 1px border, visible top highlight (etched panel feel), real
+   drop shadow for elevation. No blur, no gradients — like instrument
+   hardware. Risk-tier cards (red/yellow/blue/green gradients) live
+   elsewhere and are unaffected. */
 .glass {
-  background: linear-gradient(
-    145deg,
-    rgba(255,255,255,0.07) 0%,
-    rgba(255,255,255,0.02) 40%,
-    rgba(255,255,255,0.04) 100%
-  );
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 20px;
+  background: #1a1a1a;
+  border: 1px solid #2e2e2e;
+  border-radius: 16px;
   box-shadow:
-    0 4px 24px rgba(0,0,0,0.25),
-    0 1px 3px rgba(0,0,0,0.15),
-    inset 0 1px 0 rgba(255,255,255,0.07),
-    inset 0 -1px 0 rgba(255,255,255,0.02),
-    inset 0 0 20px rgba(255,255,255,0.015);
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    inset 0 -1px 0 rgba(0,0,0,0.45),
+    0 4px 16px rgba(0,0,0,0.55),
+    0 1px 2px rgba(0,0,0,0.4);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 .glass:hover {
-  border-color: rgba(255,255,255,0.20);
-  background: linear-gradient(
-    145deg,
-    rgba(255,255,255,0.09) 0%,
-    rgba(255,255,255,0.03) 40%,
-    rgba(255,255,255,0.06) 100%
-  );
+  background: #232323;
+  border-color: #404040;
   box-shadow:
-    0 8px 32px rgba(0,0,0,0.3),
-    0 2px 6px rgba(0,0,0,0.15),
-    inset 0 1px 0 rgba(255,255,255,0.10),
-    inset 0 -1px 0 rgba(255,255,255,0.03),
-    inset 0 0 24px rgba(255,255,255,0.02);
+    inset 0 1px 0 rgba(255,255,255,0.13),
+    inset 0 -1px 0 rgba(0,0,0,0.45),
+    0 6px 22px rgba(0,0,0,0.65),
+    0 1px 2px rgba(0,0,0,0.4);
 }
 
 .glass-btn {
-  background: linear-gradient(
-    145deg,
-    rgba(255,255,255,0.10) 0%,
-    rgba(255,255,255,0.03) 100%
-  );
-  backdrop-filter: blur(14px) saturate(1.1);
-  -webkit-backdrop-filter: blur(14px) saturate(1.1);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 12px;
+  background: #232323;
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
   box-shadow:
-    0 2px 12px rgba(0,0,0,0.2),
-    inset 0 1px 0 rgba(255,255,255,0.08),
-    inset 0 0 12px rgba(255,255,255,0.01);
-  transition: all 200ms ease;
+    inset 0 1px 0 rgba(255,255,255,0.10),
+    0 1px 3px rgba(0,0,0,0.5);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: background 150ms ease, border-color 150ms ease;
 }
 .glass-btn:hover {
-  border-color: rgba(255,255,255,0.28);
-  background: linear-gradient(
-    145deg,
-    rgba(255,255,255,0.14) 0%,
-    rgba(255,255,255,0.05) 100%
-  );
+  background: #2a2a2a;
+  border-color: #4d4d4d;
   box-shadow:
-    0 4px 20px rgba(0,0,0,0.25),
-    inset 0 1px 0 rgba(255,255,255,0.15);
-  transform: translateY(-1px);
+    inset 0 1px 0 rgba(255,255,255,0.13),
+    0 2px 5px rgba(0,0,0,0.55);
 }
 
 .safe-bottom {

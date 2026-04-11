@@ -50,8 +50,8 @@ export default function Dashboard() {
     return (
       <div className="max-w-2xl mx-auto space-y-8 py-8">
         <div className="text-center">
-          <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-4">
-            <img src="/logo.png" alt="Fridge Fitness" className="w-20 h-20 object-cover scale-110" />
+          <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-4 ring-1 ring-white/20">
+            <img src="/logo.png" alt="Fridge Fitness" className="w-20 h-20 object-contain" />
           </div>
           <h2 className="text-display text-4xl mb-3">Welcome!</h2>
           <p className="text-muted max-w-md mx-auto">Your kitchen is empty. Let&apos;s stock it up — scan a receipt, take a photo of your fridge, or add items manually.</p>
@@ -113,8 +113,8 @@ export default function Dashboard() {
 
       {/* WHOOP Recovery — Coming Soon */}
       <div className="glass rounded-2xl p-6 md:p-8 flex items-center gap-6 transition-all duration-200">
-        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden flex-shrink-0 opacity-60">
-          <img src="/logo.png" alt="Fridge Fitness" className="w-full h-full object-cover scale-110" />
+        <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden flex-shrink-0 opacity-60 ring-1 ring-white/20">
+          <img src="/logo.png" alt="Fridge Fitness" className="w-full h-full object-contain" />
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">

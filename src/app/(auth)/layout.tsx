@@ -5,8 +5,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
     <div className="min-h-screen w-full flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-8">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-16 h-16 rounded-2xl overflow-hidden">
-            <Image src="/logo.png" alt="Fridge Fitness" width={64} height={64} className="w-16 h-16 object-cover scale-110" />
+          <div className="w-16 h-16 rounded-2xl overflow-hidden ring-1 ring-white/20">
+            <Image src="/logo.png" alt="Fridge Fitness" width={64} height={64} className="w-16 h-16 object-contain" />
           </div>
           <div className="text-center">
             <h1 className="text-display text-2xl">Fridge Fitness</h1>
