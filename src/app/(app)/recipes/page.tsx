@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ScoredRecipe, Recipe } from "@/lib/types";
 
+const AI_RECIPES_STORAGE_KEY = "ff_ai_recipes";
+
 export default function RecipesPage() {
   const [recipes, setRecipes] = useState<ScoredRecipe[]>([]);
   const [aiRecipes, setAiRecipes] = useState<Recipe[]>([]);
@@ -13,6 +15,17 @@ export default function RecipesPage() {
 
   useEffect(() => {
     fetch("/api/recipes").then((r) => r.json()).then((data) => { setRecipes(data); setLoading(false); });
+    // Restore AI recipes from previous session so the user can re-open
+    // their generated recipes after navigating away and back.
+    try {
+      const stored = localStorage.getItem(AI_RECIPES_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setAiRecipes(parsed);
+        }
+      }
+    } catch {}
   }, []);
 
   async function generateRecipes() {
@@ -23,9 +36,10 @@ export default function RecipesPage() {
       if (data.recipes?.length > 0) {
         setAiRecipes(data.recipes);
         setShowAi(true);
-        // Also refresh scored recipes since store.recipes got updated
-        const scored = await fetch("/api/recipes").then((r) => r.json());
-        setRecipes(scored);
+        // Persist so the detail page (and re-visits) can find them
+        try {
+          localStorage.setItem(AI_RECIPES_STORAGE_KEY, JSON.stringify(data.recipes));
+        } catch {}
       }
     } catch { /* ignore */ }
     setGenerating(false);

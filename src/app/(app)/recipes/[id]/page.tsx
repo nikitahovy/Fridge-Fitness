@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ScoredRecipe } from "@/lib/types";
+import { ScoredRecipe, Recipe, ItemWithRisk, DailyRecoveryContext } from "@/lib/types";
+import { scoreRecipe } from "@/lib/scoring";
+
+const AI_RECIPES_STORAGE_KEY = "ff_ai_recipes";
 
 export default function RecipeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -15,6 +18,35 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
   const [cooked, setCooked] = useState(false);
 
   useEffect(() => {
+    // AI-generated recipes are persisted client-side in localStorage by
+    // the recipes/page.tsx component. Look there first for ai-* IDs and
+    // build a ScoredRecipe shape on the fly using the scoring engine.
+    if (id.startsWith("ai-")) {
+      (async () => {
+        try {
+          const stored = localStorage.getItem(AI_RECIPES_STORAGE_KEY);
+          const aiRecipes: Recipe[] = stored ? JSON.parse(stored) : [];
+          const raw = aiRecipes.find((r) => r.id === id);
+          if (!raw) {
+            setRecipe(null);
+            setLoading(false);
+            return;
+          }
+          // Fetch the live inventory + recovery context to score the recipe
+          const [inventory, recovery]: [ItemWithRisk[], DailyRecoveryContext] = await Promise.all([
+            fetch("/api/eat-first").then((r) => r.json()),
+            fetch("/api/recovery").then((r) => r.json()),
+          ]);
+          setRecipe(scoreRecipe(raw, inventory, recovery));
+        } catch {
+          setRecipe(null);
+        }
+        setLoading(false);
+      })();
+      return;
+    }
+
+    // Seed/scored recipes come from /api/recipes
     fetch("/api/recipes").then((r) => r.json()).then((recipes: ScoredRecipe[]) => {
       setRecipe(recipes.find((r) => r.recipe.id === id) || null);
       setLoading(false);
