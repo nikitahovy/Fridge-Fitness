@@ -301,11 +301,13 @@ function AddItemPage() {
           {/* Storage location selector */}
           <div className="mb-4">
             <label className="block text-xs font-pixel text-muted uppercase mb-1.5">Add items to</label>
-            <div className="flex gap-1 bg-white/60 rounded-lg p-1 w-fit">
+            <div className="flex gap-1 bg-white/60 dark:bg-neutral-900/70 border border-slate-300/60 dark:border-neutral-700 rounded-lg p-1 w-fit">
               {(["fridge", "freezer", "pantry"] as StorageLocation[]).map((loc) => (
                 <button key={loc} onClick={() => setLocation(loc)}
                   className={`font-pixel text-[10px] px-3 py-1.5 rounded-md transition-all cursor-pointer capitalize ${
-                    location === loc ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"
+                    location === loc
+                      ? "bg-white dark:bg-neutral-200 text-black font-bold shadow-sm"
+                      : "text-muted hover:text-foreground hover:bg-white/40 dark:hover:bg-neutral-800/60"
                   }`}>{loc}</button>
               ))}
             </div>

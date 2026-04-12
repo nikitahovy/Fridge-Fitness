@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Camera } from "lucide-react";
+import { Camera, ArrowRight } from "lucide-react";
 
 type Nutriments = { sugar: number; salt: number; saturatedFat: number; calories: number; fiber: number; protein: number };
 
@@ -86,11 +86,27 @@ function HealthScoreContent() {
       {/* No barcode — show scan + manual entry */}
       {!barcode && !data && (
         <div className="space-y-4">
-          <Link href="/health-scan" className="glass rounded-2xl p-6 flex items-center gap-4 block transition-all hover:border-slate-300 border border-transparent">
-            <Camera className="w-7 h-7 text-slate-700 flex-shrink-0" strokeWidth={1.75} />
-            <div>
-              <p className="font-bold">Scan Food or Skincare Barcode</p>
-              <p className="text-xs text-muted">Instant 0-100 health score for groceries, drinks, and cosmetics</p>
+          <Link
+            href="/health-scan"
+            className="block rounded-2xl p-6 transition-all duration-200 group
+              bg-gradient-to-br from-sky-400 via-sky-500 to-sky-600
+              dark:from-sky-600 dark:via-sky-700 dark:to-sky-800
+              border border-sky-300/70 dark:border-sky-500/40
+              shadow-[0_8px_24px_rgba(56,128,200,0.35),inset_0_1px_0_rgba(255,255,255,0.4)]
+              dark:shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]
+              hover:shadow-[0_12px_32px_rgba(56,128,200,0.45),inset_0_1px_0_rgba(255,255,255,0.5)]
+              hover:-translate-y-0.5"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-white/25 dark:bg-white/15 border border-white/40 flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)]">
+                <Camera className="w-7 h-7 text-white" strokeWidth={2.25} />
+              </div>
+              <div className="flex-1">
+                <p className="font-pixel text-[9px] text-white/80 uppercase tracking-[0.2em] mb-1">// TAP TO SCAN</p>
+                <p className="text-display text-xl text-white leading-tight">Scan Food or Skincare</p>
+                <p className="text-xs text-white/85 mt-1">Instant 0-100 health score</p>
+              </div>
+              <ArrowRight className="w-6 h-6 text-white flex-shrink-0 transition-transform group-hover:translate-x-1" strokeWidth={2.25} />
             </div>
           </Link>
 
