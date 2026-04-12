@@ -83,14 +83,52 @@ function AddItemPage() {
     setName(""); setQuantity(""); setPrice(""); setBestBy("");
   }
 
-  function handleCameraCapture(e: React.ChangeEvent<HTMLInputElement>) {
+  // Compress an uploaded photo client-side before sending to the vision API.
+  // Modern phone cameras produce 5-12MB JPEGs which exceed Vercel's body
+  // limit when base64-encoded. Resize to max 1600px and re-encode at 0.82
+  // quality — usually drops to ~200-500KB while keeping plenty of detail
+  // for food recognition.
+  function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new window.Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else if (height >= width && height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return reject(new Error("Canvas context unavailable"));
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = () => reject(new Error("Failed to load image"));
+        img.src = reader.result as string;
+      };
+      reader.onerror = () => reject(new Error("Failed to read file"));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleCameraCapture(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setAnalyzeError(null);
     setDetectedItems(null);
-    const reader = new FileReader();
-    reader.onload = () => setCameraPreview(reader.result as string);
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      setCameraPreview(compressed);
+    } catch {
+      setAnalyzeError("Failed to load image");
+    }
   }
 
   async function handleAnalyze() {
