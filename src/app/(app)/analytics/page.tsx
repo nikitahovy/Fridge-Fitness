@@ -42,6 +42,9 @@ export default function AnalyticsPage() {
   const saved = stats?.savedValue || 0;
   const wasted = stats?.wastedValue || 0;
   const net = saved - wasted;
+  const totalSpend = saved + wasted;
+  const savedPct = totalSpend > 0 ? Math.round((saved / totalSpend) * 100) : 0;
+  const wastedPct = totalSpend > 0 ? Math.round((wasted / totalSpend) * 100) : 0;
   const months = stats?.monthly || [];
   const hasData = months.length > 0 || saved > 0 || wasted > 0;
 
@@ -67,12 +70,12 @@ export default function AnalyticsPage() {
       {/* Big numbers */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
         <div className="bg-gradient-to-br from-emerald-200/50 to-emerald-100/15 border border-emerald-500/15 rounded-2xl p-4 md:p-5">
-          <p className="text-display text-2xl md:text-3xl text-safe">${saved.toFixed(2)}</p>
-          <p className="font-pixel text-[9px] text-safe/60 uppercase mt-1.5">Saved Total</p>
+          <p className="text-display text-2xl md:text-3xl text-safe">{savedPct}<span className="text-lg">%</span></p>
+          <p className="font-pixel text-[9px] text-safe/60 uppercase mt-1.5">Saved (${saved.toFixed(0)})</p>
         </div>
         <div className="bg-gradient-to-br from-rose-200/50 to-rose-100/15 border border-red-500/15 rounded-2xl p-4 md:p-5">
-          <p className="text-display text-2xl md:text-3xl text-danger">${wasted.toFixed(2)}</p>
-          <p className="font-pixel text-[9px] text-danger/60 uppercase mt-1.5">Wasted Total</p>
+          <p className="text-display text-2xl md:text-3xl text-danger">{wastedPct}<span className="text-lg">%</span></p>
+          <p className="font-pixel text-[9px] text-danger/60 uppercase mt-1.5">Wasted (${wasted.toFixed(0)})</p>
         </div>
         <div className={`border rounded-2xl p-4 md:p-5 ${net >= 0
           ? "bg-gradient-to-br from-emerald-200/30 to-card border-emerald-500/10"
