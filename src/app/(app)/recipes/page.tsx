@@ -16,15 +16,11 @@ export default function RecipesPage() {
 
   useEffect(() => {
     fetch("/api/recipes").then((r) => r.json()).then((data) => { setRecipes(data); setLoading(false); });
-    // Restore AI recipes from previous session so the user can re-open
-    // their generated recipes after navigating away and back.
     try {
       const stored = localStorage.getItem(AI_RECIPES_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setAiRecipes(parsed);
-        }
+        if (Array.isArray(parsed) && parsed.length > 0) setAiRecipes(parsed);
       }
     } catch {}
   }, []);
@@ -37,12 +33,9 @@ export default function RecipesPage() {
       if (data.recipes?.length > 0) {
         setAiRecipes(data.recipes);
         setShowAi(true);
-        // Persist so the detail page (and re-visits) can find them
-        try {
-          localStorage.setItem(AI_RECIPES_STORAGE_KEY, JSON.stringify(data.recipes));
-        } catch {}
+        try { localStorage.setItem(AI_RECIPES_STORAGE_KEY, JSON.stringify(data.recipes)); } catch {}
       }
-    } catch { /* ignore */ }
+    } catch {}
     setGenerating(false);
   }
 
@@ -57,30 +50,31 @@ export default function RecipesPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="flex items-end justify-between mb-8">
+      {/* Header */}
+      <div className="flex items-end justify-between mb-6 md:mb-8 gap-3">
         <div>
           <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-2">// RECIPES</p>
-          <h2 className="text-display text-4xl">Cook<br/>Something</h2>
+          <h2 className="text-display text-3xl md:text-4xl">Cook<br/>Something</h2>
         </div>
         <button
           onClick={generateRecipes}
           disabled={generating}
-          className="btn btn-primary btn-lg disabled:opacity-50"
+          className="btn btn-primary !text-[9px] md:!text-xs !px-3 md:btn-lg disabled:opacity-50 flex-shrink-0"
         >
-          {generating ? "GENERATING..." : "AI GENERATE →"}
+          {generating ? "GENERATING..." : "AI GENERATE"}
         </button>
       </div>
 
-      {/* Toggle between scored and AI raw */}
+      {/* Toggle */}
       {aiRecipes.length > 0 && (
-        <div className="flex gap-1 bg-card border border-card-border rounded-xl p-1 mb-6 w-fit">
+        <div className="flex gap-1 bg-card border border-card-border rounded-xl p-1 mb-5 md:mb-6 w-fit">
           <button onClick={() => setShowAi(false)}
-            className={`font-pixel text-[10px] px-4 py-2 rounded-lg transition-all cursor-pointer ${!showAi ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"}`}>
+            className={`font-pixel text-[9px] md:text-[10px] px-3 md:px-4 py-2 rounded-lg transition-all cursor-pointer ${!showAi ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"}`}>
             RANKED
           </button>
           <button onClick={() => setShowAi(true)}
-            className={`font-pixel text-[10px] px-4 py-2 rounded-lg transition-all cursor-pointer ${showAi ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"}`}>
-            AI GENERATED ({aiRecipes.length})
+            className={`font-pixel text-[9px] md:text-[10px] px-3 md:px-4 py-2 rounded-lg transition-all cursor-pointer ${showAi ? "bg-white text-black font-bold" : "text-muted hover:text-foreground"}`}>
+            AI ({aiRecipes.length})
           </button>
         </div>
       )}
@@ -98,54 +92,55 @@ export default function RecipesPage() {
                   : "bg-card border border-card-border hover:border-slate-400 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)]"
               }`}
             >
+              {/* Mobile: image on top. Desktop: image on left */}
+              {sr.recipe.imageUrl && (
+                <div className="w-full h-32 md:hidden">
+                  <img src={sr.recipe.imageUrl} alt={sr.recipe.name} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              )}
               <div className="flex">
                 {sr.recipe.imageUrl && (
-                  <div className="w-28 md:w-36 flex-shrink-0">
-                    <img
-                      src={sr.recipe.imageUrl}
-                      alt={sr.recipe.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
+                  <div className="hidden md:block w-36 flex-shrink-0">
+                    <img src={sr.recipe.imageUrl} alt={sr.recipe.name} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                 )}
-                <div className="flex-1 p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-xl font-bold">{sr.recipe.name}</h3>
-                      <div className="flex gap-2 mt-1.5">
+                <div className="flex-1 p-3.5 md:p-5 min-w-0">
+                  <div className="flex items-start justify-between gap-2 mb-2 md:mb-3">
+                    <div className="min-w-0">
+                      <h3 className="text-base md:text-xl font-bold leading-tight">{sr.recipe.name}</h3>
+                      <div className="flex gap-1.5 md:gap-2 mt-1 flex-wrap">
                         {sr.recipe.tags.slice(0, 3).map((tag) => (
-                          <span key={tag} className="font-pixel text-[9px] text-muted uppercase tracking-wider">{tag}</span>
+                          <span key={tag} className="font-pixel text-[8px] md:text-[9px] text-muted uppercase tracking-wider">{tag}</span>
                         ))}
                       </div>
                     </div>
-                    <span className="text-display text-2xl">{sr.score}<span className="text-sm font-normal text-muted">pts</span></span>
+                    <span className="text-display text-lg md:text-2xl flex-shrink-0">{sr.score}<span className="text-[10px] md:text-sm font-normal text-muted">pts</span></span>
                   </div>
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    {sr.explanation.map((ex, i) => (
-                      <span key={i} className="text-[11px] px-3 py-1 rounded-full border border-white/10 text-muted group-hover:border-slate-300">{ex}</span>
+                  <div className="flex flex-wrap gap-1.5 md:gap-2 mb-2 md:mb-3">
+                    {sr.explanation.slice(0, 2).map((ex, i) => (
+                      <span key={i} className="text-[10px] md:text-[11px] px-2 md:px-3 py-0.5 md:py-1 rounded-full border border-white/10 text-muted">{ex}</span>
                     ))}
                   </div>
-                  <div className="flex gap-6 font-pixel text-[10px] text-muted uppercase">
+                  <div className="flex flex-wrap gap-x-3 md:gap-x-6 gap-y-0.5 font-pixel text-[9px] md:text-[10px] text-muted uppercase">
                     <span>{sr.recipe.cookTimeMinutes}m</span>
-                    <span>{sr.recipe.macros.protein}g protein</span>
-                    <span>{sr.recipe.macros.carbs}g carbs</span>
+                    <span>{sr.recipe.macros.protein}g pro</span>
+                    <span>{sr.recipe.macros.carbs}g carb</span>
                     <span>{sr.matchedItems.length}/{sr.recipe.ingredients.length} owned</span>
-                    {sr.wasteRescueValue > 0 && <span className="text-danger">saves ${sr.wasteRescueValue.toFixed(2)}</span>}
+                    {sr.wasteRescueValue > 0 && <span className="text-danger">saves ${sr.wasteRescueValue.toFixed(0)}</span>}
                   </div>
                   {(sr.atRiskItemsRescued.length > 0 || sr.missingIngredients.length > 0) && (
-                    <div className="mt-3 flex gap-4">
+                    <div className="mt-2 md:mt-3 flex gap-2 md:gap-4 flex-wrap">
                       {sr.atRiskItemsRescued.length > 0 && (
                         <div className="flex gap-1 flex-wrap">
-                          {sr.atRiskItemsRescued.map((item) => (
-                            <span key={item.id} className="text-[10px] font-bold px-2 py-0.5 rounded bg-danger/10 text-danger">{item.name}</span>
+                          {sr.atRiskItemsRescued.slice(0, 3).map((item) => (
+                            <span key={item.id} className="text-[9px] md:text-[10px] font-bold px-1.5 md:px-2 py-0.5 rounded bg-danger/10 text-danger">{item.name}</span>
                           ))}
                         </div>
                       )}
                       {sr.missingIngredients.length > 0 && (
                         <div className="flex gap-1 flex-wrap">
-                          {sr.missingIngredients.map((ing) => (
-                            <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
+                          {sr.missingIngredients.slice(0, 3).map((ing) => (
+                            <span key={ing.name} className="text-[9px] md:text-[10px] px-1.5 md:px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
                           ))}
                         </div>
                       )}
@@ -158,7 +153,7 @@ export default function RecipesPage() {
         </div>
       )}
 
-      {/* AI generated recipes (unscored, raw from LLM) */}
+      {/* AI generated recipes */}
       {showAi && (
         <div className="space-y-3">
           {aiRecipes.map((recipe, idx) => (
@@ -167,38 +162,38 @@ export default function RecipesPage() {
               href={`/recipes/${recipe.id}`}
               className="block rounded-2xl overflow-hidden bg-card border border-card-border hover:border-slate-400 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all duration-200"
             >
+              {/* Mobile: image on top */}
+              <div className="w-full h-32 md:hidden">
+                <img src={getRecipeImageUrl(recipe.name, idx)} alt={recipe.name} className="w-full h-full object-cover" loading="lazy" />
+              </div>
               <div className="flex">
-                <div className="w-28 md:w-36 flex-shrink-0">
-                  <img
-                    src={getRecipeImageUrl(recipe.name, idx)}
-                    alt={recipe.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
+                {/* Desktop: image on left */}
+                <div className="hidden md:block w-36 flex-shrink-0">
+                  <img src={getRecipeImageUrl(recipe.name, idx)} alt={recipe.name} className="w-full h-full object-cover" loading="lazy" />
                 </div>
-                <div className="flex-1 p-5">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-xl font-bold">{recipe.name}</h3>
-                    <span className="font-pixel text-[10px] text-safe uppercase">AI</span>
+                <div className="flex-1 p-3.5 md:p-5 min-w-0">
+                  <div className="flex items-start justify-between gap-2 mb-1.5 md:mb-2">
+                    <h3 className="text-base md:text-xl font-bold leading-tight">{recipe.name}</h3>
+                    <span className="font-pixel text-[9px] md:text-[10px] text-safe uppercase flex-shrink-0">AI</span>
                   </div>
-                  <div className="flex gap-2 mb-3">
+                  <div className="flex gap-1.5 md:gap-2 mb-2 md:mb-3 flex-wrap">
                     {recipe.tags.slice(0, 4).map((tag) => (
-                      <span key={tag} className="font-pixel text-[9px] text-muted uppercase tracking-wider">{tag}</span>
+                      <span key={tag} className="font-pixel text-[8px] md:text-[9px] text-muted uppercase tracking-wider">{tag}</span>
                     ))}
                   </div>
-                  <div className="flex gap-6 font-pixel text-[10px] text-muted uppercase">
+                  <div className="flex flex-wrap gap-x-3 md:gap-x-6 gap-y-0.5 font-pixel text-[9px] md:text-[10px] text-muted uppercase">
                     <span>{recipe.cookTimeMinutes}m</span>
-                    <span>{recipe.macros.protein}g protein</span>
-                    <span>{recipe.macros.carbs}g carbs</span>
-                    <span>{recipe.ingredients.length} ingredients</span>
+                    <span>{recipe.macros.protein}g pro</span>
+                    <span>{recipe.macros.carbs}g carb</span>
+                    <span>{recipe.ingredients.length} ing</span>
                     <span className="capitalize">{recipe.difficulty}</span>
                   </div>
                   <div className="mt-2 flex gap-1 flex-wrap">
-                    {recipe.ingredients.slice(0, 6).map((ing) => (
-                      <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
+                    {recipe.ingredients.slice(0, 4).map((ing) => (
+                      <span key={ing.name} className="text-[9px] md:text-[10px] px-1.5 md:px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
                     ))}
-                    {recipe.ingredients.length > 6 && (
-                      <span className="text-[10px] px-2 py-0.5 text-muted">+{recipe.ingredients.length - 6} more</span>
+                    {recipe.ingredients.length > 4 && (
+                      <span className="text-[9px] md:text-[10px] px-1.5 py-0.5 text-muted">+{recipe.ingredients.length - 4}</span>
                     )}
                   </div>
                 </div>
