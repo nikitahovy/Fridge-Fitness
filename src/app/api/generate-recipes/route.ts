@@ -15,9 +15,10 @@ Given a list of ingredients the user currently has (with spoilage urgency), gene
 3. Include a mix of quick meals (<15 min), medium (15-30 min), and longer (30+ min)
 4. Cover different meal types: breakfast, lunch, dinner, snack
 5. Consider the user's fitness day type for nutrition balance
-6. EVERY recipe MUST have at least 3 ingredients. Combine pantry staples (salt, oil, flour, eggs, butter, spices) with the user's items to make complete dishes.
+6. EVERY recipe MUST have at least 3 ingredients. Include ALL ingredients needed (flour, oil, salt, spices, etc.) in the ingredients list.
 7. EVERY recipe MUST have at least 3 steps. Explain how to actually cook the dish.
 8. Give recipes proper descriptive names. Do NOT use brand names in recipe names.
+9. Steps must ONLY reference ingredients that are in the ingredients array. If a step says "add flour", then flour MUST be listed as an ingredient. Never mention an ingredient in the steps that isn't in the list.
 
 Return ONLY a valid JSON array. No markdown, no code fences, no explanation.
 

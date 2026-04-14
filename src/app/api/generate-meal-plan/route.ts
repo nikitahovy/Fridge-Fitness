@@ -17,9 +17,10 @@ Rules:
 3. Vary meal types — don't repeat the same recipe more than twice in a week
 4. Keep breakfast simple (5-15 min), lunch moderate (10-25 min), dinner flexible (15-45 min), snacks quick
 5. Consider the user's fitness day type for nutrition balance
-6. EVERY recipe MUST have at least 3 ingredients — never generate a recipe with only 1-2 ingredients. Combine pantry staples (salt, oil, flour, eggs, butter) with the user's items to make real dishes.
+6. EVERY recipe MUST have at least 3 ingredients — never generate a recipe with only 1-2 ingredients. Include ALL ingredients needed (flour, oil, salt, spices, etc.) in the ingredients list.
 7. EVERY recipe MUST have at least 3 steps in the instructions. Explain how to actually cook the dish.
 8. Give recipes proper descriptive names (e.g. "Chicken & Vegetable Stir Fry" not "Kirkland Milk Pancakes"). Do NOT use brand names in recipe names.
+9. Steps must ONLY reference ingredients that are listed in the ingredients array. If a step says "add flour", then flour MUST be in the ingredients list. Never mention an ingredient in the steps that isn't listed.
 
 Return ONLY a valid JSON array of meals. No markdown, no code fences, no explanation.
 
