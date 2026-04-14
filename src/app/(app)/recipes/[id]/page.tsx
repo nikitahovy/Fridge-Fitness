@@ -75,7 +75,17 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
       </Link>
 
       {/* Header */}
-      <div className="glass rounded-2xl p-7 mb-6">
+      <div className="glass rounded-2xl overflow-hidden mb-6">
+        {r.imageUrl && (
+          <div className="w-full h-48 md:h-64">
+            <img
+              src={r.imageUrl}
+              alt={r.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div className="p-7">
         <div className="flex items-start justify-between mb-4">
           <div>
             <div className="flex gap-2 mb-3">
@@ -109,6 +119,7 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
             <p className="text-sm text-muted">Saves <span className="font-bold text-danger">${wasteRescueValue.toFixed(2)}</span> in expiring ingredients</p>
           </div>
         )}
+        </div>
       </div>
 
       {/* Cook Now */}

@@ -244,16 +244,28 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           {recipes.slice(1, 5).map((sr) => (
             <Link key={sr.recipe.id} href={`/recipes/${sr.recipe.id}`}
-              className="glass rounded-2xl p-4 md:p-5 transition-all duration-200 group block">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-bold">{sr.recipe.name}</h4>
-                <span className="glass-btn rounded-lg px-2.5 py-1 font-pixel text-[10px] text-muted">{sr.score}pts</span>
-              </div>
-              <p className="text-xs text-muted mb-3">{sr.explanation[0]}</p>
-              <div className="flex gap-4 font-pixel text-[10px] text-muted">
-                <span>{sr.recipe.cookTimeMinutes}m</span>
-                <span>{sr.recipe.macros.protein}g pro</span>
-                {sr.wasteRescueValue > 0 && <span className="text-danger">saves ${sr.wasteRescueValue.toFixed(2)}</span>}
+              className="glass rounded-2xl overflow-hidden transition-all duration-200 group block">
+              {sr.recipe.imageUrl && (
+                <div className="w-full h-32">
+                  <img
+                    src={sr.recipe.imageUrl}
+                    alt={sr.recipe.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              <div className="p-4 md:p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-bold">{sr.recipe.name}</h4>
+                  <span className="glass-btn rounded-lg px-2.5 py-1 font-pixel text-[10px] text-muted">{sr.score}pts</span>
+                </div>
+                <p className="text-xs text-muted mb-3">{sr.explanation[0]}</p>
+                <div className="flex gap-4 font-pixel text-[10px] text-muted">
+                  <span>{sr.recipe.cookTimeMinutes}m</span>
+                  <span>{sr.recipe.macros.protein}g pro</span>
+                  {sr.wasteRescueValue > 0 && <span className="text-danger">saves ${sr.wasteRescueValue.toFixed(2)}</span>}
+                </div>
               </div>
             </Link>
           ))}

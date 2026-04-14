@@ -127,7 +127,7 @@ export default function EatFirstPage() {
             >
               {/* Top row: rank, name, price */}
               <div className="flex items-center gap-2 md:gap-3 mb-2">
-                <span className={`font-pixel text-[10px] md:text-xs w-5 md:w-6 text-center flex-shrink-0 ${isUrgent ? "text-rose-700/80 font-bold" : "text-muted"}`}>
+                <span className={`font-pixel text-[10px] md:text-xs w-5 md:w-6 text-center flex-shrink-0 ${isUrgent ? "text-rose-950/70 dark:text-rose-300/80 font-bold" : "text-muted"}`}>
                   {String(idx + 1).padStart(2, "0")}
                 </span>
 
@@ -153,7 +153,7 @@ export default function EatFirstPage() {
                       <span className="font-pixel text-[8px] md:text-[9px] text-yellow-400 uppercase whitespace-nowrap">{item.daysUntilQualityDecline}D</span>
                     )}
                   </div>
-                  <p className={`text-[10px] md:text-[11px] truncate ${isUrgent ? "text-red-300/50" : "text-muted"}`}>
+                  <p className={`text-[10px] md:text-[11px] truncate ${isUrgent ? "text-rose-950/50 dark:text-rose-200/50" : "text-muted"}`}>
                     {item.quantity} · {item.location}
                   </p>
                 </div>

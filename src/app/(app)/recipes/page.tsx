@@ -91,53 +91,67 @@ export default function RecipesPage() {
             <Link
               key={sr.recipe.id}
               href={`/recipes/${sr.recipe.id}`}
-              className={`block rounded-2xl p-5 transition-all duration-200 group ${
+              className={`block rounded-2xl overflow-hidden transition-all duration-200 group ${
                 idx === 0
                   ? "risk-safe"
                   : "bg-card border border-card-border hover:border-slate-400 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)]"
               }`}
             >
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="text-xl font-bold">{sr.recipe.name}</h3>
-                  <div className="flex gap-2 mt-1.5">
-                    {sr.recipe.tags.slice(0, 3).map((tag) => (
-                      <span key={tag} className="font-pixel text-[9px] text-muted uppercase tracking-wider">{tag}</span>
+              <div className="flex">
+                {sr.recipe.imageUrl && (
+                  <div className="w-28 md:w-36 flex-shrink-0">
+                    <img
+                      src={sr.recipe.imageUrl}
+                      alt={sr.recipe.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                )}
+                <div className="flex-1 p-5">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-xl font-bold">{sr.recipe.name}</h3>
+                      <div className="flex gap-2 mt-1.5">
+                        {sr.recipe.tags.slice(0, 3).map((tag) => (
+                          <span key={tag} className="font-pixel text-[9px] text-muted uppercase tracking-wider">{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <span className="text-display text-2xl">{sr.score}<span className="text-sm font-normal text-muted">pts</span></span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {sr.explanation.map((ex, i) => (
+                      <span key={i} className="text-[11px] px-3 py-1 rounded-full border border-white/10 text-muted group-hover:border-slate-300">{ex}</span>
                     ))}
                   </div>
-                </div>
-                <span className="text-display text-2xl">{sr.score}<span className="text-sm font-normal text-muted">pts</span></span>
-              </div>
-              <div className="flex flex-wrap gap-2 mb-3">
-                {sr.explanation.map((ex, i) => (
-                  <span key={i} className="text-[11px] px-3 py-1 rounded-full border border-white/10 text-muted group-hover:border-slate-300">{ex}</span>
-                ))}
-              </div>
-              <div className="flex gap-6 font-pixel text-[10px] text-muted uppercase">
-                <span>{sr.recipe.cookTimeMinutes}m</span>
-                <span>{sr.recipe.macros.protein}g protein</span>
-                <span>{sr.recipe.macros.carbs}g carbs</span>
-                <span>{sr.matchedItems.length}/{sr.recipe.ingredients.length} owned</span>
-                {sr.wasteRescueValue > 0 && <span className="text-danger">saves ${sr.wasteRescueValue.toFixed(2)}</span>}
-              </div>
-              {(sr.atRiskItemsRescued.length > 0 || sr.missingIngredients.length > 0) && (
-                <div className="mt-3 flex gap-4">
-                  {sr.atRiskItemsRescued.length > 0 && (
-                    <div className="flex gap-1 flex-wrap">
-                      {sr.atRiskItemsRescued.map((item) => (
-                        <span key={item.id} className="text-[10px] font-bold px-2 py-0.5 rounded bg-danger/10 text-danger">{item.name}</span>
-                      ))}
-                    </div>
-                  )}
-                  {sr.missingIngredients.length > 0 && (
-                    <div className="flex gap-1 flex-wrap">
-                      {sr.missingIngredients.map((ing) => (
-                        <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
-                      ))}
+                  <div className="flex gap-6 font-pixel text-[10px] text-muted uppercase">
+                    <span>{sr.recipe.cookTimeMinutes}m</span>
+                    <span>{sr.recipe.macros.protein}g protein</span>
+                    <span>{sr.recipe.macros.carbs}g carbs</span>
+                    <span>{sr.matchedItems.length}/{sr.recipe.ingredients.length} owned</span>
+                    {sr.wasteRescueValue > 0 && <span className="text-danger">saves ${sr.wasteRescueValue.toFixed(2)}</span>}
+                  </div>
+                  {(sr.atRiskItemsRescued.length > 0 || sr.missingIngredients.length > 0) && (
+                    <div className="mt-3 flex gap-4">
+                      {sr.atRiskItemsRescued.length > 0 && (
+                        <div className="flex gap-1 flex-wrap">
+                          {sr.atRiskItemsRescued.map((item) => (
+                            <span key={item.id} className="text-[10px] font-bold px-2 py-0.5 rounded bg-danger/10 text-danger">{item.name}</span>
+                          ))}
+                        </div>
+                      )}
+                      {sr.missingIngredients.length > 0 && (
+                        <div className="flex gap-1 flex-wrap">
+                          {sr.missingIngredients.map((ing) => (
+                            <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
+              </div>
             </Link>
           ))}
         </div>
@@ -150,31 +164,45 @@ export default function RecipesPage() {
             <Link
               key={recipe.id}
               href={`/recipes/${recipe.id}`}
-              className="block rounded-2xl p-5 bg-card border border-card-border hover:border-slate-400 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all duration-200"
+              className="block rounded-2xl overflow-hidden bg-card border border-card-border hover:border-slate-400 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all duration-200"
             >
-              <div className="flex items-start justify-between mb-2">
-                <h3 className="text-xl font-bold">{recipe.name}</h3>
-                <span className="font-pixel text-[10px] text-safe uppercase">AI</span>
-              </div>
-              <div className="flex gap-2 mb-3">
-                {recipe.tags.slice(0, 4).map((tag) => (
-                  <span key={tag} className="font-pixel text-[9px] text-muted uppercase tracking-wider">{tag}</span>
-                ))}
-              </div>
-              <div className="flex gap-6 font-pixel text-[10px] text-muted uppercase">
-                <span>{recipe.cookTimeMinutes}m</span>
-                <span>{recipe.macros.protein}g protein</span>
-                <span>{recipe.macros.carbs}g carbs</span>
-                <span>{recipe.ingredients.length} ingredients</span>
-                <span className="capitalize">{recipe.difficulty}</span>
-              </div>
-              <div className="mt-2 flex gap-1 flex-wrap">
-                {recipe.ingredients.slice(0, 6).map((ing) => (
-                  <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
-                ))}
-                {recipe.ingredients.length > 6 && (
-                  <span className="text-[10px] px-2 py-0.5 text-muted">+{recipe.ingredients.length - 6} more</span>
+              <div className="flex">
+                {recipe.imageUrl && (
+                  <div className="w-28 md:w-36 flex-shrink-0">
+                    <img
+                      src={recipe.imageUrl}
+                      alt={recipe.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
                 )}
+                <div className="flex-1 p-5">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-xl font-bold">{recipe.name}</h3>
+                    <span className="font-pixel text-[10px] text-safe uppercase">AI</span>
+                  </div>
+                  <div className="flex gap-2 mb-3">
+                    {recipe.tags.slice(0, 4).map((tag) => (
+                      <span key={tag} className="font-pixel text-[9px] text-muted uppercase tracking-wider">{tag}</span>
+                    ))}
+                  </div>
+                  <div className="flex gap-6 font-pixel text-[10px] text-muted uppercase">
+                    <span>{recipe.cookTimeMinutes}m</span>
+                    <span>{recipe.macros.protein}g protein</span>
+                    <span>{recipe.macros.carbs}g carbs</span>
+                    <span>{recipe.ingredients.length} ingredients</span>
+                    <span className="capitalize">{recipe.difficulty}</span>
+                  </div>
+                  <div className="mt-2 flex gap-1 flex-wrap">
+                    {recipe.ingredients.slice(0, 6).map((ing) => (
+                      <span key={ing.name} className="text-[10px] px-2 py-0.5 rounded bg-white/75 text-muted">{ing.name}</span>
+                    ))}
+                    {recipe.ingredients.length > 6 && (
+                      <span className="text-[10px] px-2 py-0.5 text-muted">+{recipe.ingredients.length - 6} more</span>
+                    )}
+                  </div>
+                </div>
               </div>
             </Link>
           ))}

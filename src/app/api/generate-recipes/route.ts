@@ -20,6 +20,7 @@ Return ONLY a valid JSON array. No markdown, no code fences, no explanation.
 Each recipe must have:
 - id: a unique string like "ai-1", "ai-2" etc
 - name: recipe name
+- imageSearchTerm: a short 2-3 word term for finding a photo of this dish (e.g. "chicken stir fry", "berry smoothie", "salmon bowl")
 - ingredients: array of {name, normalizedName (lowercase), amount, optional (boolean)}
 - cookTimeMinutes: number
 - difficulty: "easy" | "medium" | "hard"
@@ -101,26 +102,68 @@ export async function GET() {
 
     // Sanitize and validate each recipe
     const validDifficulties = ["easy", "medium", "hard"];
-    const sanitized = recipes.slice(0, 15).map((r: Record<string, unknown>, idx: number) => ({
-      id: `ai-${idx + 1}`,
-      name: String(r.name || "Untitled Recipe").slice(0, 200),
-      ingredients: Array.isArray(r.ingredients) ? r.ingredients.slice(0, 20).map((ing: Record<string, unknown>) => ({
-        name: String(ing.name || "").slice(0, 200),
-        normalizedName: String(ing.normalizedName || ing.name || "").toLowerCase().slice(0, 200),
-        amount: String(ing.amount || "1").slice(0, 100),
-        optional: Boolean(ing.optional),
-      })) : [],
-      cookTimeMinutes: typeof r.cookTimeMinutes === "number" ? Math.min(Math.max(r.cookTimeMinutes, 1), 480) : 20,
-      difficulty: (validDifficulties.includes(String(r.difficulty)) ? String(r.difficulty) : "easy") as "easy" | "medium" | "hard",
-      macros: {
-        protein: Number((r.macros as Record<string, unknown>)?.protein) || 0,
-        carbs: Number((r.macros as Record<string, unknown>)?.carbs) || 0,
-        fat: Number((r.macros as Record<string, unknown>)?.fat) || 0,
-        fiber: Number((r.macros as Record<string, unknown>)?.fiber) || 0,
-      },
-      tags: Array.isArray(r.tags) ? r.tags.slice(0, 10).map(String) : [],
-      steps: Array.isArray(r.steps) ? r.steps.slice(0, 10).map(String) : [],
-    }));
+    // Curated food photos from Unsplash CDN, keyed by tag/category
+    const FOOD_IMAGES: [string, string][] = [
+      ["stir-fry", "photo-1511910849309-0dffb8785146"],
+      ["smoothie", "photo-1505252585461-04db1eb84625"],
+      ["bowl", "photo-1543508289-2a4346387248"],
+      ["pasta", "photo-1563379926898-05f4575a45d8"],
+      ["breakfast", "photo-1569991869939-599da7cd0149"],
+      ["snack", "photo-1467453678174-768ec283a940"],
+      ["salad", "photo-1512621776951-a57141f2eefd"],
+      ["wrap", "photo-1664455248787-bed872761fa2"],
+      ["sandwich", "photo-1664455248787-bed872761fa2"],
+      ["soup", "photo-1613844237701-8f3664fc2eff"],
+      ["one-pot", "photo-1585138548795-fa869d44af7c"],
+      ["high-protein", "photo-1532550907401-a500c9a57435"],
+      ["quick", "photo-1585417791023-a5a6164b2646"],
+      ["dinner", "photo-1547573854-74d2a71d0826"],
+      ["lunch", "photo-1536329639134-ade172b2fea0"],
+      ["dessert", "photo-1492683513054-55277abccd99"],
+      ["recovery", "photo-1564636242997-77953084df48"],
+      ["curry", "photo-1565557623262-b51c2513a641"],
+      ["tacos", "photo-1551504734-5ee1c4a1479b"],
+      ["mexican", "photo-1551504734-5ee1c4a1479b"],
+      ["baked", "photo-1573730301149-84ca30c4c924"],
+      ["roasted", "photo-1573730301149-84ca30c4c924"],
+      ["seafood", "photo-1578935149228-66b184c83e69"],
+      ["low-carb", "photo-1532550907401-a500c9a57435"],
+    ];
+    const DEFAULT_IMAGE = "photo-1504674900247-0877df9cc836";
+    function pickImage(tags: string[]): string {
+      for (const tag of tags) {
+        const key = tag.toLowerCase();
+        const match = FOOD_IMAGES.find(([k]) => k === key);
+        if (match) return `https://images.unsplash.com/${match[1]}?w=600&h=400&fit=crop`;
+      }
+      return `https://images.unsplash.com/${DEFAULT_IMAGE}?w=600&h=400&fit=crop`;
+    }
+
+    const sanitized = recipes.slice(0, 15).map((r: Record<string, unknown>, idx: number) => {
+      const name = String(r.name || "Untitled Recipe").slice(0, 200);
+      const tags = Array.isArray(r.tags) ? r.tags.slice(0, 10).map(String) : [];
+      return {
+        id: `ai-${idx + 1}`,
+        name,
+        imageUrl: pickImage(tags),
+        ingredients: Array.isArray(r.ingredients) ? r.ingredients.slice(0, 20).map((ing: Record<string, unknown>) => ({
+          name: String(ing.name || "").slice(0, 200),
+          normalizedName: String(ing.normalizedName || ing.name || "").toLowerCase().slice(0, 200),
+          amount: String(ing.amount || "1").slice(0, 100),
+          optional: Boolean(ing.optional),
+        })) : [],
+        cookTimeMinutes: typeof r.cookTimeMinutes === "number" ? Math.min(Math.max(r.cookTimeMinutes, 1), 480) : 20,
+        difficulty: (validDifficulties.includes(String(r.difficulty)) ? String(r.difficulty) : "easy") as "easy" | "medium" | "hard",
+        macros: {
+          protein: Number((r.macros as Record<string, unknown>)?.protein) || 0,
+          carbs: Number((r.macros as Record<string, unknown>)?.carbs) || 0,
+          fat: Number((r.macros as Record<string, unknown>)?.fat) || 0,
+          fiber: Number((r.macros as Record<string, unknown>)?.fiber) || 0,
+        },
+        tags: Array.isArray(r.tags) ? r.tags.slice(0, 10).map(String) : [],
+        steps: Array.isArray(r.steps) ? r.steps.slice(0, 10).map(String) : [],
+      };
+    });
 
     return NextResponse.json({ recipes: sanitized, count: sanitized.length });
   } catch (err) {

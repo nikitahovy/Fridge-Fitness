@@ -204,9 +204,9 @@ export default function InventoryPage() {
                         && (
                         <button
                           onClick={() => updateItem(item.id, { openedAt: new Date().toISOString().split("T")[0] })}
-                          className="btn flex-1 !text-[9px] !px-2 !py-1 !border-violet-400/40 !text-violet-300"
+                          className="btn flex-1 !text-[9px] !px-2 !py-1"
                         >
-                          OPENED
+                          OPEN
                         </button>
                       )}
                       <button onClick={() => updateItem(item.id, { status: "consumed" })} className="btn btn-eat flex-1 !text-[9px] !px-2 !py-1">EATEN</button>

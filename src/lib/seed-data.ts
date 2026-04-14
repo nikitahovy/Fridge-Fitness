@@ -252,6 +252,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-1",
       name: "Chicken & Spinach Stir Fry",
+      imageUrl: "https://plus.unsplash.com/premium_photo-1664475934279-2631a25c42ce?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Chicken Breast", normalizedName: "chicken breast", amount: "1 lb", optional: false },
         { name: "Baby Spinach", normalizedName: "baby spinach", amount: "3 oz", optional: false },
@@ -277,6 +278,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-2",
       name: "Berry Protein Smoothie",
+      imageUrl: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Strawberries", normalizedName: "strawberries", amount: "1 cup", optional: false },
         { name: "Greek Yogurt", normalizedName: "greek yogurt", amount: "1 cup", optional: false },
@@ -298,6 +300,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-3",
       name: "Salmon Rice Bowl",
+      imageUrl: "https://images.unsplash.com/photo-1604259596863-57153177d40b?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Salmon Fillet", normalizedName: "salmon fillet", amount: "6 oz", optional: false },
         { name: "Brown Rice", normalizedName: "brown rice", amount: "1 cup cooked", optional: false },
@@ -319,6 +322,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-4",
       name: "Veggie Pasta Primavera",
+      imageUrl: "https://images.unsplash.com/photo-1550939029-14c929c8dff6?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Pasta", normalizedName: "pasta", amount: "8 oz", optional: false },
         { name: "Bell Peppers", normalizedName: "bell peppers", amount: "2 peppers", optional: false },
@@ -343,6 +347,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-5",
       name: "Quick Egg & Spinach Scramble",
+      imageUrl: "https://images.unsplash.com/photo-1544378828-5a7e2e02c2fd?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Eggs", normalizedName: "eggs", amount: "3 eggs", optional: false },
         { name: "Baby Spinach", normalizedName: "baby spinach", amount: "1 oz", optional: false },
@@ -364,6 +369,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-6",
       name: "Yogurt & Berry Parfait",
+      imageUrl: "https://images.unsplash.com/photo-1490371475955-4cb3bfc72f71?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Greek Yogurt", normalizedName: "greek yogurt", amount: "1 cup", optional: false },
         { name: "Strawberries", normalizedName: "strawberries", amount: "1/2 cup sliced", optional: false },
@@ -384,6 +390,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-7",
       name: "Black Bean & Rice Bowl",
+      imageUrl: "https://images.unsplash.com/photo-1643901493651-7eb3074a69f1?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Canned Black Beans", normalizedName: "canned black beans", amount: "1 can", optional: false },
         { name: "Brown Rice", normalizedName: "brown rice", amount: "1 cup cooked", optional: false },
@@ -405,6 +412,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-8",
       name: "Chicken Caesar Wrap",
+      imageUrl: "https://images.unsplash.com/photo-1562633416-3af513e5ff90?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Chicken Breast", normalizedName: "chicken breast", amount: "6 oz cooked", optional: false },
         { name: "Baby Spinach", normalizedName: "baby spinach", amount: "1 oz", optional: false },
@@ -425,6 +433,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-9",
       name: "Overnight Oats with Berries",
+      imageUrl: "https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Oats", normalizedName: "oats", amount: "1/2 cup", optional: false },
         { name: "Whole Milk", normalizedName: "whole milk", amount: "1/2 cup", optional: false },
@@ -445,6 +454,7 @@ export function createSeedRecipes(): Recipe[] {
     {
       id: "rec-10",
       name: "Turkey & Broccoli Stir Fry",
+      imageUrl: "https://images.unsplash.com/photo-1601226809816-b8c32440158a?w=600&h=400&fit=crop",
       ingredients: [
         { name: "Ground Turkey", normalizedName: "ground turkey", amount: "1 lb", optional: false },
         { name: "Frozen Broccoli", normalizedName: "frozen broccoli", amount: "2 cups", optional: false },

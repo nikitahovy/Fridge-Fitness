@@ -66,6 +66,7 @@ export type Recipe = {
   macros: { protein: number; carbs: number; fat: number; fiber: number };
   tags: string[];
   steps: string[];
+  imageUrl?: string;
 };
 
 export type ScoredRecipe = {
