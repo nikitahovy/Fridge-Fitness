@@ -6,6 +6,7 @@ import { computeItemRisk } from "@/lib/shelf-life";
 import { recoveryPresets } from "@/lib/seed-data";
 import { RecoveryPreset } from "@/lib/types";
 import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
+import { fixRecipeConsistency } from "@/lib/recipe-fix";
 
 const PROMPT = `You are a meal planner for Fridge Fitness, a food waste reduction app.
 
@@ -145,20 +146,26 @@ export async function GET(req: NextRequest) {
       const r = (m.recipe || m) as Record<string, unknown>;
       const tags = Array.isArray(r.tags) ? r.tags.slice(0, 10).map(String) : [];
 
+      const rawName = String(r.name || "Meal").slice(0, 200);
+      const rawIngredients = Array.isArray(r.ingredients) ? r.ingredients.slice(0, 15).map((ing: Record<string, unknown>) => ({
+        name: String(ing.name || "").slice(0, 200),
+        normalizedName: String(ing.normalizedName || ing.name || "").toLowerCase().slice(0, 200),
+        amount: String(ing.amount || "1").slice(0, 100),
+        optional: Boolean(ing.optional),
+      })) : [];
+      const rawSteps = Array.isArray(r.steps) ? r.steps.slice(0, 8).map(String) : [];
+
+      const fixed = fixRecipeConsistency(rawIngredients, rawSteps, rawName);
+
       return {
         id: `mp-${idx + 1}`,
         day: dates[dayNum - 1] || dates[0],
         slot,
         recipe: {
           id: `mp-r-${idx + 1}`,
-          name: String(r.name || "Meal").slice(0, 200),
+          name: fixed.name,
           imageUrl: pickImage([...tags, slot], idx),
-          ingredients: Array.isArray(r.ingredients) ? r.ingredients.slice(0, 15).map((ing: Record<string, unknown>) => ({
-            name: String(ing.name || "").slice(0, 200),
-            normalizedName: String(ing.normalizedName || ing.name || "").toLowerCase().slice(0, 200),
-            amount: String(ing.amount || "1").slice(0, 100),
-            optional: Boolean(ing.optional),
-          })) : [],
+          ingredients: fixed.ingredients,
           cookTimeMinutes: typeof r.cookTimeMinutes === "number" ? Math.min(Math.max(r.cookTimeMinutes as number, 1), 120) : 15,
           difficulty: validDifficulties.includes(String(r.difficulty)) ? String(r.difficulty) : "easy",
           macros: {
@@ -168,7 +175,7 @@ export async function GET(req: NextRequest) {
             fiber: Number((r.macros as Record<string, unknown>)?.fiber) || 0,
           },
           tags,
-          steps: Array.isArray(r.steps) ? r.steps.slice(0, 8).map(String) : [],
+          steps: fixed.steps,
         },
       };
     });

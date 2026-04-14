@@ -6,6 +6,7 @@ import { computeItemRisk } from "@/lib/shelf-life";
 import { recoveryPresets } from "@/lib/seed-data";
 import { RecoveryPreset } from "@/lib/types";
 import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
+import { fixRecipeConsistency } from "@/lib/recipe-fix";
 
 const PROMPT = `You are a recipe generator for Fridge Fitness, a food waste reduction app.
 
@@ -157,18 +158,23 @@ export async function GET(req: NextRequest) {
     }
 
     const sanitized = recipes.slice(0, 15).map((r: Record<string, unknown>, idx: number) => {
-      const name = String(r.name || "Untitled Recipe").slice(0, 200);
+      const rawName = String(r.name || "Untitled Recipe").slice(0, 200);
       const tags = Array.isArray(r.tags) ? r.tags.slice(0, 10).map(String) : [];
+      const rawIngredients = Array.isArray(r.ingredients) ? r.ingredients.slice(0, 20).map((ing: Record<string, unknown>) => ({
+        name: String(ing.name || "").slice(0, 200),
+        normalizedName: String(ing.normalizedName || ing.name || "").toLowerCase().slice(0, 200),
+        amount: String(ing.amount || "1").slice(0, 100),
+        optional: Boolean(ing.optional),
+      })) : [];
+      const rawSteps = Array.isArray(r.steps) ? r.steps.slice(0, 10).map(String) : [];
+
+      const fixed = fixRecipeConsistency(rawIngredients, rawSteps, rawName);
+
       return {
         id: `ai-${idx + 1}`,
-        name,
+        name: fixed.name,
         imageUrl: pickImage(tags, idx),
-        ingredients: Array.isArray(r.ingredients) ? r.ingredients.slice(0, 20).map((ing: Record<string, unknown>) => ({
-          name: String(ing.name || "").slice(0, 200),
-          normalizedName: String(ing.normalizedName || ing.name || "").toLowerCase().slice(0, 200),
-          amount: String(ing.amount || "1").slice(0, 100),
-          optional: Boolean(ing.optional),
-        })) : [],
+        ingredients: fixed.ingredients,
         cookTimeMinutes: typeof r.cookTimeMinutes === "number" ? Math.min(Math.max(r.cookTimeMinutes, 1), 480) : 20,
         difficulty: (validDifficulties.includes(String(r.difficulty)) ? String(r.difficulty) : "easy") as "easy" | "medium" | "hard",
         macros: {
@@ -177,8 +183,8 @@ export async function GET(req: NextRequest) {
           fat: Number((r.macros as Record<string, unknown>)?.fat) || 0,
           fiber: Number((r.macros as Record<string, unknown>)?.fiber) || 0,
         },
-        tags: Array.isArray(r.tags) ? r.tags.slice(0, 10).map(String) : [],
-        steps: Array.isArray(r.steps) ? r.steps.slice(0, 10).map(String) : [],
+        tags,
+        steps: fixed.steps,
       };
     });
 
