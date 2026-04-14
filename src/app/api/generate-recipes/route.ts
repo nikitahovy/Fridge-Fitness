@@ -15,6 +15,9 @@ Given a list of ingredients the user currently has (with spoilage urgency), gene
 3. Include a mix of quick meals (<15 min), medium (15-30 min), and longer (30+ min)
 4. Cover different meal types: breakfast, lunch, dinner, snack
 5. Consider the user's fitness day type for nutrition balance
+6. EVERY recipe MUST have at least 3 ingredients. Combine pantry staples (salt, oil, flour, eggs, butter, spices) with the user's items to make complete dishes.
+7. EVERY recipe MUST have at least 3 steps. Explain how to actually cook the dish.
+8. Give recipes proper descriptive names. Do NOT use brand names in recipe names.
 
 Return ONLY a valid JSON array. No markdown, no code fences, no explanation.
 
@@ -29,7 +32,7 @@ Each recipe must have:
 - tags: array of strings like "high-protein", "quick", "breakfast", "one-pot"
 - steps: array of instruction strings (3-6 steps)
 
-Make recipes practical and real — not just "throw everything together". Use common cooking techniques.`;
+IMPORTANT: Every recipe needs at least 3 ingredients and 3 steps. No single-ingredient recipes. Make recipes practical and real — not just "throw everything together". Use common cooking techniques.`;
 
 export async function GET(req: NextRequest) {
   try {
@@ -178,7 +181,10 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ recipes: sanitized, count: sanitized.length });
+    // Filter out incomplete recipes (must have ≥3 ingredients and ≥1 step)
+    const valid = sanitized.filter((r: { ingredients: unknown[]; steps: unknown[] }) => r.ingredients.length >= 3 && r.steps.length >= 1);
+
+    return NextResponse.json({ recipes: valid, count: valid.length });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("Generate recipes error:", message);

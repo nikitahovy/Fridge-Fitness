@@ -17,6 +17,9 @@ Rules:
 3. Vary meal types — don't repeat the same recipe more than twice in a week
 4. Keep breakfast simple (5-15 min), lunch moderate (10-25 min), dinner flexible (15-45 min), snacks quick
 5. Consider the user's fitness day type for nutrition balance
+6. EVERY recipe MUST have at least 3 ingredients — never generate a recipe with only 1-2 ingredients. Combine pantry staples (salt, oil, flour, eggs, butter) with the user's items to make real dishes.
+7. EVERY recipe MUST have at least 3 steps in the instructions. Explain how to actually cook the dish.
+8. Give recipes proper descriptive names (e.g. "Chicken & Vegetable Stir Fry" not "Kirkland Milk Pancakes"). Do NOT use brand names in recipe names.
 
 Return ONLY a valid JSON array of meals. No markdown, no code fences, no explanation.
 
@@ -25,7 +28,7 @@ Each meal must have:
 - slot: "breakfast" | "lunch" | "dinner" | "snack"
 - recipe: { name, ingredients: [{name, normalizedName, amount, optional}], cookTimeMinutes, difficulty, macros: {protein, carbs, fat, fiber}, tags: [], steps: [] }
 
-Make recipes practical and real. Generate exactly 28 meals (4 per day x 7 days).`;
+IMPORTANT: Each recipe MUST have at least 3 ingredients and at least 3 cooking steps. No single-ingredient recipes. Make recipes practical, complete, and real. Generate exactly 28 meals (4 per day x 7 days).`;
 
 export async function GET(req: NextRequest) {
   try {
@@ -169,7 +172,12 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ meals: sanitized, count: sanitized.length });
+    // Filter out incomplete recipes (must have ≥3 ingredients and ≥1 step)
+    const valid = sanitized.filter((m: { recipe: { ingredients: unknown[]; steps: unknown[] } }) =>
+      m.recipe.ingredients.length >= 3 && m.recipe.steps.length >= 1
+    );
+
+    return NextResponse.json({ meals: valid, count: valid.length });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error("Generate meal plan error:", message);
