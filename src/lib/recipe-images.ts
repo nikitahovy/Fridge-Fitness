@@ -1,40 +1,50 @@
-/** Curated food photos from Unsplash CDN for recipe cards */
-const PHOTO_IDS = [
-  "photo-1511910849309-0dffb8785146",  // stir fry
-  "photo-1505252585461-04db1eb84625",  // smoothie
-  "photo-1543508289-2a4346387248",     // bowl
-  "photo-1563379926898-05f4575a45d8",  // pasta
-  "photo-1569991869939-599da7cd0149",  // breakfast
-  "photo-1467453678174-768ec283a940",  // snack
-  "photo-1512621776951-a57141f2eefd",  // salad
-  "photo-1664455248787-bed872761fa2",  // wrap
-  "photo-1613844237701-8f3664fc2eff",  // soup
-  "photo-1585138548795-fa869d44af7c",  // one-pot
-  "photo-1532550907401-a500c9a57435",  // grilled protein
-  "photo-1585417791023-a5a6164b2646",  // quick meal
-  "photo-1547573854-74d2a71d0826",    // dinner plate
-  "photo-1536329639134-ade172b2fea0",  // lunch
-  "photo-1492683513054-55277abccd99",  // dessert
-  "photo-1564636242997-77953084df48",  // recovery
-  "photo-1565557623262-b51c2513a641",  // curry
-  "photo-1551504734-5ee1c4a1479b",    // tacos
-  "photo-1573730301149-84ca30c4c924",  // baked
-  "photo-1578935149228-66b184c83e69",  // seafood
+/** Keyword → Unsplash photo ID mapping. Order matters — first match wins. */
+const KEYWORD_IMAGES: [string[], string][] = [
+  // Specific dishes first (most precise)
+  [["stir fry", "stir-fry", "stirfry"], "photo-1512058564366-18510be2db19"],
+  [["smoothie", "shake", "blended"], "photo-1553530666-ba11a7da3888"],
+  [["parfait", "yogurt", "granola"], "photo-1490371475955-4cb3bfc72f71"],
+  [["oatmeal", "oats", "porridge", "overnight"], "photo-1517673400267-0251440c45dc"],
+  [["burrito", "wrap", "tortilla", "quesadilla"], "photo-1626700051175-6818013e1d4f"],
+  [["taco", "tacos", "mexican", "enchilada"], "photo-1551504734-5ee1c4a1479b"],
+  [["curry", "tikka", "masala", "korma"], "photo-1565557623262-b51c2513a641"],
+  [["soup", "stew", "chowder", "chili", "broth"], "photo-1613844237701-8f3664fc2eff"],
+  [["pasta", "spaghetti", "noodle", "penne", "linguine", "mac"], "photo-1563379926898-05f4575a45d8"],
+  [["salad", "slaw", "greens"], "photo-1512621776951-a57141f2eefd"],
+  [["sandwich", "panini", "sub", "club", "blt"], "photo-1528735602780-2552fd46c7af"],
+  [["pizza", "flatbread"], "photo-1565299624946-b28f40a0ae38"],
+  [["burger", "hamburger"], "photo-1568901346375-23c9450c58cd"],
+  [["sushi", "roll", "poke"], "photo-1604259596863-57153177d40b"],
+  [["pancake", "waffle", "french toast", "crepe"], "photo-1567620905732-2d1ec7ab7445"],
+  [["egg", "scramble", "omelette", "omelet", "frittata"], "photo-1544378828-5a7e2e02c2fd"],
+  [["rice bowl", "grain bowl", "buddha bowl", "power bowl"], "photo-1543508289-2a4346387248"],
+  [["salmon", "fish", "tuna", "cod", "shrimp", "seafood"], "photo-1467003909585-2f8a72700288"],
+  [["chicken", "poultry", "turkey"], "photo-1532550907401-a500c9a57435"],
+  [["steak", "beef", "pork", "lamb", "meat"], "photo-1546964124-0cce460f38ef"],
+  [["toast", "bread", "avocado toast"], "photo-1525351484163-7529414344d8"],
+  [["cake", "dessert", "brownie", "cookie", "sweet"], "photo-1551024506-0bccd828d307"],
+  [["soup", "ramen"], "photo-1547592166-23ac45744acd"],
+  // Broader categories (fallback)
+  [["bowl"], "photo-1543508289-2a4346387248"],
+  [["bake", "roast", "oven", "casserole"], "photo-1573730301149-84ca30c4c924"],
+  [["breakfast", "morning", "brunch"], "photo-1569991869939-599da7cd0149"],
+  [["snack", "bite", "dip", "hummus", "cheese"], "photo-1467453678174-768ec283a940"],
+  [["drink", "juice", "lemonade", "tea", "coffee"], "photo-1505252585461-04db1eb84625"],
 ];
 
-/** Simple string hash → consistent index per recipe name */
-function hashCode(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = ((h << 5) - h + s.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
+const DEFAULT_IMAGE = "photo-1504674900247-0877df9cc836"; // generic food
 
-/** Get a consistent, diverse image URL for a recipe based on its name */
-export function getRecipeImageUrl(name: string, index: number): string {
-  const hash = hashCode(name.toLowerCase());
-  // Mix hash with index to ensure adjacent recipes get different images
-  const photoIndex = (hash + index * 7) % PHOTO_IDS.length;
-  return `https://images.unsplash.com/${PHOTO_IDS[photoIndex]}?w=600&h=400&fit=crop`;
+/** Get a relevant image URL for a recipe based on keyword matching in its name */
+export function getRecipeImageUrl(name: string, _index: number): string {
+  const lower = name.toLowerCase();
+
+  for (const [keywords, photoId] of KEYWORD_IMAGES) {
+    for (const kw of keywords) {
+      if (lower.includes(kw)) {
+        return `https://images.unsplash.com/${photoId}?w=600&h=400&fit=crop`;
+      }
+    }
+  }
+
+  return `https://images.unsplash.com/${DEFAULT_IMAGE}?w=600&h=400&fit=crop`;
 }
