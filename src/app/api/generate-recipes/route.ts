@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import { getAuthenticatedClient } from "@/utils/supabase/api";
 import { mapInventoryRow } from "@/utils/supabase/mappers";
 import { computeItemRisk } from "@/lib/shelf-life";
 import { recoveryPresets } from "@/lib/seed-data";
 import { RecoveryPreset } from "@/lib/types";
+import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
 
 const PROMPT = `You are a recipe generator for Fridge Fitness, a food waste reduction app.
 
@@ -30,7 +31,7 @@ Each recipe must have:
 
 Make recipes practical and real — not just "throw everything together". Use common cooking techniques.`;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
@@ -39,6 +40,9 @@ export async function GET() {
 
     const { supabase, user } = await getAuthenticatedClient();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const limited = checkRateLimit(getRateLimitId(req, user.id), "generate-recipes");
+    if (limited) return limited;
 
     const { data: items } = await supabase
       .from("inventory_items")

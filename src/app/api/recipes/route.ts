@@ -1,15 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/utils/supabase/api";
 import { mapInventoryRow } from "@/utils/supabase/mappers";
 import { computeItemRisk } from "@/lib/shelf-life";
 import { rankRecipes } from "@/lib/scoring";
 import { createSeedRecipes, recoveryPresets } from "@/lib/seed-data";
 import { RecoveryPreset } from "@/lib/types";
+import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const { supabase, user } = await getAuthenticatedClient();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const limited = checkRateLimit(getRateLimitId(req, user.id), "recipes");
+    if (limited) return limited;
 
     const { data: items } = await supabase
       .from("inventory_items")

@@ -73,6 +73,15 @@ export const cartPatchSchema = z.object({
   { message: "At least one operation required" }
 );
 
+// ── Profile ──
+
+export const profilePatchSchema = z.object({
+  displayName: safeString(100).optional(),
+  householdSize: z.number().int().min(1).max(20).optional(),
+  fitnessGoal: z.enum(["maintenance", "muscle-gain", "fat-loss", "endurance"]).optional(),
+  dietaryPreferences: z.array(z.string().max(50).transform((s) => sanitizeString(s, 50))).max(20).optional(),
+});
+
 // ── Recovery ──
 
 export const recoveryPresetSchema = z.object({

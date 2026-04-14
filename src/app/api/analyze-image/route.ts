@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { getAuthenticatedClient } from "@/utils/supabase/api";
+import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
 
 const PROMPT = `You are a food item detector for a grocery/kitchen inventory app.
 
@@ -21,6 +23,12 @@ If you cannot identify any food items, return: []`;
 
 export async function POST(req: NextRequest) {
   try {
+    const { user } = await getAuthenticatedClient();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const limited = checkRateLimit(getRateLimitId(req, user.id), "analyze-image");
+    if (limited) return limited;
+
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -39,6 +47,17 @@ export async function POST(req: NextRequest) {
     // Validate it's a data URL with image
     if (!imageDataUrl.startsWith("data:image/")) {
       return NextResponse.json({ error: "Invalid image format" }, { status: 400 });
+    }
+
+    // Cap at 10MB base64 (~7.5MB raw image) to prevent abuse
+    if (imageDataUrl.length > 10_000_000) {
+      return NextResponse.json({ error: "Image too large. Max 7MB." }, { status: 413 });
+    }
+
+    // Validate MIME type is an allowed image format
+    const mimeMatch = imageDataUrl.match(/^data:(image\/(?:jpeg|png|webp|gif));base64,/);
+    if (!mimeMatch) {
+      return NextResponse.json({ error: "Invalid image type. Allowed: JPEG, PNG, WebP, GIF" }, { status: 400 });
     }
 
     const groq = new Groq({ apiKey });

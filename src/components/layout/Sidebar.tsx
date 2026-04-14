@@ -15,6 +15,7 @@ import {
   FlaskConical,
   Settings,
   UtensilsCrossed,
+  CalendarDays,
   type LucideIcon,
 } from "lucide-react";
 
@@ -25,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/inventory", label: "Inventory", icon: Refrigerator },
   { href: "/eat-first", label: "Eat First", icon: Zap },
   { href: "/recipes", label: "Recipes", icon: ChefHat },
+  { href: "/meal-plan", label: "Meal Plan", icon: CalendarDays },
   { href: "/add-item", label: "Add", icon: Plus },
 ];
 

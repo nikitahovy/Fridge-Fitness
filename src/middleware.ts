@@ -61,7 +61,7 @@ export async function middleware(req: NextRequest) {
     const host = req.headers.get("host");
     if (origin) {
       const originHost = new URL(origin).host;
-      if (originHost === host || pathname.includes("/upload") || pathname.includes("/sessions")) {
+      if (originHost === host) {
         supabaseResponse.headers.set("Access-Control-Allow-Origin", origin);
       }
       supabaseResponse.headers.set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");

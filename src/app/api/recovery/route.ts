@@ -3,11 +3,15 @@ import { getAuthenticatedClient } from "@/utils/supabase/api";
 import { recoveryPresetSchema } from "@/lib/validation";
 import { recoveryPresets } from "@/lib/seed-data";
 import { RecoveryPreset } from "@/lib/types";
+import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const { supabase, user } = await getAuthenticatedClient();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const limited = checkRateLimit(getRateLimitId(req, user.id), "recovery");
+    if (limited) return limited;
 
     const { data } = await supabase
       .from("recovery_state")

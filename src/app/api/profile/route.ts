@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthenticatedClient } from "@/utils/supabase/api";
+import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
+import { profilePatchSchema } from "@/lib/validation";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const { supabase, user } = await getAuthenticatedClient();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const limited = checkRateLimit(getRateLimitId(req, user.id), "profile");
+    if (limited) return limited;
 
     const { data } = await supabase.from("profiles").select("*").eq("id", user.id).single();
 
@@ -26,12 +31,18 @@ export async function PATCH(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const body = await req.json();
+    const parsed = profilePatchSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten().fieldErrors }, { status: 400 });
+    }
+
+    const d = parsed.data;
     const updates: Record<string, unknown> = {};
 
-    if (typeof body.displayName === "string") updates.display_name = body.displayName.slice(0, 100);
-    if (typeof body.householdSize === "number") updates.household_size = Math.min(Math.max(body.householdSize, 1), 20);
-    if (typeof body.fitnessGoal === "string") updates.fitness_goal = body.fitnessGoal.slice(0, 50);
-    if (Array.isArray(body.dietaryPreferences)) updates.dietary_preferences = body.dietaryPreferences.slice(0, 20);
+    if (d.displayName !== undefined) updates.display_name = d.displayName;
+    if (d.householdSize !== undefined) updates.household_size = d.householdSize;
+    if (d.fitnessGoal !== undefined) updates.fitness_goal = d.fitnessGoal;
+    if (d.dietaryPreferences !== undefined) updates.dietary_preferences = d.dietaryPreferences;
 
     const { error } = await supabase.from("profiles").update(updates).eq("id", user.id);
     if (error) throw error;

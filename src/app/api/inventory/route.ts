@@ -3,11 +3,15 @@ import { getAuthenticatedClient } from "@/utils/supabase/api";
 import { mapInventoryRow } from "@/utils/supabase/mappers";
 import { inventoryCreateSchema, inventoryPatchSchema } from "@/lib/validation";
 import { computeItemRisk } from "@/lib/shelf-life";
+import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const { supabase, user } = await getAuthenticatedClient();
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const limited = checkRateLimit(getRateLimitId(req, user.id), "inventory");
+    if (limited) return limited;
 
     const { data, error } = await supabase
       .from("inventory_items")
@@ -141,7 +145,9 @@ export async function DELETE(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { id } = await req.json();
-    if (!id) return NextResponse.json({ error: "Missing item ID" }, { status: 400 });
+    if (!id || typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      return NextResponse.json({ error: "Invalid item ID" }, { status: 400 });
+    }
 
     const { error } = await supabase
       .from("inventory_items")

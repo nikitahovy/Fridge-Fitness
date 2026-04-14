@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { store } from "@/lib/store";
 import { v4 as uuid } from "uuid";
 import { UploadSession } from "@/lib/types";
+import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  const limited = checkRateLimit(getRateLimitId(req), "sessions");
+  if (limited) return limited;
+
   try {
     const session: UploadSession = {
       id: uuid(),

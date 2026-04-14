@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
 
 // ── FOOD ADDITIVE RISKS ──
 const FOOD_ADDITIVE_RISKS: Record<string, { risk: "high" | "moderate" | "low" | "safe"; name: string; concern: string }> = {
@@ -518,6 +519,9 @@ function getGrade(score: number) {
 
 export async function GET(req: NextRequest) {
   try {
+    const limited = checkRateLimit(getRateLimitId(req), "health-score");
+    if (limited) return limited;
+
     const barcode = req.nextUrl.searchParams.get("code");
     if (!barcode || !/^\d{4,14}$/.test(barcode)) {
       return NextResponse.json({ error: "Invalid barcode" }, { status: 400 });

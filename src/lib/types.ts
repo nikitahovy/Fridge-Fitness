@@ -79,6 +79,22 @@ export type ScoredRecipe = {
   explanation: string[];
 };
 
+export type MealSlot = "breakfast" | "lunch" | "dinner" | "snack";
+
+export type PlannedMeal = {
+  id: string;
+  day: string; // ISO date "2026-04-14"
+  slot: MealSlot;
+  recipe: Recipe;
+};
+
+export type WeeklyMealPlan = {
+  id: string;
+  weekStart: string; // ISO date of Monday
+  meals: PlannedMeal[];
+  createdAt: string;
+};
+
 export type UploadSession = {
   id: string;
   status: "pending" | "uploaded" | "expired";

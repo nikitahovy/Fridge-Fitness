@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { getAuthenticatedClient } from "@/utils/supabase/api";
+import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    const { user } = await getAuthenticatedClient();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const limited = checkRateLimit(getRateLimitId(req, user.id), "read-barcode");
+    if (limited) return limited;
+
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) return NextResponse.json({ error: "GROQ_API_KEY not set" }, { status: 503 });
 
     const { imageDataUrl } = await req.json();
-    if (!imageDataUrl) return NextResponse.json({ error: "No image" }, { status: 400 });
+    if (!imageDataUrl || typeof imageDataUrl !== "string") return NextResponse.json({ error: "No image" }, { status: 400 });
+    if (!imageDataUrl.startsWith("data:image/")) return NextResponse.json({ error: "Invalid image format" }, { status: 400 });
+    if (imageDataUrl.length > 10_000_000) return NextResponse.json({ error: "Image too large" }, { status: 413 });
 
     const groq = new Groq({ apiKey });
 
