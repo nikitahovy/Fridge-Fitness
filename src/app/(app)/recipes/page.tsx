@@ -94,34 +94,34 @@ export default function RecipesPage() {
             >
               {/* Mobile: image on top. Desktop: image on left */}
               {sr.recipe.imageUrl && (
-                <div className="w-full h-32 md:hidden">
+                <div className="w-full h-32 lg:hidden">
                   <img src={sr.recipe.imageUrl} alt={sr.recipe.name} className="w-full h-full object-cover" loading="lazy" />
                 </div>
               )}
               <div className="flex">
                 {sr.recipe.imageUrl && (
-                  <div className="hidden md:block w-36 flex-shrink-0">
+                  <div className="hidden lg:block w-36 flex-shrink-0">
                     <img src={sr.recipe.imageUrl} alt={sr.recipe.name} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                 )}
-                <div className="flex-1 p-3.5 md:p-5 min-w-0">
+                <div className="flex-1 p-3.5 lg:p-5 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-2 md:mb-3">
                     <div className="min-w-0">
-                      <h3 className="text-base md:text-xl font-bold leading-tight">{sr.recipe.name}</h3>
+                      <h3 className="text-base lg:text-xl font-bold leading-tight">{sr.recipe.name}</h3>
                       <div className="flex gap-1.5 md:gap-2 mt-1 flex-wrap">
                         {sr.recipe.tags.slice(0, 3).map((tag) => (
                           <span key={tag} className="font-pixel text-[8px] md:text-[9px] text-muted uppercase tracking-wider">{tag}</span>
                         ))}
                       </div>
                     </div>
-                    <span className="text-display text-lg md:text-2xl flex-shrink-0">{sr.score}<span className="text-[10px] md:text-sm font-normal text-muted">pts</span></span>
+                    <span className="text-display text-lg lg:text-2xl flex-shrink-0">{sr.score}<span className="text-[10px] md:text-sm font-normal text-muted">pts</span></span>
                   </div>
                   <div className="flex flex-wrap gap-1.5 md:gap-2 mb-2 md:mb-3">
                     {sr.explanation.slice(0, 2).map((ex, i) => (
                       <span key={i} className="text-[10px] md:text-[11px] px-2 md:px-3 py-0.5 md:py-1 rounded-full border border-white/10 text-muted">{ex}</span>
                     ))}
                   </div>
-                  <div className="flex flex-wrap gap-x-3 md:gap-x-6 gap-y-0.5 font-pixel text-[9px] md:text-[10px] text-muted uppercase">
+                  <div className="flex flex-wrap gap-x-3 lg:gap-x-6 gap-y-0.5 font-pixel text-[9px] md:text-[10px] text-muted uppercase">
                     <span>{sr.recipe.cookTimeMinutes}m</span>
                     <span>{sr.recipe.macros.protein}g pro</span>
                     <span>{sr.recipe.macros.carbs}g carb</span>
@@ -163,17 +163,17 @@ export default function RecipesPage() {
               className="block rounded-2xl overflow-hidden bg-card border border-card-border hover:border-slate-400 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all duration-200"
             >
               {/* Mobile: image on top */}
-              <div className="w-full h-32 md:hidden">
+              <div className="w-full h-32 lg:hidden">
                 <img src={getRecipeImageUrl(recipe.name, idx)} alt={recipe.name} className="w-full h-full object-cover" loading="lazy" />
               </div>
               <div className="flex">
                 {/* Desktop: image on left */}
-                <div className="hidden md:block w-36 flex-shrink-0">
+                <div className="hidden lg:block w-36 flex-shrink-0">
                   <img src={getRecipeImageUrl(recipe.name, idx)} alt={recipe.name} className="w-full h-full object-cover" loading="lazy" />
                 </div>
-                <div className="flex-1 p-3.5 md:p-5 min-w-0">
+                <div className="flex-1 p-3.5 lg:p-5 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1.5 md:mb-2">
-                    <h3 className="text-base md:text-xl font-bold leading-tight">{recipe.name}</h3>
+                    <h3 className="text-base lg:text-xl font-bold leading-tight">{recipe.name}</h3>
                     <span className="font-pixel text-[9px] md:text-[10px] text-safe uppercase flex-shrink-0">AI</span>
                   </div>
                   <div className="flex gap-1.5 md:gap-2 mb-2 md:mb-3 flex-wrap">
@@ -181,7 +181,7 @@ export default function RecipesPage() {
                       <span key={tag} className="font-pixel text-[8px] md:text-[9px] text-muted uppercase tracking-wider">{tag}</span>
                     ))}
                   </div>
-                  <div className="flex flex-wrap gap-x-3 md:gap-x-6 gap-y-0.5 font-pixel text-[9px] md:text-[10px] text-muted uppercase">
+                  <div className="flex flex-wrap gap-x-3 lg:gap-x-6 gap-y-0.5 font-pixel text-[9px] md:text-[10px] text-muted uppercase">
                     <span>{recipe.cookTimeMinutes}m</span>
                     <span>{recipe.macros.protein}g pro</span>
                     <span>{recipe.macros.carbs}g carb</span>
