@@ -147,19 +147,19 @@ export default function MealPlanPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-end justify-between mb-6 md:mb-8">
+      <div className="flex items-end justify-between mb-5 md:mb-8 gap-3">
         <div>
           <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-2">// MEAL PLAN</p>
           <h2 className="text-display text-3xl md:text-4xl">This<br/>Week</h2>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 md:gap-2 flex-shrink-0">
           {meals.length > 0 && (
-            <button onClick={clearPlan} className="btn !text-[10px]">CLEAR</button>
+            <button onClick={clearPlan} className="btn !text-[9px] md:!text-[10px] !px-2 md:!px-3">CLEAR</button>
           )}
           <button
             onClick={generatePlan}
             disabled={generating}
-            className="btn btn-primary btn-lg disabled:opacity-50"
+            className="btn btn-primary !text-[9px] md:!text-[10px] !px-3 md:btn-lg disabled:opacity-50"
           >
             {generating ? "GENERATING..." : "AI PLAN"}
           </button>
@@ -222,18 +222,18 @@ export default function MealPlanPage() {
             return (
               <div key={date} className={`glass rounded-2xl overflow-hidden ${dayInfo.isToday ? "ring-2 ring-sky-400/50" : ""}`}>
                 {/* Day header */}
-                <div className="px-4 md:px-5 pt-4 pb-2 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-display text-lg">{dayInfo.short}</span>
-                    <span className="font-pixel text-[9px] text-muted uppercase">{dayInfo.date}</span>
+                <div className="px-3 md:px-5 pt-3 md:pt-4 pb-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 md:gap-2 min-w-0">
+                    <span className="text-display text-base md:text-lg">{dayInfo.short}</span>
+                    <span className="font-pixel text-[8px] md:text-[9px] text-muted uppercase">{dayInfo.date}</span>
                     {dayInfo.isToday && (
-                      <span className="font-pixel text-[8px] px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-500 border border-sky-500/20">TODAY</span>
+                      <span className="font-pixel text-[7px] md:text-[8px] px-1.5 py-0.5 rounded-full bg-sky-500/15 text-sky-500 border border-sky-500/20">TODAY</span>
                     )}
                   </div>
-                  <div className="flex gap-3 font-pixel text-[9px] text-muted">
-                    <span>{macros.protein}g pro</span>
-                    <span>{macros.carbs}g carb</span>
-                    <span>{macros.fat}g fat</span>
+                  <div className="flex gap-2 md:gap-3 font-pixel text-[8px] md:text-[9px] text-muted flex-shrink-0">
+                    <span>{macros.protein}g P</span>
+                    <span>{macros.carbs}g C</span>
+                    <span className="hidden md:inline">{macros.fat}g F</span>
                   </div>
                 </div>
 
