@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ScoredRecipe, Recipe } from "@/lib/types";
+import { getRecipeImageUrl } from "@/lib/recipe-images";
 
 const AI_RECIPES_STORAGE_KEY = "ff_ai_recipes";
 
@@ -160,23 +161,21 @@ export default function RecipesPage() {
       {/* AI generated recipes (unscored, raw from LLM) */}
       {showAi && (
         <div className="space-y-3">
-          {aiRecipes.map((recipe) => (
+          {aiRecipes.map((recipe, idx) => (
             <Link
               key={recipe.id}
               href={`/recipes/${recipe.id}`}
               className="block rounded-2xl overflow-hidden bg-card border border-card-border hover:border-slate-400 hover:shadow-[0_0_15px_rgba(255,255,255,0.04)] transition-all duration-200"
             >
               <div className="flex">
-                {recipe.imageUrl && (
-                  <div className="w-28 md:w-36 flex-shrink-0">
-                    <img
-                      src={recipe.imageUrl}
-                      alt={recipe.name}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                )}
+                <div className="w-28 md:w-36 flex-shrink-0">
+                  <img
+                    src={getRecipeImageUrl(recipe.name, idx)}
+                    alt={recipe.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
                 <div className="flex-1 p-5">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="text-xl font-bold">{recipe.name}</h3>

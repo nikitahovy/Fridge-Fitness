@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { PlannedMeal, MealSlot, ItemWithRisk, Recipe } from "@/lib/types";
+import { getRecipeImageUrl } from "@/lib/recipe-images";
 
 const STORAGE_KEY = "ff_meal_plan";
 const AI_RECIPES_KEY = "ff_ai_recipes";
@@ -238,14 +239,12 @@ export default function MealPlanPage() {
                         {meal ? (
                           <div className="group">
                             <Link href={`/recipes/${meal.recipe.id}`} className="flex gap-2 hover:opacity-80 transition-opacity">
-                              {meal.recipe.imageUrl && (
-                                <img
-                                  src={meal.recipe.imageUrl}
-                                  alt={meal.recipe.name}
-                                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                                  loading="lazy"
-                                />
-                              )}
+                              <img
+                                src={getRecipeImageUrl(meal.recipe.name, parseInt(meal.id.replace("mp-", "")) || 0)}
+                                alt={meal.recipe.name}
+                                className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                                loading="lazy"
+                              />
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-bold truncate">{meal.recipe.name}</p>
                                 <div className="flex gap-2 font-pixel text-[8px] text-muted mt-0.5">

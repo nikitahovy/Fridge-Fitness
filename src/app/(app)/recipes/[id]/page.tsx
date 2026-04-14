@@ -6,8 +6,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ScoredRecipe, Recipe, ItemWithRisk, DailyRecoveryContext } from "@/lib/types";
 import { scoreRecipe } from "@/lib/scoring";
+import { getRecipeImageUrl } from "@/lib/recipe-images";
 
 const AI_RECIPES_STORAGE_KEY = "ff_ai_recipes";
+const MEAL_PLAN_STORAGE_KEY = "ff_meal_plan";
 
 export default function RecipeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -24,19 +26,35 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
     if (id.startsWith("ai-") || id.startsWith("mp-r-")) {
       (async () => {
         try {
+          // Look in AI recipes storage
           const stored = localStorage.getItem(AI_RECIPES_STORAGE_KEY);
           const aiRecipes: Recipe[] = stored ? JSON.parse(stored) : [];
-          const raw = aiRecipes.find((r) => r.id === id);
+          let raw = aiRecipes.find((r) => r.id === id);
+
+          // Also check meal plan storage for mp-r-* recipes
+          if (!raw) {
+            const mpStored = localStorage.getItem(MEAL_PLAN_STORAGE_KEY);
+            if (mpStored) {
+              const meals = JSON.parse(mpStored);
+              if (Array.isArray(meals)) {
+                const meal = meals.find((m: { recipe?: { id?: string } }) => m.recipe?.id === id);
+                if (meal?.recipe) raw = meal.recipe;
+              }
+            }
+          }
+
           if (!raw) {
             setRecipe(null);
             setLoading(false);
             return;
           }
+
           // Fetch the live inventory + recovery context to score the recipe
-          const [inventory, recovery]: [ItemWithRisk[], DailyRecoveryContext] = await Promise.all([
+          const [inventory, recoveryData] = await Promise.all([
             fetch("/api/eat-first").then((r) => r.json()),
             fetch("/api/recovery").then((r) => r.json()),
           ]);
+          const recovery: DailyRecoveryContext = recoveryData.context || recoveryData;
           setRecipe(scoreRecipe(raw, inventory, recovery));
         } catch {
           setRecipe(null);
@@ -67,6 +85,7 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
   if (!recipe) return <div className="max-w-3xl mx-auto py-20"><p className="text-display text-2xl">Not found</p><Link href="/recipes" className="font-pixel text-xs text-muted mt-4 inline-block">← BACK</Link></div>;
 
   const { recipe: r, matchedItems, atRiskItemsRescued, missingIngredients, wasteRescueValue, score, explanation } = recipe;
+  const heroImage = r.imageUrl || getRecipeImageUrl(r.name, 0);
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -76,15 +95,13 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
 
       {/* Header */}
       <div className="glass rounded-2xl overflow-hidden mb-6">
-        {r.imageUrl && (
-          <div className="w-full h-48 md:h-64">
-            <img
-              src={r.imageUrl}
-              alt={r.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
+        <div className="w-full h-48 md:h-64">
+          <img
+            src={heroImage}
+            alt={r.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
         <div className="p-7">
         <div className="flex items-start justify-between mb-4">
           <div>
