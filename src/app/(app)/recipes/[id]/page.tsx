@@ -85,7 +85,8 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
   if (!recipe) return <div className="max-w-3xl mx-auto py-20"><p className="text-display text-2xl">Not found</p><Link href="/recipes" className="font-pixel text-xs text-muted mt-4 inline-block">← BACK</Link></div>;
 
   const { recipe: r, matchedItems, atRiskItemsRescued, missingIngredients, wasteRescueValue, score, explanation } = recipe;
-  const heroImage = r.imageUrl || getRecipeImageUrl(r.name, 0);
+  const isAiRecipe = r.id.startsWith("ai-") || r.id.startsWith("mp-r-");
+  const heroImage = isAiRecipe ? getRecipeImageUrl(r.name, 0) : (r.imageUrl || getRecipeImageUrl(r.name, 0));
 
   return (
     <div className="max-w-3xl mx-auto">
