@@ -2,9 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { PlannedMeal, MealSlot, ItemWithRisk } from "@/lib/types";
+import { PlannedMeal, MealSlot, ItemWithRisk, Recipe } from "@/lib/types";
 
 const STORAGE_KEY = "ff_meal_plan";
+const AI_RECIPES_KEY = "ff_ai_recipes";
 const SLOTS: MealSlot[] = ["breakfast", "lunch", "dinner", "snack"];
 const SLOT_LABELS: Record<MealSlot, string> = {
   breakfast: "Breakfast",
@@ -66,6 +67,15 @@ export default function MealPlanPage() {
     setMeals(updated);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      // Also persist recipes to ff_ai_recipes so /recipes/[id] detail page works
+      const existing: Recipe[] = JSON.parse(localStorage.getItem(AI_RECIPES_KEY) || "[]");
+      const existingIds = new Set(existing.map((r) => r.id));
+      const newRecipes = updated
+        .map((m) => m.recipe)
+        .filter((r) => !existingIds.has(r.id));
+      if (newRecipes.length > 0) {
+        localStorage.setItem(AI_RECIPES_KEY, JSON.stringify([...existing, ...newRecipes]));
+      }
     } catch {}
   }
 
@@ -227,7 +237,7 @@ export default function MealPlanPage() {
                         <p className="font-pixel text-[8px] text-muted uppercase tracking-wider mb-2">{SLOT_LABELS[slot]}</p>
                         {meal ? (
                           <div className="group">
-                            <div className="flex gap-2">
+                            <Link href={`/recipes/${meal.recipe.id}`} className="flex gap-2 hover:opacity-80 transition-opacity">
                               {meal.recipe.imageUrl && (
                                 <img
                                   src={meal.recipe.imageUrl}
@@ -243,7 +253,7 @@ export default function MealPlanPage() {
                                   <span>{meal.recipe.macros?.protein || 0}g pro</span>
                                 </div>
                               </div>
-                            </div>
+                            </Link>
                             <button
                               onClick={() => removeMeal(meal.id)}
                               className="font-pixel text-[8px] text-muted hover:text-danger mt-1 opacity-0 group-hover:opacity-100 transition-opacity"

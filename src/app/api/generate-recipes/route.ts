@@ -133,14 +133,23 @@ export async function GET(req: NextRequest) {
       ["seafood", "photo-1578935149228-66b184c83e69"],
       ["low-carb", "photo-1532550907401-a500c9a57435"],
     ];
-    const DEFAULT_IMAGE = "photo-1504674900247-0877df9cc836";
-    function pickImage(tags: string[]): string {
+    // All unique photo IDs for fallback cycling
+    const ALL_PHOTO_IDS = [...new Set(FOOD_IMAGES.map(([, id]) => id))];
+    const usedPhotos = new Set<string>();
+
+    function pickImage(tags: string[], idx: number): string {
+      // Try to match a specific tag first
       for (const tag of tags) {
         const key = tag.toLowerCase();
         const match = FOOD_IMAGES.find(([k]) => k === key);
-        if (match) return `https://images.unsplash.com/${match[1]}?w=600&h=400&fit=crop`;
+        if (match && !usedPhotos.has(match[1])) {
+          usedPhotos.add(match[1]);
+          return `https://images.unsplash.com/${match[1]}?w=600&h=400&fit=crop`;
+        }
       }
-      return `https://images.unsplash.com/${DEFAULT_IMAGE}?w=600&h=400&fit=crop`;
+      // Fallback: cycle through all photos by index to avoid duplicates
+      const photoId = ALL_PHOTO_IDS[idx % ALL_PHOTO_IDS.length];
+      return `https://images.unsplash.com/${photoId}?w=600&h=400&fit=crop`;
     }
 
     const sanitized = recipes.slice(0, 15).map((r: Record<string, unknown>, idx: number) => {
@@ -149,7 +158,7 @@ export async function GET(req: NextRequest) {
       return {
         id: `ai-${idx + 1}`,
         name,
-        imageUrl: pickImage(tags),
+        imageUrl: pickImage(tags, idx),
         ingredients: Array.isArray(r.ingredients) ? r.ingredients.slice(0, 20).map((ing: Record<string, unknown>) => ({
           name: String(ing.name || "").slice(0, 200),
           normalizedName: String(ing.normalizedName || ing.name || "").toLowerCase().slice(0, 200),

@@ -21,7 +21,7 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
     // AI-generated recipes are persisted client-side in localStorage by
     // the recipes/page.tsx component. Look there first for ai-* IDs and
     // build a ScoredRecipe shape on the fly using the scoring engine.
-    if (id.startsWith("ai-")) {
+    if (id.startsWith("ai-") || id.startsWith("mp-r-")) {
       (async () => {
         try {
           const stored = localStorage.getItem(AI_RECIPES_STORAGE_KEY);

@@ -124,13 +124,15 @@ export async function GET(req: NextRequest) {
       ["curry", "photo-1565557623262-b51c2513a641"],
       ["seafood", "photo-1578935149228-66b184c83e69"],
     ];
-    const DEFAULT_IMG = "photo-1504674900247-0877df9cc836";
-    function pickImage(tags: string[]): string {
+    const ALL_PHOTO_IDS = [...new Set(FOOD_IMAGES.map(([, id]) => id))];
+    function pickImage(tags: string[], idx: number): string {
       for (const tag of tags) {
         const match = FOOD_IMAGES.find(([k]) => k === tag.toLowerCase());
         if (match) return `https://images.unsplash.com/${match[1]}?w=600&h=400&fit=crop`;
       }
-      return `https://images.unsplash.com/${DEFAULT_IMG}?w=600&h=400&fit=crop`;
+      // Cycle through all photos by index to avoid duplicates
+      const photoId = ALL_PHOTO_IDS[idx % ALL_PHOTO_IDS.length];
+      return `https://images.unsplash.com/${photoId}?w=600&h=400&fit=crop`;
     }
 
     const sanitized = meals.slice(0, 28).map((m: Record<string, unknown>, idx: number) => {
@@ -146,7 +148,7 @@ export async function GET(req: NextRequest) {
         recipe: {
           id: `mp-r-${idx + 1}`,
           name: String(r.name || "Meal").slice(0, 200),
-          imageUrl: pickImage([...tags, slot]),
+          imageUrl: pickImage([...tags, slot], idx),
           ingredients: Array.isArray(r.ingredients) ? r.ingredients.slice(0, 15).map((ing: Record<string, unknown>) => ({
             name: String(ing.name || "").slice(0, 200),
             normalizedName: String(ing.normalizedName || ing.name || "").toLowerCase().slice(0, 200),
