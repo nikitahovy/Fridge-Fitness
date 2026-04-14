@@ -68,15 +68,12 @@ export default function MealPlanPage() {
     setMeals(updated);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      // Also persist recipes to ff_ai_recipes so /recipes/[id] detail page works
+      // Persist recipes to ff_ai_recipes so /recipes/[id] detail page works.
+      // Replace any existing recipes with the same ID (stale from previous generation).
       const existing: Recipe[] = JSON.parse(localStorage.getItem(AI_RECIPES_KEY) || "[]");
-      const existingIds = new Set(existing.map((r) => r.id));
-      const newRecipes = updated
-        .map((m) => m.recipe)
-        .filter((r) => !existingIds.has(r.id));
-      if (newRecipes.length > 0) {
-        localStorage.setItem(AI_RECIPES_KEY, JSON.stringify([...existing, ...newRecipes]));
-      }
+      const newRecipeMap = new Map(updated.map((m) => [m.recipe.id, m.recipe]));
+      const filtered = existing.filter((r) => !newRecipeMap.has(r.id));
+      localStorage.setItem(AI_RECIPES_KEY, JSON.stringify([...filtered, ...newRecipeMap.values()]));
     } catch {}
   }
 
