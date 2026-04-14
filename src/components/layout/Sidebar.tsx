@@ -174,7 +174,7 @@ export default function Sidebar() {
                 width={112}
                 height={112}
                 quality={100}
-                className="w-14 h-14 object-contain"
+                className="w-14 h-14 object-cover scale-[1.35]"
               />
             </div>
             <div>
@@ -239,7 +239,7 @@ export default function Sidebar() {
                   width={96}
                   height={96}
                   quality={100}
-                  className="w-12 h-12 object-contain"
+                  className="w-12 h-12 object-cover scale-[1.35]"
                 />
               </div>
               <div>
