@@ -35,6 +35,7 @@ const ALL_MOBILE_ITEMS: NavItem[] = [
   { href: "/inventory", label: "Inventory", icon: Refrigerator },
   { href: "/eat-first", label: "Eat First", icon: Zap },
   { href: "/recipes", label: "Recipes", icon: ChefHat },
+  { href: "/meal-plan", label: "Meal Plan", icon: CalendarDays },
   { href: "/add-item", label: "Add Item", icon: Plus },
   { href: "/health-score", label: "Health Score", icon: FlaskConical },
   { href: "/cart", label: "Instacart Lists", icon: ShoppingCart },

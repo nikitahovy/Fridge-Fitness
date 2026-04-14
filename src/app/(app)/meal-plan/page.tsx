@@ -68,18 +68,23 @@ export default function MealPlanPage() {
     setMeals(updated);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-      // Persist recipes to ff_ai_recipes so /recipes/[id] detail page works.
-      // Replace any existing recipes with the same ID (stale from previous generation).
+      // Sync recipes to ff_ai_recipes for detail page.
+      // First remove ALL old mp-r-* entries, then add new ones.
       const existing: Recipe[] = JSON.parse(localStorage.getItem(AI_RECIPES_KEY) || "[]");
-      const newRecipeMap = new Map(updated.map((m) => [m.recipe.id, m.recipe]));
-      const filtered = existing.filter((r) => !newRecipeMap.has(r.id));
-      localStorage.setItem(AI_RECIPES_KEY, JSON.stringify([...filtered, ...newRecipeMap.values()]));
+      const cleaned = existing.filter((r) => !r.id.startsWith("mp-r-"));
+      const newRecipes = updated.map((m) => m.recipe);
+      localStorage.setItem(AI_RECIPES_KEY, JSON.stringify([...cleaned, ...newRecipes]));
     } catch {}
   }
 
   async function generatePlan() {
     setGenerating(true);
     try {
+      // Clear stale data first
+      localStorage.removeItem(STORAGE_KEY);
+      const existing: Recipe[] = JSON.parse(localStorage.getItem(AI_RECIPES_KEY) || "[]");
+      localStorage.setItem(AI_RECIPES_KEY, JSON.stringify(existing.filter((r) => !r.id.startsWith("mp-r-"))));
+
       const res = await fetch("/api/generate-meal-plan");
       const data = await res.json();
       if (data.meals?.length > 0) {
@@ -94,7 +99,13 @@ export default function MealPlanPage() {
   }
 
   function clearPlan() {
-    saveMeals([]);
+    setMeals([]);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      // Remove all mp-r-* recipes from ai recipes cache
+      const existing: Recipe[] = JSON.parse(localStorage.getItem(AI_RECIPES_KEY) || "[]");
+      localStorage.setItem(AI_RECIPES_KEY, JSON.stringify(existing.filter((r) => !r.id.startsWith("mp-r-"))));
+    } catch {}
   }
 
   // Coverage calculation
