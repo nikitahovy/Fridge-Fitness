@@ -112,8 +112,9 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
 
   if (loading) return <div className="max-w-3xl mx-auto py-20"><p className="font-pixel text-muted text-sm">LOADING...</p></div>;
   if (!recipe) return (
-    <div className="max-w-3xl mx-auto py-20 text-center">
-      <div className="mx-auto mb-4 text-slate-400 dark:text-slate-500"><FridgeMascot size={36} /></div>
+    <div className="max-w-3xl mx-auto py-20 text-center flex flex-col items-center">
+      <div className="bg-card border border-card-border rounded-xl px-3 py-1.5 mb-2 text-xs text-muted">Where&apos;d it go?</div>
+      <div className="mb-4 text-slate-400 dark:text-slate-500"><FridgeMascot size={40} /></div>
       <p className="text-display text-2xl mb-3">Not found</p>
       <Link href="/recipes" className="font-pixel text-xs text-muted hover:text-foreground uppercase tracking-wider underline underline-offset-4">← BACK TO RECIPES</Link>
     </div>

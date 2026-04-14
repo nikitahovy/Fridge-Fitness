@@ -398,6 +398,14 @@ body {
 .fridge-leg-b {
   animation: leg-step-b 0.34s ease-in-out infinite;
 }
+.mascot-wave {
+  transform-origin: 3px 14px;
+  animation: mascot-wave 0.6s ease-in-out infinite alternate;
+}
+@keyframes mascot-wave {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-20deg); }
+}
 .fridge-track {
   background-image: repeating-linear-gradient(
     to right,

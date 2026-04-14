@@ -20,6 +20,8 @@ type FridgeMascotProps = {
   /** When true, the legs animate in alternating step phases (requires the
    *  `fridge-leg-a` / `fridge-leg-b` keyframes from globals.css). */
   running?: boolean;
+  /** When true, shows little arms with a waving animation. */
+  waving?: boolean;
   /** Extra classes applied to the SVG element (e.g. `fridge-bob` for the
    *  bobbing animation, or `text-emerald-300` to recolor). */
   className?: string;
@@ -28,6 +30,7 @@ type FridgeMascotProps = {
 export default function FridgeMascot({
   size = 22,
   running = false,
+  waving = false,
   className = "",
 }: FridgeMascotProps) {
   const height = Math.round(size * (32 / 24));
@@ -40,6 +43,15 @@ export default function FridgeMascot({
       fill="none"
       aria-hidden="true"
     >
+      {/* Waving arms */}
+      {waving && (
+        <>
+          <g className="mascot-wave">
+            <line x1="3" y1="14" x2="-1" y2="10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </g>
+          <line x1="21" y1="14" x2="25" y2="12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+        </>
+      )}
       {/* Body */}
       <rect x="3" y="1" width="18" height="24" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
       {/* Freezer divider */}

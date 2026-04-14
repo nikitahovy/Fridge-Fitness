@@ -98,8 +98,9 @@ export default function AnalyticsPage() {
         <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4 md:mb-6">// SAVED VS WASTED</p>
 
         {months.length === 0 ? (
-          <div className="text-center py-6 md:py-8">
-            <div className="mx-auto mb-3 text-slate-400 dark:text-slate-500"><FridgeMascot size={32} /></div>
+          <div className="text-center py-6 md:py-8 flex flex-col items-center">
+            <div className="bg-card border border-card-border rounded-xl px-3 py-1.5 mb-2 text-xs text-muted">Start eating!</div>
+            <div className="mb-3 text-slate-400 dark:text-slate-500"><FridgeMascot size={36} /></div>
             <p className="text-display text-lg md:text-xl text-muted mb-2">No data yet</p>
             <p className="text-xs text-muted">Mark items as eaten or tossed to see your monthly breakdown.</p>
           </div>

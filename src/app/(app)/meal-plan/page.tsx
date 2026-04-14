@@ -194,8 +194,9 @@ export default function MealPlanPage() {
 
       {/* Empty state */}
       {meals.length === 0 && (
-        <div className="glass rounded-2xl p-8 md:p-12 text-center">
-          <div className="mx-auto mb-4 text-slate-400 dark:text-slate-500"><FridgeMascot size={48} /></div>
+        <div className="glass rounded-2xl p-8 md:p-12 text-center flex flex-col items-center">
+          <div className="bg-card border border-card-border rounded-xl px-3 py-1.5 mb-2 text-xs text-muted">Plan the week!</div>
+          <div className="mb-4 text-slate-400 dark:text-slate-500"><FridgeMascot size={48} waving /></div>
           <p className="text-display text-2xl mb-3">No Meal Plan Yet</p>
           <p className="text-sm text-muted mb-6 max-w-md mx-auto">
             Generate an AI-powered weekly meal plan based on what&apos;s in your fridge.
