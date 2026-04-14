@@ -146,7 +146,7 @@ export default function InventoryPage() {
       {filtered.length === 0 ? (
         <div className="text-center py-16 flex flex-col items-center">
           <div className="bg-card border border-card-border rounded-xl px-3 py-1.5 mb-2 text-xs text-muted">I&apos;m hungry!</div>
-          <div className="mb-4 text-slate-400 dark:text-slate-500"><FridgeMascot size={44} waving /></div>
+          <div className="mb-4 text-slate-400 dark:text-slate-500 animate-bounce"><FridgeMascot size={44} /></div>
           <p className="text-display text-2xl mb-3">Empty</p>
           <Link href="/add-item" className="font-pixel text-xs text-muted hover:text-foreground uppercase tracking-wider underline underline-offset-4">
             ADD YOUR FIRST ITEM →

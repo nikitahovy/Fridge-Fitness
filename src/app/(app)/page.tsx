@@ -54,7 +54,7 @@ export default function Dashboard() {
         <div className="text-center">
           <div className="flex flex-col items-center mb-5">
             <div className="bg-card border border-card-border rounded-xl px-3 py-1.5 mb-2 text-xs text-muted">Let&apos;s stock me up!</div>
-            <div className="text-slate-600 dark:text-slate-300 animate-bounce"><FridgeMascot size={52} waving /></div>
+            <div className="text-slate-600 dark:text-slate-300"><FridgeMascot size={52} waving /></div>
           </div>
           <h2 className="text-display text-4xl mb-3">Welcome!</h2>
           <p className="text-muted max-w-md mx-auto">Your kitchen is empty. Let&apos;s stock it up — scan a receipt, take a photo of your fridge, or add items manually.</p>

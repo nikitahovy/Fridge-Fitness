@@ -100,7 +100,7 @@ export default function AnalyticsPage() {
         {months.length === 0 ? (
           <div className="text-center py-6 md:py-8 flex flex-col items-center">
             <div className="bg-card border border-card-border rounded-xl px-3 py-1.5 mb-2 text-xs text-muted">Start eating!</div>
-            <div className="mb-3 text-slate-400 dark:text-slate-500"><FridgeMascot size={36} /></div>
+            <div className="mb-3 text-slate-400 dark:text-slate-500 animate-bounce"><FridgeMascot size={36} /></div>
             <p className="text-display text-lg md:text-xl text-muted mb-2">No data yet</p>
             <p className="text-xs text-muted">Mark items as eaten or tossed to see your monthly breakdown.</p>
           </div>

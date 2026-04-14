@@ -214,7 +214,7 @@ export default function CartPage() {
       {carts.length === 0 ? (
         <div className="text-center py-12 panel flex flex-col items-center">
           <div className="bg-card border border-card-border rounded-xl px-3 py-1.5 mb-2 text-xs text-muted">Need groceries?</div>
-          <div className="mb-3 text-slate-400 dark:text-slate-500"><FridgeMascot size={40} /></div>
+          <div className="mb-3 text-slate-400 dark:text-slate-500"><FridgeMascot size={40} waving /></div>
           <p className="text-muted mb-2">No shopping carts yet</p>
           <p className="text-xs text-muted">Create one above or build a cart from a recipe with missing ingredients.</p>
         </div>

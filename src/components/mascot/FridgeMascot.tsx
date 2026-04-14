@@ -1,29 +1,14 @@
 /**
  * FridgeMascot — the canonical Fridge Fitness mascot character.
  *
- * A tiny anthropomorphized fridge with eyes, a smile, and two legs.
- * Used in loading states (running animation) and reusable for any
- * other cute UI moments — empty states, success toasts, error pages,
- * easter eggs, etc.
- *
- * Design source of truth: this file. Do not duplicate the SVG paths
- * elsewhere — import this component instead. A standalone raster/vector
- * version also exists at public/mascot.svg for marketing/design use.
- *
- * Color: uses `currentColor` everywhere, so set the parent's text color
- * to recolor the mascot (e.g. <div className="text-emerald-300">).
+ * A tiny anthropomorphized fridge with eyes, a smile, two legs, and
+ * optional waving arms. Color: uses `currentColor` everywhere.
  */
 
 type FridgeMascotProps = {
-  /** Width in pixels. Height auto-scales to keep the 24:32 aspect ratio. Default 22. */
   size?: number;
-  /** When true, the legs animate in alternating step phases (requires the
-   *  `fridge-leg-a` / `fridge-leg-b` keyframes from globals.css). */
   running?: boolean;
-  /** When true, shows little arms with a waving animation. */
   waving?: boolean;
-  /** Extra classes applied to the SVG element (e.g. `fridge-bob` for the
-   *  bobbing animation, or `text-emerald-300` to recolor). */
   className?: string;
 };
 
@@ -33,23 +18,29 @@ export default function FridgeMascot({
   waving = false,
   className = "",
 }: FridgeMascotProps) {
-  const height = Math.round(size * (32 / 24));
+  // Wider viewBox when waving to fit arms that extend beyond the body
+  const vb = waving ? "-4 0 32 32" : "0 0 24 32";
+  const aspect = waving ? 32 / 32 : 32 / 24;
+  const height = Math.round(size * aspect);
+
   return (
     <svg
-      viewBox="0 0 24 32"
+      viewBox={vb}
       width={size}
       height={height}
       className={className}
       fill="none"
       aria-hidden="true"
     >
-      {/* Waving arms */}
+      {/* Waving arms — both move, slightly offset timing */}
       {waving && (
         <>
-          <g className="mascot-wave">
-            <line x1="3" y1="14" x2="-1" y2="10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          <g className="mascot-wave-left">
+            <line x1="3" y1="14" x2="-2" y2="9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
           </g>
-          <line x1="21" y1="14" x2="25" y2="12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          <g className="mascot-wave-right">
+            <line x1="21" y1="14" x2="26" y2="9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </g>
         </>
       )}
       {/* Body */}
@@ -65,11 +56,11 @@ export default function FridgeMascot({
       <circle cx="13" cy="13.5" r="0.9" fill="currentColor" />
       {/* Tiny smile */}
       <path d="M 9.5 16.5 Q 11 17.5 12.5 16.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round" fill="none" />
-      {/* Left leg (animated when running) */}
+      {/* Left leg */}
       <g className={running ? "fridge-leg-a" : ""}>
         <line x1="8" y1="25" x2="8" y2="30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </g>
-      {/* Right leg (animated when running, opposite phase) */}
+      {/* Right leg */}
       <g className={running ? "fridge-leg-b" : ""}>
         <line x1="16" y1="25" x2="16" y2="30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
       </g>
