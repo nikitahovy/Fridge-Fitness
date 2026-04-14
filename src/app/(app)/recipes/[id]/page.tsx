@@ -71,11 +71,39 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
     });
   }, [id]);
 
+  // Categories where a recipe typically uses only a portion (keep in inventory)
+  const PARTIAL_USE_CATEGORIES = new Set(["condiment", "beverage", "grain"]);
+  // Ingredient amount keywords that indicate partial use
+  const PARTIAL_KEYWORDS = /\b(tbsp|tsp|tablespoon|teaspoon|pinch|dash|drizzle|splash|clove|slice|cup|oz(?!\s*can)|ml)\b/i;
+
+  function isPartialUse(item: ItemWithRisk): boolean {
+    // Condiments, sauces, oils, grains are almost always partially used
+    if (PARTIAL_USE_CATEGORIES.has(item.category)) return true;
+
+    // Check if the recipe calls for a small amount of this item
+    const recipeIng = r.ingredients.find((ing) =>
+      item.name.toLowerCase().includes(ing.normalizedName) ||
+      ing.normalizedName.includes(item.name.toLowerCase())
+    );
+    if (recipeIng && PARTIAL_KEYWORDS.test(recipeIng.amount)) return true;
+
+    return false;
+  }
+
   async function handleCookNow() {
     if (!recipe) return;
     setCooking(true);
     for (const item of recipe.matchedItems) {
-      await fetch("/api/inventory", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, status: "consumed" }) });
+      if (isPartialUse(item)) {
+        // Mark as opened (started using) but keep in inventory
+        if (!item.openedAt) {
+          await fetch("/api/inventory", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, openedAt: new Date().toISOString().split("T")[0] }) });
+        }
+        // else already opened — no change needed
+      } else {
+        // Fully consumed (e.g. whole chicken breast, bag of spinach)
+        await fetch("/api/inventory", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, status: "consumed" }) });
+      }
     }
     setCooking(false);
     setCooked(true);
@@ -143,7 +171,9 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
       {/* Cook Now */}
       {cooked ? (
         <div className="bg-safe/5 border border-safe/20 rounded-2xl p-5 mb-6 text-center">
-          <p className="font-bold mb-3">{matchedItems.length} ingredient{matchedItems.length !== 1 ? "s" : ""} marked as used</p>
+          <p className="font-bold mb-3">
+            {matchedItems.filter((i) => !isPartialUse(i)).length} used up, {matchedItems.filter((i) => isPartialUse(i)).length} partially used
+          </p>
           <div className="flex gap-3 justify-center">
             <button onClick={() => router.push("/")} className="btn btn-primary btn-lg">Dashboard</button>
             <button onClick={() => router.push("/recipes")} className="btn btn-lg">More Recipes</button>
