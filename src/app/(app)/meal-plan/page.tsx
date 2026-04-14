@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { PlannedMeal, MealSlot, ItemWithRisk, Recipe } from "@/lib/types";
 import { getRecipeImageUrl } from "@/lib/recipe-images";
+import FridgeMascot from "@/components/mascot/FridgeMascot";
 
 const STORAGE_KEY = "ff_meal_plan";
 const AI_RECIPES_KEY = "ff_ai_recipes";
@@ -194,6 +195,7 @@ export default function MealPlanPage() {
       {/* Empty state */}
       {meals.length === 0 && (
         <div className="glass rounded-2xl p-8 md:p-12 text-center">
+          <div className="mx-auto mb-4 text-slate-400 dark:text-slate-500"><FridgeMascot size={48} /></div>
           <p className="text-display text-2xl mb-3">No Meal Plan Yet</p>
           <p className="text-sm text-muted mb-6 max-w-md mx-auto">
             Generate an AI-powered weekly meal plan based on what&apos;s in your fridge.

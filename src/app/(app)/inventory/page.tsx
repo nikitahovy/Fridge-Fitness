@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { ItemWithRisk, StorageLocation, FoodCategory } from "@/lib/types";
+import FridgeMascot from "@/components/mascot/FridgeMascot";
 
 const LOCATIONS: { key: StorageLocation | "all"; label: string }[] = [
   { key: "all", label: "All" },
@@ -144,6 +145,7 @@ export default function InventoryPage() {
 
       {filtered.length === 0 ? (
         <div className="text-center py-16">
+          <div className="mx-auto mb-4 text-slate-400 dark:text-slate-500"><FridgeMascot size={40} /></div>
           <p className="text-display text-2xl mb-3">Empty</p>
           <Link href="/add-item" className="font-pixel text-xs text-muted hover:text-foreground uppercase tracking-wider underline underline-offset-4">
             ADD YOUR FIRST ITEM →

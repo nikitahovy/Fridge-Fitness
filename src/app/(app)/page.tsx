@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Camera, Pencil, Settings, Plus } from "lucide-react";
 import { ScoredRecipe, ItemWithRisk } from "@/lib/types";
+import FridgeMascot from "@/components/mascot/FridgeMascot";
 
 export default function Dashboard() {
   const [recipes, setRecipes] = useState<ScoredRecipe[]>([]);
@@ -51,8 +52,8 @@ export default function Dashboard() {
     return (
       <div className="max-w-2xl mx-auto space-y-8 py-8">
         <div className="text-center">
-          <div className="w-20 h-20 rounded-2xl overflow-hidden mx-auto mb-4 ring-1 ring-white/20">
-            <img src="/logo.png" alt="Fridge Fitness" className="w-20 h-20 object-contain" />
+          <div className="mx-auto mb-4 text-slate-600 dark:text-slate-300 animate-bounce">
+            <FridgeMascot size={48} />
           </div>
           <h2 className="text-display text-4xl mb-3">Welcome!</h2>
           <p className="text-muted max-w-md mx-auto">Your kitchen is empty. Let&apos;s stock it up — scan a receipt, take a photo of your fridge, or add items manually.</p>
@@ -131,7 +132,10 @@ export default function Dashboard() {
       <div className="glass rounded-2xl p-5 md:p-8 flex flex-col transition-all duration-200">
         {dollarAtRisk > 0 ? (
           <>
-            <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3">// AT RISK THIS WEEK</p>
+            <div className="flex items-start justify-between mb-3">
+              <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em]">// AT RISK THIS WEEK</p>
+              <div className="text-rose-400 dark:text-rose-300"><FridgeMascot size={28} running className="fridge-bob" /></div>
+            </div>
             <div className="text-display text-5xl md:text-7xl text-danger mb-2 leading-none">
               ${dollarAtRisk.toFixed(0)}<span className="text-2xl md:text-3xl">.{dollarAtRisk.toFixed(2).split('.')[1]}</span>
             </div>
@@ -145,7 +149,10 @@ export default function Dashboard() {
           </>
         ) : (
           <>
-            <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3">// YOU&apos;RE ON TRACK</p>
+            <div className="flex items-start justify-between mb-3">
+              <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em]">// YOU&apos;RE ON TRACK</p>
+              <div className="text-emerald-400 dark:text-emerald-300"><FridgeMascot size={28} /></div>
+            </div>
             <div className="text-display text-4xl md:text-5xl text-safe mb-2 leading-none">All clear</div>
             <p className="text-xs text-muted mb-6 md:mb-7">Nothing at risk this week.</p>
           </>

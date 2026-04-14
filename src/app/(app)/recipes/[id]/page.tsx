@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { ScoredRecipe, Recipe, ItemWithRisk, DailyRecoveryContext } from "@/lib/types";
 import { scoreRecipe } from "@/lib/scoring";
 import { getRecipeImageUrl } from "@/lib/recipe-images";
+import FridgeMascot from "@/components/mascot/FridgeMascot";
 
 const AI_RECIPES_STORAGE_KEY = "ff_ai_recipes";
 const MEAL_PLAN_STORAGE_KEY = "ff_meal_plan";
@@ -110,7 +111,13 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
   }
 
   if (loading) return <div className="max-w-3xl mx-auto py-20"><p className="font-pixel text-muted text-sm">LOADING...</p></div>;
-  if (!recipe) return <div className="max-w-3xl mx-auto py-20"><p className="text-display text-2xl">Not found</p><Link href="/recipes" className="font-pixel text-xs text-muted mt-4 inline-block">← BACK</Link></div>;
+  if (!recipe) return (
+    <div className="max-w-3xl mx-auto py-20 text-center">
+      <div className="mx-auto mb-4 text-slate-400 dark:text-slate-500"><FridgeMascot size={36} /></div>
+      <p className="text-display text-2xl mb-3">Not found</p>
+      <Link href="/recipes" className="font-pixel text-xs text-muted hover:text-foreground uppercase tracking-wider underline underline-offset-4">← BACK TO RECIPES</Link>
+    </div>
+  );
 
   const { recipe: r, matchedItems, atRiskItemsRescued, missingIngredients, wasteRescueValue, score, explanation } = recipe;
   const isAiRecipe = r.id.startsWith("ai-") || r.id.startsWith("mp-r-");
@@ -171,6 +178,7 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
       {/* Cook Now */}
       {cooked ? (
         <div className="bg-safe/5 border border-safe/20 rounded-2xl p-5 mb-6 text-center">
+          <div className="mx-auto mb-3 text-emerald-500"><FridgeMascot size={40} running className="fridge-bob" /></div>
           <p className="font-bold mb-3">
             {matchedItems.filter((i) => !isPartialUse(i)).length} used up, {matchedItems.filter((i) => isPartialUse(i)).length} partially used
           </p>

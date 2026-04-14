@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import FridgeMascot from "@/components/mascot/FridgeMascot";
 
 type MonthData = { month: string; year: number; saved: number; wasted: number };
 
@@ -98,6 +99,7 @@ export default function AnalyticsPage() {
 
         {months.length === 0 ? (
           <div className="text-center py-6 md:py-8">
+            <div className="mx-auto mb-3 text-slate-400 dark:text-slate-500"><FridgeMascot size={32} /></div>
             <p className="text-display text-lg md:text-xl text-muted mb-2">No data yet</p>
             <p className="text-xs text-muted">Mark items as eaten or tossed to see your monthly breakdown.</p>
           </div>
@@ -148,7 +150,15 @@ export default function AnalyticsPage() {
       {/* All-time totals */}
       {hasData && (
         <div className="glass rounded-2xl p-4 md:p-6 mb-4 md:mb-6">
-          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-3 md:mb-4">// ALL TIME</p>
+          <div className="flex items-center justify-between mb-3 md:mb-4">
+            <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em]">// ALL TIME</p>
+            {savedPct >= 70 && (
+              <div className="flex items-center gap-1.5 text-emerald-500">
+                <FridgeMascot size={24} running className="fridge-bob" />
+                <span className="font-pixel text-[9px] uppercase">Nice!</span>
+              </div>
+            )}
+          </div>
           <div className="grid grid-cols-3 gap-3 md:gap-6">
             <div>
               <p className="text-display text-lg md:text-2xl text-safe">${allTimeSaved.toFixed(0)}</p>

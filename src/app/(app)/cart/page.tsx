@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { ShoppingCart as ShoppingCartIcon } from "lucide-react";
 import { ShoppingCart, ScoredRecipe, FoodCategory } from "@/lib/types";
+import FridgeMascot from "@/components/mascot/FridgeMascot";
 
 export default function CartPage() {
   const [carts, setCarts] = useState<ShoppingCart[]>([]);
@@ -212,7 +213,7 @@ export default function CartPage() {
       {/* Existing carts */}
       {carts.length === 0 ? (
         <div className="text-center py-12 panel">
-          <ShoppingCartIcon className="w-10 h-10 mx-auto mb-3 text-slate-600" strokeWidth={1.75} />
+          <div className="mx-auto mb-3 text-slate-400 dark:text-slate-500"><FridgeMascot size={40} /></div>
           <p className="text-muted mb-2">No shopping carts yet</p>
           <p className="text-xs text-muted">Create one above or build a cart from a recipe with missing ingredients.</p>
         </div>
