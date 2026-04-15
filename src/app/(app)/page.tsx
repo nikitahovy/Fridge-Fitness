@@ -27,6 +27,7 @@ export default function Dashboard() {
   }
 
   const atRiskItems = eatFirst.filter((i) => i.riskTier === "use-today" || i.riskTier === "use-this-week");
+  const freezableItems = atRiskItems.filter((i) => i.location === "fridge" && i.category !== "produce");
   const dollarAtRisk = atRiskItems.reduce((sum, i) => sum + i.purchasePrice, 0);
   const topAtRiskNames = atRiskItems.slice(0, 3).map((i) => i.name);
   const topRecipe = recipes[0];
@@ -242,6 +243,27 @@ export default function Dashboard() {
         </div>
         )}
       </div>
+
+      {/* Freeze Now nudges */}
+      {freezableItems.length > 0 && (
+        <div className="risk-frozen backdrop-blur-md shadow-[0_2px_10px_rgba(31,87,184,0.08)] dark:shadow-[0_2px_10px_rgba(0,0,0,0.4)] rounded-2xl p-4 md:p-5">
+          <p className="font-pixel text-[10px] text-sky-700 dark:text-sky-300 uppercase tracking-[0.2em] mb-3">// FREEZE TO SAVE ${freezableItems.reduce((s, i) => s + i.purchasePrice, 0).toFixed(2)}</p>
+          <p className="text-xs text-muted mb-3">These items are expiring but can be frozen to extend their life.</p>
+          <div className="space-y-2">
+            {freezableItems.slice(0, 3).map((item) => (
+              <div key={item.id} className="flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm font-bold truncate">{item.name}</p>
+                  <p className="text-[10px] text-muted">{item.quantity} · ${item.purchasePrice.toFixed(2)}</p>
+                </div>
+                <button onClick={() => markItem(item.id, "frozen", { location: "freezer" })} className="btn btn-freeze !text-[9px] !px-3 !py-1.5 flex-shrink-0">
+                  FREEZE NOW
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Recipes */}
       <div>

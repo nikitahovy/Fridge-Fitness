@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PlannedMeal, MealSlot, ItemWithRisk, Recipe } from "@/lib/types";
 import { getRecipeImageUrl } from "@/lib/recipe-images";
 import FridgeMascot from "@/components/mascot/FridgeMascot";
@@ -41,6 +42,8 @@ export default function MealPlanPage() {
   const [inventory, setInventory] = useState<ItemWithRisk[]>([]);
   const [generating, setGenerating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [creatingCart, setCreatingCart] = useState(false);
+  const router = useRouter();
 
   const weekDates = getWeekDates();
 
@@ -97,6 +100,27 @@ export default function MealPlanPage() {
 
   function removeMeal(id: string) {
     saveMeals(meals.filter((m) => m.id !== id));
+  }
+
+  async function createShoppingList() {
+    if (uniqueMissing.length === 0) return;
+    setCreatingCart(true);
+    try {
+      const items = uniqueMissing.map((ing) => ({
+        name: ing.name,
+        category: "other",
+        quantity: ing.amount,
+        estimatedPrice: 0,
+        fromRecipeId: null,
+      }));
+      await fetch("/api/carts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "Meal Plan Groceries", items }),
+      });
+      router.push("/cart");
+    } catch {}
+    setCreatingCart(false);
   }
 
   function clearPlan() {
@@ -295,9 +319,13 @@ export default function MealPlanPage() {
               </span>
             ))}
           </div>
-          <Link href="/cart" className="btn btn-primary mt-4 inline-block !text-[10px]">
-            ADD TO CART
-          </Link>
+          <button
+            onClick={createShoppingList}
+            disabled={creatingCart}
+            className="btn btn-primary mt-4 !text-[10px] disabled:opacity-50"
+          >
+            {creatingCart ? "CREATING..." : `ADD ${uniqueMissing.length} ITEMS TO CART`}
+          </button>
         </div>
       )}
     </div>

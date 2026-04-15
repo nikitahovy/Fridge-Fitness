@@ -29,7 +29,7 @@ type DetectedItem = {
 function AddItemPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [mode, setMode] = useState<"manual" | "qr" | "camera" | "barcode">("manual");
+  const [mode, setMode] = useState<"manual" | "qr" | "camera" | "barcode" | "receipt">("manual");
   const [barcodeInput, setBarcodeInput] = useState("");
   const [barcodeLoading, setBarcodeLoading] = useState(false);
   const [barcodeResult, setBarcodeResult] = useState<{name: string; brand: string; category: string; quantity: string; imageUrl: string | null} | null>(null);
@@ -217,6 +217,7 @@ function AddItemPage() {
         {[
           { key: "manual" as const, label: "MANUAL", href: null },
           { key: "camera" as const, label: "CAMERA", href: null },
+          { key: "receipt" as const, label: "RECEIPT", href: null },
           { key: "barcode" as const, label: "BARCODE", href: "/scan" },
           { key: "qr" as const, label: "QR SCAN", href: null },
         ].map((m) => (
@@ -294,9 +295,11 @@ function AddItemPage() {
       )}
 
       {/* ── CAMERA ── */}
-      {mode === "camera" && (
+      {(mode === "camera" || mode === "receipt") && (
         <div className="bg-card border border-card-border rounded-2xl p-5 md:p-6">
-          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">// SNAP A PHOTO</p>
+          <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4">
+            {mode === "receipt" ? "// SCAN RECEIPT" : "// SNAP A PHOTO"}
+          </p>
 
           {/* Storage location selector */}
           <div className="mb-4">
@@ -318,8 +321,8 @@ function AddItemPage() {
             <label className="block cursor-pointer">
               <div className="border-2 border-dashed border-slate-300/60 rounded-2xl p-12 text-center hover:border-slate-400 transition">
                 <Camera className="w-10 h-10 mx-auto mb-3 text-slate-700" strokeWidth={1.75} />
-                <p className="font-bold text-sm mb-1">Tap to take a photo</p>
-                <p className="text-xs text-muted">Capture your receipt, fridge, or grocery items</p>
+                <p className="font-bold text-sm mb-1">{mode === "receipt" ? "Tap to scan receipt" : "Tap to take a photo"}</p>
+                <p className="text-xs text-muted">{mode === "receipt" ? "Snap a grocery receipt — AI extracts items and prices" : "Capture your fridge, pantry, or grocery items"}</p>
               </div>
               <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" capture="environment" onChange={handleCameraCapture} className="hidden" />
             </label>
