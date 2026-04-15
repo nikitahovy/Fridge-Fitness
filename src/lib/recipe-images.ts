@@ -35,16 +35,30 @@ const KEYWORD_IMAGES: [string[], string][] = [
 const DEFAULT_IMAGE = "photo-1504674900247-0877df9cc836"; // generic food
 
 /** Get a relevant image URL for a recipe based on keyword matching in its name */
+function unsplashUrl(photoId: string): string {
+  const raw = `https://images.unsplash.com/${photoId}?w=600&h=400&fit=crop`;
+  return `/api/img?url=${encodeURIComponent(raw)}`;
+}
+
+/** Get a relevant image URL for a recipe based on keyword matching in its name */
 export function getRecipeImageUrl(name: string, _index: number): string {
   const lower = name.toLowerCase();
 
   for (const [keywords, photoId] of KEYWORD_IMAGES) {
     for (const kw of keywords) {
       if (lower.includes(kw)) {
-        return `https://images.unsplash.com/${photoId}?w=600&h=400&fit=crop`;
+        return unsplashUrl(photoId);
       }
     }
   }
 
-  return `https://images.unsplash.com/${DEFAULT_IMAGE}?w=600&h=400&fit=crop`;
+  return unsplashUrl(DEFAULT_IMAGE);
+}
+
+/** Convert a raw Unsplash URL to our proxied URL */
+export function proxyImageUrl(url: string): string {
+  if (url.includes("unsplash.com")) {
+    return `/api/img?url=${encodeURIComponent(url)}`;
+  }
+  return url;
 }

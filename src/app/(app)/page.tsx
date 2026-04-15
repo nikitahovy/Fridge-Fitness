@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Camera, Pencil, Settings, Plus } from "lucide-react";
 import { ScoredRecipe, ItemWithRisk } from "@/lib/types";
 import FridgeMascot from "@/components/mascot/FridgeMascot";
+import { proxyImageUrl } from "@/lib/recipe-images";
 
 export default function Dashboard() {
   const [recipes, setRecipes] = useState<ScoredRecipe[]>([]);
@@ -278,7 +279,7 @@ export default function Dashboard() {
               {sr.recipe.imageUrl && (
                 <div className="w-full h-32">
                   <img
-                    src={sr.recipe.imageUrl}
+                    src={proxyImageUrl(sr.recipe.imageUrl)}
                     alt={sr.recipe.name}
                     className="w-full h-full object-cover"
                     loading="lazy"

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ScoredRecipe, Recipe } from "@/lib/types";
-import { getRecipeImageUrl } from "@/lib/recipe-images";
+import { getRecipeImageUrl, proxyImageUrl } from "@/lib/recipe-images";
 
 const AI_RECIPES_STORAGE_KEY = "ff_ai_recipes";
 
@@ -95,13 +95,13 @@ export default function RecipesPage() {
               {/* Mobile: image on top. Desktop: image on left */}
               {sr.recipe.imageUrl && (
                 <div className="w-full h-32 lg:hidden">
-                  <img src={sr.recipe.imageUrl} alt={sr.recipe.name} className="w-full h-full object-cover" loading="lazy" />
+                  <img src={proxyImageUrl(sr.recipe.imageUrl)} alt={sr.recipe.name} className="w-full h-full object-cover" loading="lazy" />
                 </div>
               )}
               <div className="flex">
                 {sr.recipe.imageUrl && (
                   <div className="hidden lg:block w-36 flex-shrink-0">
-                    <img src={sr.recipe.imageUrl} alt={sr.recipe.name} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={proxyImageUrl(sr.recipe.imageUrl)} alt={sr.recipe.name} className="w-full h-full object-cover" loading="lazy" />
                   </div>
                 )}
                 <div className="flex-1 p-3.5 lg:p-5 min-w-0">

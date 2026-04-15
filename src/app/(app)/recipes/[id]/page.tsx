@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ScoredRecipe, Recipe, ItemWithRisk, DailyRecoveryContext } from "@/lib/types";
 import { scoreRecipe } from "@/lib/scoring";
-import { getRecipeImageUrl } from "@/lib/recipe-images";
+import { getRecipeImageUrl, proxyImageUrl } from "@/lib/recipe-images";
 import FridgeMascot from "@/components/mascot/FridgeMascot";
 
 const AI_RECIPES_STORAGE_KEY = "ff_ai_recipes";
@@ -122,7 +122,7 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
 
   const { recipe: r, matchedItems, atRiskItemsRescued, missingIngredients, wasteRescueValue, score, explanation } = recipe;
   const isAiRecipe = r.id.startsWith("ai-") || r.id.startsWith("mp-r-");
-  const heroImage = isAiRecipe ? getRecipeImageUrl(r.name, 0) : (r.imageUrl || getRecipeImageUrl(r.name, 0));
+  const heroImage = isAiRecipe ? getRecipeImageUrl(r.name, 0) : proxyImageUrl(r.imageUrl || "") || getRecipeImageUrl(r.name, 0);
 
   return (
     <div className="max-w-3xl mx-auto">
