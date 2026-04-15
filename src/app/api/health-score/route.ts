@@ -557,25 +557,43 @@ export async function GET(req: NextRequest) {
 
     const n = (p.nutriments || {}) as Record<string, number>;
     const servingSize = (p.serving_size as string) || ((p.serving_quantity as string) ? `${p.serving_quantity}${(p.serving_quantity_unit as string) || "g"}` : null);
-    const perServing = isSkincare ? null : {
-      sugar: n.sugars_serving || 0,
-      salt: n.salt_serving || (n.sodium_serving || 0) * 2.5 || 0,
-      saturatedFat: n["saturated-fat_serving"] || n.saturated_fat_serving || 0,
-      calories: n["energy-kcal_serving"] || n.energy_kcal_serving || (n["energy-kj_serving"] ? n["energy-kj_serving"] / 4.184 : 0) || 0,
-      fiber: n.fiber_serving || 0,
-      protein: n.proteins_serving || 0,
+
+    // Per-serving: prefer _serving fields, fallback to computing from 100g * serving_quantity
+    const servingG = parseFloat(String(p.serving_quantity || "0")) || 0;
+    const servingMul = servingG > 0 ? servingG / 100 : 0;
+    const per100 = result.type === "food" ? result.nutriments : null;
+
+    const perServing = isSkincare || !per100 ? null : {
+      sugar: n.sugars_serving || (servingMul > 0 ? per100.sugar * servingMul : 0),
+      salt: n.salt_serving || (n.sodium_serving || 0) * 2.5 || (servingMul > 0 ? per100.salt * servingMul : 0),
+      saturatedFat: n["saturated-fat_serving"] || n.saturated_fat_serving || (servingMul > 0 ? per100.saturatedFat * servingMul : 0),
+      calories: n["energy-kcal_serving"] || n.energy_kcal_serving || (n["energy-kj_serving"] ? n["energy-kj_serving"] / 4.184 : 0) || (servingMul > 0 ? per100.calories * servingMul : 0),
+      fiber: n.fiber_serving || (servingMul > 0 ? per100.fiber * servingMul : 0),
+      protein: n.proteins_serving || (servingMul > 0 ? per100.protein * servingMul : 0),
+      carbs: n.carbohydrates_serving || (servingMul > 0 ? (n.carbohydrates_100g || 0) * servingMul : 0),
+      fat: n.fat_serving || (servingMul > 0 ? (n.fat_100g || 0) * servingMul : 0),
     };
 
     const productQuantityG = parseFloat(String(p.product_quantity || "0")) || 0;
     const multiplier = productQuantityG > 0 ? productQuantityG / 100 : 1;
-    const foodNutriments = result.type === "food" ? result.nutriments : null;
-    const total = foodNutriments ? {
-      sugar: foodNutriments.sugar * multiplier,
-      salt: foodNutriments.salt * multiplier,
-      saturatedFat: foodNutriments.saturatedFat * multiplier,
-      calories: foodNutriments.calories * multiplier,
-      fiber: foodNutriments.fiber * multiplier,
-      protein: foodNutriments.protein * multiplier,
+    const total = per100 ? {
+      sugar: per100.sugar * multiplier,
+      salt: per100.salt * multiplier,
+      saturatedFat: per100.saturatedFat * multiplier,
+      calories: per100.calories * multiplier,
+      fiber: per100.fiber * multiplier,
+      protein: per100.protein * multiplier,
+      carbs: (n.carbohydrates_100g || 0) * multiplier,
+      fat: (n.fat_100g || 0) * multiplier,
+    } : null;
+
+    // Flag incomplete data so the UI can warn
+    const dataCompleteness = per100 ? {
+      hasProtein: (n.proteins_100g || 0) > 0,
+      hasCarbs: (n.carbohydrates_100g || 0) > 0,
+      hasFat: (n.fat_100g || 0) > 0,
+      hasFiber: (n.fiber_100g || 0) > 0,
+      hasCalories: per100.calories > 0,
     } : null;
 
     return NextResponse.json({
@@ -593,6 +611,7 @@ export async function GET(req: NextRequest) {
       gradeColor,
       perServing,
       total,
+      dataCompleteness,
       totalSize: p.product_quantity ? `${p.product_quantity}${(p.product_quantity_unit as string) || "g"}` : ((p.quantity as string) || null),
     });
   } catch {

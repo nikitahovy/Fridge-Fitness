@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Camera, ArrowRight } from "lucide-react";
 
-type Nutriments = { sugar: number; salt: number; saturatedFat: number; calories: number; fiber: number; protein: number };
+type Nutriments = { sugar: number; salt: number; saturatedFat: number; calories: number; fiber: number; protein: number; carbs?: number; fat?: number };
 
 type HealthData = {
   product: { name: string; brand: string; imageUrl: string | null; quantity: string; servingSize: string | null; barcode: string };
@@ -26,6 +26,7 @@ type HealthData = {
   nutriments?: Nutriments;
   perServing: Nutriments | null;
   total: Nutriments | null;
+  dataCompleteness: { hasProtein: boolean; hasCarbs: boolean; hasFat: boolean; hasFiber: boolean; hasCalories: boolean } | null;
   totalSize: string | null;
   ingredientCount?: number;
 };
@@ -238,17 +239,32 @@ function HealthScoreContent() {
                   ))}
                 </div>
 
-                {/* Good stuff */}
+                {/* Macros */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-gradient-to-br from-emerald-200/40 to-emerald-100/10 border border-emerald-500/15 rounded-2xl p-3">
                     <p className="text-display text-lg text-safe">{n.protein.toFixed(1)}g</p>
                     <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Protein /{label}</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-sky-200/40 to-sky-100/10 border border-sky-500/15 rounded-2xl p-3">
+                    <p className="text-display text-lg text-sky-600 dark:text-sky-400">{(n.carbs ?? 0).toFixed(1)}g</p>
+                    <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Carbs /{label}</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-amber-200/40 to-amber-100/10 border border-amber-500/15 rounded-2xl p-3">
+                    <p className="text-display text-lg text-amber-600 dark:text-amber-400">{(n.fat ?? 0).toFixed(1)}g</p>
+                    <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Fat /{label}</p>
                   </div>
                   <div className="bg-gradient-to-br from-emerald-200/40 to-emerald-100/10 border border-emerald-500/15 rounded-2xl p-3">
                     <p className="text-display text-lg text-safe">{n.fiber.toFixed(1)}g</p>
                     <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Fiber /{label}</p>
                   </div>
                 </div>
+
+                {/* Incomplete data warning */}
+                {data.dataCompleteness && (!data.dataCompleteness.hasProtein || !data.dataCompleteness.hasCarbs || !data.dataCompleteness.hasFat) && (
+                  <div className="bg-amber-100/50 dark:bg-amber-900/20 border border-amber-400/30 rounded-xl px-3 py-2 text-[11px] text-amber-700 dark:text-amber-300">
+                    Some nutrition data may be incomplete or missing from the database for this product.
+                  </div>
+                )}
               </>
             );
           })()}
