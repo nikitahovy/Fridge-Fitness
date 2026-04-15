@@ -32,7 +32,9 @@ export async function middleware(req: NextRequest) {
     || pathname.startsWith("/signup")
     || pathname.startsWith("/auth")
     || pathname.startsWith("/upload") // QR phone upload
-    || pathname.startsWith("/api");   // API routes handle their own auth
+    || pathname.startsWith("/api")    // API routes handle their own auth
+    || pathname === "/sw.js"
+    || pathname === "/manifest.webmanifest";
 
   if (!user && !isPublic) {
     const loginUrl = new URL("/login", req.url);
@@ -74,6 +76,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|logo.png|logo.svg|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest\\.json|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

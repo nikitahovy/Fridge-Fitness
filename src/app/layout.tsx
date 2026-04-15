@@ -9,7 +9,6 @@ const spaceMono = Space_Mono({ weight: ["400", "700"], subsets: ["latin"], varia
 export const metadata: Metadata = {
   title: "Fridge Fitness",
   description: "Save food. Eat smart.",
-  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -42,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${spaceMono.variable} h-full antialiased`} suppressHydrationWarning>
       <head>
-        <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
         <meta name="theme-color" content="#0ea5e9" />
       </head>
       <body className="h-screen flex overflow-hidden font-[family-name:var(--font-inter)]">
