@@ -6,10 +6,12 @@ import { Camera, Pencil, Settings, Plus } from "lucide-react";
 import { ScoredRecipe, ItemWithRisk } from "@/lib/types";
 import FridgeMascot from "@/components/mascot/FridgeMascot";
 import { proxyImageUrl } from "@/lib/recipe-images";
+import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
 
 export default function Dashboard() {
   const [recipes, setRecipes] = useState<ScoredRecipe[]>([]);
   const [eatFirst, setEatFirst] = useState<ItemWithRisk[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchAll = useCallback(async () => {
@@ -18,6 +20,10 @@ export default function Dashboard() {
       fetch("/api/eat-first").then((r) => r.json()),
     ]);
     setRecipes(r); setEatFirst(e); setLoading(false);
+    // Show onboarding for new users
+    if ((!Array.isArray(e) || e.length === 0) && !localStorage.getItem("ff_onboarded")) {
+      setShowOnboarding(true);
+    }
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
@@ -110,6 +116,8 @@ export default function Dashboard() {
   }
 
   return (
+    <>
+    {showOnboarding && <OnboardingFlow onComplete={() => setShowOnboarding(false)} />}
     <div className="max-w-6xl mx-auto space-y-8 md:space-y-10">
       <div>
         <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-2">// DASHBOARD</p>
@@ -337,5 +345,6 @@ export default function Dashboard() {
         </Link>
       </div>
     </div>
+    </>
   );
 }
