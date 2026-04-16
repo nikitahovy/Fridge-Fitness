@@ -111,7 +111,7 @@ export default function AnalyticsPage() {
                 <span className="font-pixel text-[10px] md:text-xs text-muted w-7 md:w-8 flex-shrink-0">{m.month}</span>
                 <div className="flex-1 flex flex-col gap-1">
                   <div className="flex items-center gap-1.5 md:gap-2">
-                    <div className="flex-1 h-3 md:h-4 bg-white/50 rounded-lg overflow-hidden">
+                    <div className="flex-1 h-3 md:h-4 bg-white/50 dark:bg-neutral-800/50 rounded-lg overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-safe/40 to-safe/20 rounded-lg transition-all duration-500"
                         style={{ width: `${(m.saved / maxBar) * 100}%` }}
@@ -120,7 +120,7 @@ export default function AnalyticsPage() {
                     <span className="font-pixel text-[9px] md:text-[10px] text-safe w-10 md:w-16 text-right">+${m.saved.toFixed(0)}</span>
                   </div>
                   <div className="flex items-center gap-1.5 md:gap-2">
-                    <div className="flex-1 h-3 md:h-4 bg-white/50 rounded-lg overflow-hidden">
+                    <div className="flex-1 h-3 md:h-4 bg-white/50 dark:bg-neutral-800/50 rounded-lg overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-danger/40 to-danger/20 rounded-lg transition-all duration-500"
                         style={{ width: `${(m.wasted / maxBar) * 100}%` }}
@@ -187,9 +187,9 @@ export default function AnalyticsPage() {
             {sortedCategories.map(([cat, val]) => (
               <div key={cat} className="flex items-center gap-2 md:gap-3">
                 <span className="font-pixel text-[9px] md:text-[10px] text-muted uppercase w-16 md:w-20 truncate flex-shrink-0">{cat}</span>
-                <div className="flex-1 h-4 md:h-5 bg-white/50 rounded-lg overflow-hidden">
+                <div className="flex-1 h-4 md:h-5 bg-white/50 dark:bg-neutral-800/50 rounded-lg overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-white/15 to-white/5 rounded-lg"
+                    className="h-full bg-gradient-to-r from-slate-400/20 to-slate-400/5 dark:from-slate-300/20 dark:to-slate-300/5 rounded-lg"
                     style={{ width: `${(val / maxCat) * 100}%` }}
                   />
                 </div>

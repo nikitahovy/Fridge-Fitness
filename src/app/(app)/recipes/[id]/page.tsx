@@ -142,6 +142,17 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
       localStorage.setItem(COOK_HISTORY_KEY, JSON.stringify(history.slice(0, 50)));
     } catch {}
 
+    // Track daily macros
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const dailyKey = `ff_macros_${today}`;
+      const current = JSON.parse(localStorage.getItem(dailyKey) || '{"protein":0,"carbs":0,"fat":0}');
+      current.protein += r.macros.protein || 0;
+      current.carbs += r.macros.carbs || 0;
+      current.fat += r.macros.fat || 0;
+      localStorage.setItem(dailyKey, JSON.stringify(current));
+    } catch {}
+
     setCooking(false);
     setCooked(true);
   }

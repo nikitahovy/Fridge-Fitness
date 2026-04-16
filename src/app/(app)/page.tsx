@@ -7,6 +7,7 @@ import { ScoredRecipe, ItemWithRisk } from "@/lib/types";
 import FridgeMascot from "@/components/mascot/FridgeMascot";
 import { proxyImageUrl } from "@/lib/recipe-images";
 import OnboardingFlow from "@/components/onboarding/OnboardingFlow";
+import MacroRing from "@/components/MacroRing";
 
 export default function Dashboard() {
   const [recipes, setRecipes] = useState<ScoredRecipe[]>([]);
@@ -310,6 +311,27 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+
+      {/* Today's Nutrition */}
+      {(() => {
+        try {
+          const today = new Date().toISOString().split("T")[0];
+          const macros = JSON.parse(localStorage.getItem(`ff_macros_${today}`) || "null");
+          if (!macros) return null;
+          return (
+            <div>
+              <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4 md:mb-5">// TODAY&apos;S NUTRITION</p>
+              <div className="glass rounded-2xl p-5 md:p-6">
+                <div className="flex justify-center gap-6 md:gap-10">
+                  <MacroRing value={macros.protein} target={150} label="Protein" color="#4ade80" />
+                  <MacroRing value={macros.carbs} target={250} label="Carbs" color="#38bdf8" />
+                  <MacroRing value={macros.fat} target={65} label="Fat" color="#fbbf24" />
+                </div>
+              </div>
+            </div>
+          );
+        } catch { return null; }
+      })()}
 
       {/* Recently Cooked */}
       {(() => {
