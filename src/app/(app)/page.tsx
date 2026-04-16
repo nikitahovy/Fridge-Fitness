@@ -303,6 +303,33 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Recently Cooked */}
+      {(() => {
+        try {
+          const history = JSON.parse(localStorage.getItem("ff_cook_history") || "[]");
+          if (history.length === 0) return null;
+          return (
+            <div>
+              <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4 md:mb-5">// RECENTLY COOKED</p>
+              <div className="space-y-2">
+                {history.slice(0, 3).map((entry: { recipeId: string; recipeName: string; cookedAt: string; macros: { protein: number; carbs: number }; wasteRescued: number }, i: number) => (
+                  <div key={i} className="glass rounded-xl p-3 md:p-4 flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-sm">{entry.recipeName}</p>
+                      <p className="font-pixel text-[9px] text-muted mt-0.5">
+                        {new Date(entry.cookedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        {" · "}{entry.macros?.protein || 0}g pro
+                        {entry.wasteRescued > 0 && ` · saved $${entry.wasteRescued.toFixed(2)}`}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        } catch { return null; }
+      })()}
+
       {/* Mobile: Quick camera — glass button */}
       <div className="md:hidden fixed bottom-20 right-4 z-40">
         <Link href="/add-item" className="glass-btn w-14 h-14 rounded-full flex items-center justify-center text-slate-700">

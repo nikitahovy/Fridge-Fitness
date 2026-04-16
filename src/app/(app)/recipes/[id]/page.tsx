@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Heart } from "lucide-react";
 import { ScoredRecipe, Recipe, ItemWithRisk, DailyRecoveryContext } from "@/lib/types";
 import { scoreRecipe } from "@/lib/scoring";
 import { getRecipeImageUrl, proxyImageUrl } from "@/lib/recipe-images";
@@ -11,6 +12,8 @@ import FridgeMascot from "@/components/mascot/FridgeMascot";
 
 const AI_RECIPES_STORAGE_KEY = "ff_ai_recipes";
 const MEAL_PLAN_STORAGE_KEY = "ff_meal_plan";
+const FAVORITES_KEY = "ff_favorite_recipes";
+const COOK_HISTORY_KEY = "ff_cook_history";
 
 export default function RecipeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -19,6 +22,25 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
   const [loading, setLoading] = useState(true);
   const [cooking, setCooking] = useState(false);
   const [cooked, setCooked] = useState(false);
+  const [favorited, setFavorited] = useState(false);
+
+  // Check favorite status on mount
+  useEffect(() => {
+    try {
+      const fav = JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
+      setFavorited(fav.some((f: Recipe) => f.id === id));
+    } catch {}
+  }, [id]);
+
+  function toggleFavorite() {
+    if (!recipe) return;
+    const favs: Recipe[] = JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
+    const updated = favorited
+      ? favs.filter((f) => f.id !== recipe.recipe.id)
+      : [...favs, recipe.recipe];
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+    setFavorited(!favorited);
+  }
 
   useEffect(() => {
     // AI-generated recipes are persisted client-side in localStorage by
@@ -106,6 +128,20 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
         await fetch("/api/inventory", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: item.id, status: "consumed" }) });
       }
     }
+    // Log to cook history
+    try {
+      const history = JSON.parse(localStorage.getItem(COOK_HISTORY_KEY) || "[]");
+      history.unshift({
+        recipeId: r.id,
+        recipeName: r.name,
+        cookedAt: new Date().toISOString(),
+        macros: r.macros,
+        ingredientsUsed: matchedItems.length,
+        wasteRescued: wasteRescueValue,
+      });
+      localStorage.setItem(COOK_HISTORY_KEY, JSON.stringify(history.slice(0, 50)));
+    } catch {}
+
     setCooking(false);
     setCooked(true);
   }
@@ -149,9 +185,14 @@ export default function RecipeDetailPage({ params }: { params: Promise<{ id: str
             </div>
             <h2 className="text-display text-4xl">{r.name}</h2>
           </div>
-          <div className="text-right">
-            <p className="text-display text-3xl">{score}</p>
-            <p className="font-pixel text-[9px] text-muted uppercase">MATCH</p>
+          <div className="flex items-start gap-3">
+            <button onClick={toggleFavorite} className="mt-1 transition-colors">
+              <Heart className={`w-6 h-6 ${favorited ? "fill-rose-500 text-rose-500" : "text-muted hover:text-rose-500"}`} />
+            </button>
+            <div className="text-right">
+              <p className="text-display text-3xl">{score}</p>
+              <p className="font-pixel text-[9px] text-muted uppercase">MATCH</p>
+            </div>
           </div>
         </div>
 
