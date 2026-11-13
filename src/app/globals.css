@@ -55,7 +55,6 @@
   --color-sidebar-text: var(--sidebar-text);
   --color-sidebar-active: var(--sidebar-active);
   --color-sidebar-hover: var(--sidebar-hover);
-  --font-mono: var(--font-mono);
 }
 
 body {
@@ -78,9 +77,10 @@ body {
   background: #08080a;
 }
 
+/* Small uppercase label style — same Inter face as body text, slightly tracked for legibility */
 .font-pixel {
-  font-family: var(--font-mono), "Courier New", monospace;
-  letter-spacing: -0.02em;
+  font-family: inherit;
+  letter-spacing: 0.02em;
 }
 
 .text-display {
@@ -90,7 +90,7 @@ body {
 }
 
 
-/* ── Buttons: liquid glass pill, pixel font ── */
+/* ── Buttons: solid pill, uppercase label ── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -98,7 +98,7 @@ body {
   gap: 6px;
   border: 1px solid #d5dfe8;
   border-radius: 10px;
-  font-family: var(--font-mono), monospace;
+  font-family: inherit;
   font-weight: 700;
   font-size: 10px;
   text-transform: uppercase;
