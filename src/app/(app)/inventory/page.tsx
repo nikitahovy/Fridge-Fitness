@@ -34,10 +34,10 @@ const TIER_ORDER: Record<RiskTier, number> = { "use-today": 0, "use-this-week": 
 
 // Per-tier accent colors shared by the icon tile, badge and freshness meter
 const TIER_STYLES: Record<RiskTier, { text: string; tile: string; bar: string }> = {
-  "use-today": { text: "text-rose-700 dark:text-rose-300", tile: "bg-rose-200 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300", bar: "bg-rose-500" },
-  "use-this-week": { text: "text-amber-700 dark:text-amber-300", tile: "bg-amber-200 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300", bar: "bg-amber-400" },
-  safe: { text: "text-emerald-700 dark:text-emerald-300", tile: "bg-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300", bar: "bg-emerald-500" },
-  frozen: { text: "text-sky-700 dark:text-sky-300", tile: "bg-sky-200 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300", bar: "bg-sky-400" },
+  "use-today": { text: "text-red-700 dark:text-red-300", tile: "bg-red-600 text-white", bar: "bg-red-600" },
+  "use-this-week": { text: "text-amber-700 dark:text-amber-300", tile: "bg-amber-500 text-white", bar: "bg-amber-400" },
+  safe: { text: "text-emerald-700 dark:text-emerald-300", tile: "bg-emerald-500 text-white", bar: "bg-emerald-500" },
+  frozen: { text: "text-sky-700 dark:text-sky-300", tile: "bg-sky-500 text-white", bar: "bg-sky-400" },
 };
 
 // Freshness meter fills over a two-week window; anything fresher reads as full
@@ -191,7 +191,7 @@ export default function InventoryPage() {
       {items.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <StatTile icon={Wallet} label="On hand" value={`$${stats.totalValue.toFixed(2)}`} sub={`${items.length} items`} />
-          <StatTile icon={AlertTriangle} label="Use today" value={String(stats.today)} sub={stats.today ? "eat these first" : "nothing urgent"} tone="text-rose-600 dark:text-rose-300" />
+          <StatTile icon={AlertTriangle} label="Use today" value={String(stats.today)} sub={stats.today ? "eat these first" : "nothing urgent"} tone="text-red-600 dark:text-red-400" />
           <StatTile icon={Clock} label="This week" value={String(stats.week)} sub={`$${stats.atRiskValue.toFixed(2)} at risk`} tone="text-amber-600 dark:text-amber-300" />
           <StatTile icon={Snowflake} label="Frozen" value={String(stats.frozen)} sub="spoilage paused" tone="text-sky-600 dark:text-sky-300" />
         </div>
@@ -298,7 +298,7 @@ export default function InventoryPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <h4 className="font-bold text-[15px] leading-tight truncate">{item.name}</h4>
-                          <span className={`font-pixel text-[9px] uppercase tracking-wider font-bold ${tier.text}`}>
+                          <span className={`font-pixel text-[9px] uppercase tracking-wider font-bold ${isUrgent ? "bg-red-600 text-white px-1.5 py-0.5 rounded" : tier.text}`}>
                             {isUrgent ? "TODAY" : item.riskTier === "use-this-week" ? `${item.daysUntilQualityDecline}D`
                             : isFrozen ? "FROZEN" : "SAFE"}
                           </span>

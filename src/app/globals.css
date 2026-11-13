@@ -298,17 +298,19 @@ body {
    LIGHT mode: solid pastel fills
    DARK mode: solid dark tints on the matte card color */
 
-/* URGENT — rose */
+/* URGENT — alarm red: stronger fill + heavier border so it reads as "you're losing this" */
 .risk-urgent {
-  background: #ffe4e6;
-  border: 1px solid #fda4af;
+  background: #fecaca;
+  border: 2px solid #ef4444;
 }
-.risk-urgent:hover { border-color: #fb7185; }
+.risk-urgent:hover { border-color: #dc2626; }
+.risk-urgent .text-muted { color: #7f1d1d; }
 .dark .risk-urgent {
-  background: #291618;
-  border-color: rgba(239,68,68,0.22);
+  background: #3a1214;
+  border-color: rgba(239,68,68,0.65);
 }
-.dark .risk-urgent:hover { border-color: rgba(239,68,68,0.40); }
+.dark .risk-urgent:hover { border-color: rgba(239,68,68,0.85); }
+.dark .risk-urgent .text-muted { color: #fca5a5; }
 
 /* THIS WEEK — amber */
 .risk-week {
