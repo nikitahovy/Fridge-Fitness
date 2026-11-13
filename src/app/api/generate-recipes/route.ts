@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { GROQ_TEXT_MODEL } from "@/lib/ai-model";
 import { getAuthenticatedClient } from "@/utils/supabase/api";
 import { mapInventoryRow } from "@/utils/supabase/mappers";
 import { computeItemRisk } from "@/lib/shelf-life";
@@ -77,7 +78,8 @@ export async function GET(req: NextRequest) {
     const groq = new Groq({ apiKey });
 
     const result = await groq.chat.completions.create({
-      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      model: GROQ_TEXT_MODEL,
+      reasoning_effort: "low",
       messages: [
         { role: "system", content: PROMPT },
         {

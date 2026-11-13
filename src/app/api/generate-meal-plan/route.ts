@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { GROQ_TEXT_MODEL } from "@/lib/ai-model";
 import { getAuthenticatedClient } from "@/utils/supabase/api";
 import { mapInventoryRow } from "@/utils/supabase/mappers";
 import { computeItemRisk } from "@/lib/shelf-life";
@@ -24,6 +25,7 @@ Rules:
 9. Steps must ONLY reference ingredients that are listed in the ingredients array. If a step says "add flour", then flour MUST be in the ingredients list. Never mention an ingredient in the steps that isn't listed.
 
 Return ONLY a valid JSON array of meals. No markdown, no code fences, no explanation.
+Output the JSON minified on a single line (no indentation or line breaks) so all 28 meals fit in the response.
 
 Each meal must have:
 - day: day number 1-7 (1 = today)
@@ -70,7 +72,8 @@ export async function GET(req: NextRequest) {
     const groq = new Groq({ apiKey });
 
     const result = await groq.chat.completions.create({
-      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      model: GROQ_TEXT_MODEL,
+      reasoning_effort: "low",
       messages: [
         { role: "system", content: PROMPT },
         {
@@ -78,7 +81,8 @@ export async function GET(req: NextRequest) {
           content: `Here are my current ingredients:\n${ingredientList}\n\n${recoveryInfo}\n\nGenerate a 7-day meal plan using these ingredients. Prioritize the expiring ones in the first few days.`,
         },
       ],
-      max_tokens: 8192,
+      // Groq on-demand caps a request at 8000 tokens per minute (prompt + max_tokens)
+      max_tokens: 6500,
       temperature: 0.7,
     });
 

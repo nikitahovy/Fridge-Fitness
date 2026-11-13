@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { GROQ_VISION_MODEL, VISION_MAX_TOKENS } from "@/lib/ai-model";
 import { getAuthenticatedClient } from "@/utils/supabase/api";
 import { checkRateLimit, getRateLimitId } from "@/lib/rate-limit";
 
@@ -63,7 +64,7 @@ export async function POST(req: NextRequest) {
     const groq = new Groq({ apiKey });
 
     const result = await groq.chat.completions.create({
-      model: "meta-llama/llama-4-scout-17b-16e-instruct",
+      model: GROQ_VISION_MODEL,
       messages: [
         {
           role: "user",
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
           ],
         },
       ],
-      max_tokens: 1024,
+      max_tokens: VISION_MAX_TOKENS,
       temperature: 0.1,
     });
 
