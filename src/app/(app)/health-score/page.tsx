@@ -65,7 +65,7 @@ function HealthScoreContent() {
   }
 
   const tlColor = (level: string) => level === "high" ? "text-danger" : level === "moderate" ? "text-yellow-400" : "text-safe";
-  const tlBg = (level: string) => level === "high" ? "from-rose-200/50 to-rose-100/15 border-red-500/15" : level === "moderate" ? "from-amber-200/30 to-card border-yellow-500/15" : "from-emerald-200/40 to-emerald-100/10 border-emerald-500/15";
+  const tlBg = (level: string) => level === "high" ? "bg-rose-100 dark:bg-rose-500/10 border-red-500/15" : level === "moderate" ? "bg-amber-100 dark:bg-amber-500/10 border-yellow-500/15" : "bg-emerald-100 dark:bg-emerald-500/10 border-emerald-500/15";
   const riskColor = (risk: string) => risk === "high" ? "bg-danger/15 text-danger border-danger/20" : risk === "moderate" ? "bg-yellow-500/10 text-yellow-400 border-yellow-500/20" : risk === "low" ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-white/60 text-muted border-white/10";
 
   if (loading) {
@@ -90,8 +90,7 @@ function HealthScoreContent() {
           <Link
             href="/health-scan"
             className="block rounded-2xl p-6 transition-all duration-200 group
-              bg-gradient-to-br from-sky-400 via-sky-500 to-sky-600
-              dark:from-sky-600 dark:via-sky-700 dark:to-sky-800
+              bg-sky-500 dark:bg-sky-700
               border border-sky-300/70 dark:border-sky-500/40
               shadow-[0_8px_24px_rgba(56,128,200,0.35),inset_0_1px_0_rgba(255,255,255,0.4)]
               dark:shadow-[0_8px_24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.15)]
@@ -132,7 +131,7 @@ function HealthScoreContent() {
       )}
 
       {error && (
-        <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-2xl p-4 mb-4">
+        <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/20 rounded-2xl p-4 mb-4">
           <p className="text-sm text-danger">{error}</p>
           <Link href="/health-scan" className="btn btn-primary mt-3 inline-block">SCAN AGAIN</Link>
         </div>
@@ -232,7 +231,7 @@ function HealthScoreContent() {
                     { label: "Sat. Fat", value: `${n.saturatedFat.toFixed(1)}g`, level: data.trafficLights!.saturatedFat },
                     { label: "Calories", value: `${n.calories.toFixed(0)} kcal`, level: data.trafficLights!.calories },
                   ].map((item) => (
-                    <div key={item.label} className={`bg-gradient-to-br ${tlBg(item.level)} border rounded-2xl p-3`}>
+                    <div key={item.label} className={`${tlBg(item.level)} border rounded-2xl p-3`}>
                       <p className={`text-display text-lg ${tlColor(item.level)}`}>{item.value}</p>
                       <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">{item.label} /{label}</p>
                     </div>
@@ -241,19 +240,19 @@ function HealthScoreContent() {
 
                 {/* Macros */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gradient-to-br from-emerald-200/40 to-emerald-100/10 border border-emerald-500/15 rounded-2xl p-3">
+                  <div className="bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-500/15 rounded-2xl p-3">
                     <p className="text-display text-lg text-safe">{n.protein.toFixed(1)}g</p>
                     <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Protein /{label}</p>
                   </div>
-                  <div className="bg-gradient-to-br from-sky-200/40 to-sky-100/10 border border-sky-500/15 rounded-2xl p-3">
+                  <div className="bg-sky-100 dark:bg-sky-500/10 border border-sky-500/15 rounded-2xl p-3">
                     <p className="text-display text-lg text-sky-600 dark:text-sky-400">{(n.carbs ?? 0).toFixed(1)}g</p>
                     <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Carbs /{label}</p>
                   </div>
-                  <div className="bg-gradient-to-br from-amber-200/40 to-amber-100/10 border border-amber-500/15 rounded-2xl p-3">
+                  <div className="bg-amber-100 dark:bg-amber-500/10 border border-amber-500/15 rounded-2xl p-3">
                     <p className="text-display text-lg text-amber-600 dark:text-amber-400">{(n.fat ?? 0).toFixed(1)}g</p>
                     <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Fat /{label}</p>
                   </div>
-                  <div className="bg-gradient-to-br from-emerald-200/40 to-emerald-100/10 border border-emerald-500/15 rounded-2xl p-3">
+                  <div className="bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-500/15 rounded-2xl p-3">
                     <p className="text-display text-lg text-safe">{n.fiber.toFixed(1)}g</p>
                     <p className="font-pixel text-[8px] text-muted uppercase mt-0.5">Fiber /{label}</p>
                   </div>

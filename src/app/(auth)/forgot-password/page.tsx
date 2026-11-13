@@ -32,7 +32,7 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="bg-gradient-to-r from-emerald-200/50 to-emerald-100/20 border border-emerald-500/20 rounded-2xl p-6 text-center">
+      <div className="bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center">
         <p className="text-display text-xl mb-2">Check Your Email</p>
         <p className="text-sm text-muted mb-4">We sent a reset link to <span className="text-foreground">{email}</span></p>
         <Link href="/login" className="btn btn-primary">BACK TO LOGIN</Link>
@@ -46,7 +46,7 @@ export default function ForgotPasswordPage() {
 
       <form onSubmit={handleReset} className="bg-card border border-card-border rounded-2xl p-6 space-y-4">
         {error && (
-          <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">{error}</div>
+          <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-danger">{error}</div>
         )}
         <div>
           <label className="block font-pixel text-[9px] text-muted uppercase mb-1.5">Email</label>

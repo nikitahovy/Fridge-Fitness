@@ -34,10 +34,10 @@ const TIER_ORDER: Record<RiskTier, number> = { "use-today": 0, "use-this-week": 
 
 // Per-tier accent colors shared by the icon tile, badge and freshness meter
 const TIER_STYLES: Record<RiskTier, { text: string; tile: string; bar: string }> = {
-  "use-today": { text: "text-rose-700 dark:text-rose-300", tile: "bg-rose-500/15 text-rose-600 dark:text-rose-300", bar: "bg-rose-500" },
-  "use-this-week": { text: "text-amber-700 dark:text-amber-300", tile: "bg-amber-500/15 text-amber-600 dark:text-amber-300", bar: "bg-amber-400" },
-  safe: { text: "text-emerald-700 dark:text-emerald-300", tile: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300", bar: "bg-emerald-500" },
-  frozen: { text: "text-sky-700 dark:text-sky-300", tile: "bg-sky-500/15 text-sky-600 dark:text-sky-300", bar: "bg-sky-400" },
+  "use-today": { text: "text-rose-700 dark:text-rose-300", tile: "bg-rose-200 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300", bar: "bg-rose-500" },
+  "use-this-week": { text: "text-amber-700 dark:text-amber-300", tile: "bg-amber-200 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300", bar: "bg-amber-400" },
+  safe: { text: "text-emerald-700 dark:text-emerald-300", tile: "bg-emerald-200 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300", bar: "bg-emerald-500" },
+  frozen: { text: "text-sky-700 dark:text-sky-300", tile: "bg-sky-200 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300", bar: "bg-sky-400" },
 };
 
 // Freshness meter fills over a two-week window; anything fresher reads as full
