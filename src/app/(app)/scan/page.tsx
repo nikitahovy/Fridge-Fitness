@@ -115,7 +115,7 @@ export default function ScanPage() {
       </div>
 
       {error ? (
-        <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-2xl p-5 text-center">
+        <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/20 rounded-2xl p-5 text-center">
           <p className="text-sm text-danger mb-4">{error}</p>
           <button onClick={() => router.back()} className="btn btn-primary">GO BACK</button>
         </div>

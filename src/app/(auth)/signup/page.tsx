@@ -53,7 +53,7 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="bg-gradient-to-r from-emerald-200/50 to-emerald-100/20 border border-emerald-500/20 rounded-2xl p-6 text-center">
+      <div className="bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-6 text-center">
         <p className="font-bold mb-2">Account created!</p>
         <p className="text-sm text-muted">Check your email for a confirmation link, or you may be redirected automatically.</p>
       </div>
@@ -66,7 +66,7 @@ export default function SignupPage() {
 
       <form onSubmit={handleSignup} className="bg-card border border-card-border rounded-2xl p-6 space-y-4">
         {error && (
-          <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
+          <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
             {error}
           </div>
         )}

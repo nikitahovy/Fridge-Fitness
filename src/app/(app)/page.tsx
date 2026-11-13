@@ -226,14 +226,7 @@ export default function Dashboard() {
             const isToday = item.riskTier === "use-today";
             return (
               <div key={item.id}
-                className="flex-shrink-0 w-48 md:w-56 rounded-2xl p-4 md:p-5 transition-all duration-200 backdrop-blur-2xl"
-                style={{
-                  background: isToday
-                    ? "linear-gradient(135deg, rgba(254,205,211,0.75) 0%, rgba(255,255,255,0.5) 50%, rgba(254,205,211,0.55) 100%)"
-                    : "linear-gradient(135deg, rgba(254,215,170,0.65) 0%, rgba(255,255,255,0.5) 50%, rgba(254,215,170,0.4) 100%)",
-                  border: `1px solid ${isToday ? "rgba(244,63,94,0.35)" : "rgba(234,179,8,0.35)"}`,
-                  boxShadow: "0 4px 16px rgba(31,87,184,0.12), inset 0 1px 0 rgba(255,255,255,0.95)",
-                }}>
+                className={`flex-shrink-0 w-48 md:w-56 rounded-2xl p-4 md:p-5 transition-all duration-200 shadow-[0_4px_16px_rgba(31,87,184,0.12)] dark:shadow-none ${isToday ? "risk-urgent" : "risk-week"}`}>
                 <div className="flex items-center justify-between mb-3">
                   <span className={`font-pixel text-[9px] uppercase tracking-wider ${isToday ? "text-danger" : "text-yellow-400"}`}>
                     {isToday ? "USE TODAY" : "THIS WEEK"}

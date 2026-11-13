@@ -67,7 +67,7 @@ export default function SettingsPage() {
       </div>
 
       {saved && (
-        <div className="bg-gradient-to-r from-emerald-200/50 to-emerald-100/20 border border-emerald-500/20 rounded-2xl p-4 mb-5">
+        <div className="bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 mb-5">
           <p className="text-sm">Settings saved!</p>
         </div>
       )}
@@ -139,7 +139,7 @@ export default function SettingsPage() {
               <button key={pref} onClick={() => toggleDietary(pref)}
                 className={`font-pixel text-[10px] px-3 py-1.5 rounded-lg border transition-all cursor-pointer ${
                   dietaryPreferences.includes(pref)
-                    ? "bg-gradient-to-r from-emerald-200/60 to-emerald-100/20 border-emerald-500/30 text-safe"
+                    ? "bg-emerald-100 dark:bg-emerald-500/10 border-emerald-500/30 text-safe"
                     : "text-muted border-slate-300/60 hover:border-white/25"
                 }`}>{pref}</button>
             ))}

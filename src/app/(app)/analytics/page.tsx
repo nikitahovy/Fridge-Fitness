@@ -70,17 +70,17 @@ export default function AnalyticsPage() {
 
       {/* Big numbers — 2x2 grid on mobile */}
       <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4 md:gap-4 mb-6 md:mb-8">
-        <div className="bg-gradient-to-br from-emerald-200/50 to-emerald-100/15 border border-emerald-500/15 rounded-2xl p-3.5 md:p-5">
+        <div className="bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-500/15 rounded-2xl p-3.5 md:p-5">
           <p className="text-display text-xl md:text-3xl text-safe">{savedPct}<span className="text-sm md:text-lg">%</span></p>
           <p className="font-pixel text-[8px] md:text-[9px] text-safe/60 uppercase mt-1">Saved (${saved.toFixed(0)})</p>
         </div>
-        <div className="bg-gradient-to-br from-rose-200/50 to-rose-100/15 border border-red-500/15 rounded-2xl p-3.5 md:p-5">
+        <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/15 rounded-2xl p-3.5 md:p-5">
           <p className="text-display text-xl md:text-3xl text-danger">{wastedPct}<span className="text-sm md:text-lg">%</span></p>
           <p className="font-pixel text-[8px] md:text-[9px] text-danger/60 uppercase mt-1">Wasted (${wasted.toFixed(0)})</p>
         </div>
         <div className={`border rounded-2xl p-3.5 md:p-5 ${net >= 0
-          ? "bg-gradient-to-br from-emerald-200/30 to-card border-emerald-500/10"
-          : "bg-gradient-to-br from-rose-200/30 to-card border-red-500/10"
+          ? "bg-emerald-100 dark:bg-emerald-500/10 border-emerald-500/10"
+          : "bg-rose-100 dark:bg-rose-500/10 border-red-500/10"
         }`}>
           <p className={`text-display text-xl md:text-3xl ${net >= 0 ? "text-safe" : "text-danger"}`}>
             {net >= 0 ? "+" : "−"}${Math.abs(net).toFixed(0)}
@@ -113,7 +113,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center gap-1.5 md:gap-2">
                     <div className="flex-1 h-3 md:h-4 bg-white/50 dark:bg-neutral-800/50 rounded-lg overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-safe/40 to-safe/20 rounded-lg transition-all duration-500"
+                        className="h-full bg-safe/30 rounded-lg transition-all duration-500"
                         style={{ width: `${(m.saved / maxBar) * 100}%` }}
                       />
                     </div>
@@ -122,7 +122,7 @@ export default function AnalyticsPage() {
                   <div className="flex items-center gap-1.5 md:gap-2">
                     <div className="flex-1 h-3 md:h-4 bg-white/50 dark:bg-neutral-800/50 rounded-lg overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-danger/40 to-danger/20 rounded-lg transition-all duration-500"
+                        className="h-full bg-danger/30 rounded-lg transition-all duration-500"
                         style={{ width: `${(m.wasted / maxBar) * 100}%` }}
                       />
                     </div>
@@ -189,7 +189,7 @@ export default function AnalyticsPage() {
                 <span className="font-pixel text-[9px] md:text-[10px] text-muted uppercase w-16 md:w-20 truncate flex-shrink-0">{cat}</span>
                 <div className="flex-1 h-4 md:h-5 bg-white/50 dark:bg-neutral-800/50 rounded-lg overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-slate-400/20 to-slate-400/5 dark:from-slate-300/20 dark:to-slate-300/5 rounded-lg"
+                    className="h-full bg-slate-400/15 dark:bg-slate-300/15 rounded-lg"
                     style={{ width: `${(val / maxCat) * 100}%` }}
                   />
                 </div>
@@ -202,7 +202,7 @@ export default function AnalyticsPage() {
 
       {/* Wasted items detail */}
       {stats && stats.itemsDiscarded > 0 && (
-        <div className="bg-gradient-to-br from-rose-200/40 to-rose-100/10 border border-red-500/15 rounded-2xl p-4 md:p-6">
+        <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/15 rounded-2xl p-4 md:p-6">
           <p className="font-pixel text-[10px] text-danger/60 uppercase tracking-[0.2em] mb-3">// ITEMS LOST</p>
           <div className="space-y-2">
             {stats.discardedItems.map((item, i) => (

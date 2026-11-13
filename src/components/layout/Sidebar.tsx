@@ -138,11 +138,10 @@ export default function Sidebar() {
     "hover:bg-white/60 dark:hover:bg-white/10 " +
     "font-medium";
 
-  // Active pill — light has white→sky gradient, dark has matte neutral.
+  // Active pill — solid white in light, matte neutral in dark.
   // Drop shadow ONLY at the bottom (no inset top highlight).
   const activeLink =
-    "bg-gradient-to-br from-white via-sky-50 to-sky-100/80 " +
-    "dark:from-neutral-800 dark:via-neutral-800 dark:to-neutral-900 " +
+    "bg-white dark:bg-neutral-800 " +
     "text-slate-950 dark:text-neutral-50 font-bold " +
     "border-sky-300/70 dark:border-neutral-600/60 " +
     "shadow-[0_3px_10px_rgba(56,128,200,0.22),0_1px_3px_rgba(56,128,200,0.15)] " +

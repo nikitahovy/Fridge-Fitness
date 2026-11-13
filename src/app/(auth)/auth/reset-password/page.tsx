@@ -30,7 +30,7 @@ export default function ResetPasswordPage() {
       <p className="font-pixel text-[10px] text-muted uppercase tracking-[0.2em] mb-4 text-center">// NEW PASSWORD</p>
       <form onSubmit={handleUpdate} className="bg-card border border-card-border rounded-2xl p-6 space-y-4">
         {error && (
-          <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">{error}</div>
+          <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-danger">{error}</div>
         )}
         <div>
           <label className="block font-pixel text-[9px] text-muted uppercase mb-1.5">New Password</label>

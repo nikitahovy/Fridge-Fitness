@@ -36,7 +36,7 @@ export default function LoginPage() {
 
       <form onSubmit={handleLogin} className="bg-card border border-card-border rounded-2xl p-6 space-y-4">
         {error && (
-          <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
+          <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
             {error}
           </div>
         )}

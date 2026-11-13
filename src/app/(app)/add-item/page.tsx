@@ -236,7 +236,7 @@ function AddItemPage() {
       </div>
 
       {saved && (
-        <div className="bg-gradient-to-r from-emerald-200/50 to-emerald-100/20 border border-emerald-500/20 rounded-2xl p-4 mb-5">
+        <div className="bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 mb-5">
           <p className="text-sm">Items added to inventory!{" "}
             <button onClick={() => setSaved(false)} className="underline cursor-pointer">Add more</button>
             {" · "}
@@ -336,7 +336,7 @@ function AddItemPage() {
               {analyzing && <RunningFridge />}
 
               {analyzeError && (
-                <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
+                <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-danger">
                   {analyzeError}
                 </div>
               )}
@@ -376,7 +376,7 @@ function AddItemPage() {
                     key={idx}
                     className={`rounded-xl border transition-all ${
                       item.selected
-                        ? "bg-gradient-to-r from-emerald-200/40 to-emerald-100/10 border-emerald-500/20"
+                        ? "bg-emerald-100 dark:bg-emerald-500/10 border-emerald-500/20"
                         : "bg-white/50 border-slate-300/50 opacity-50"
                     }`}
                   >
@@ -497,7 +497,7 @@ function AddItemPage() {
           )}
 
           {barcodeError && (
-            <div className="bg-gradient-to-r from-rose-200/40 to-rose-100/15 border border-red-500/20 rounded-xl p-3 text-sm text-danger mb-4">
+            <div className="bg-rose-100 dark:bg-rose-500/10 border border-red-500/20 rounded-xl p-3 text-sm text-danger mb-4">
               {barcodeError}
               <button onClick={() => { setBarcodeError(null); setBarcodeResult(null); }} className="ml-2 underline text-xs">Try again</button>
             </div>
@@ -505,7 +505,7 @@ function AddItemPage() {
 
           {barcodeResult && (
             <div className="space-y-4">
-              <div className="flex items-center gap-4 p-3 bg-gradient-to-r from-emerald-200/40 to-emerald-100/10 border border-emerald-500/20 rounded-xl">
+              <div className="flex items-center gap-4 p-3 bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                 {barcodeResult.imageUrl && (
                   <img src={barcodeResult.imageUrl} alt={barcodeResult.name} className="w-14 h-14 rounded-lg object-cover bg-white" />
                 )}
